@@ -1,0 +1,19 @@
+logs/
+target/
+
+###############
+# Eclipse IDE #
+###############
+.checkstyle
+.classpath
+.project
+.settings/
+
+################
+# IntelliJ IDE #
+################
+*.iml
+*.ipr
+*.iws
+.idea/
+

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+
+  <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <!--
+      Example log entry using the layout below:
+      WARN  2012-05-12 20:43:09,670 com.brighttag.agathon.dao.DAOModule: Log msg line1\nline2\nline3
+      -->
+      <pattern>%-5level %date{ISO8601} %logger: %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <logger name="com.brighttag.agathon" level="debug" />
+
+  <root level="INFO">
+    <appender-ref ref="stdout"/>
+  </root>
+
+</configuration>
