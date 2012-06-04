@@ -10,10 +10,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.brighttag.agathon.dao.CassandraInstanceDAO;
+import com.brighttag.agathon.model.CassandraInstance;
 import com.brighttag.agathon.service.CassandraInstanceService;
 import com.brighttag.agathon.service.CoprocessProvider;
 import com.brighttag.agathon.service.SeedService;
+import com.brighttag.agathon.service.TokenService;
 
+import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -22,11 +25,11 @@ import static org.junit.Assert.assertEquals;
  */
 public class ServiceModuleTest extends EasyMockSupport {
 
-  private static final String CASSANDRA_ID = "id";
+  private static final int CASSANDRA_ID = 1;
 
   @Before
   public void setRequiredSystemProperties() {
-    System.setProperty(SystemPropertyCoprocessProvider.CASSANDRA_ID_PROPERTY, CASSANDRA_ID);
+    System.setProperty(SystemPropertyCoprocessProvider.CASSANDRA_ID_PROPERTY, String.valueOf(CASSANDRA_ID));
   }
 
   @After
@@ -45,6 +48,8 @@ public class ServiceModuleTest extends EasyMockSupport {
         injector.getInstance(CoprocessProvider.class).getClass());
     assertEquals(PerDataCenterSeedService.class,
         injector.getInstance(SeedService.class).getClass());
+    assertEquals(CompositeTokenService.class,
+        injector.getInstance(TokenService.class).getClass());
     verifyAll();
   }
 
@@ -56,10 +61,13 @@ public class ServiceModuleTest extends EasyMockSupport {
    */
   private class MockDependenciesModule extends AbstractModule {
 
+    private final CassandraInstance coprocess;
     private final CassandraInstanceDAO dao;
 
     MockDependenciesModule() {
+      coprocess = createMock(CassandraInstance.class);
       dao = createMock(CassandraInstanceDAO.class);
+      expect(dao.findById(CASSANDRA_ID)).andReturn(coprocess);
     }
 
     @Override

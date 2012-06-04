@@ -86,11 +86,6 @@ context "[agathon:CassandraInstance]" do
     assert_invalid_instance(instance, content_type)
   end
 
-  context "Create instance, missing 'token' returns 422" do
-    instance = { "id" => "222", "datacenter" => "us-east", "rack" => "1a", "hostname" => "cass01ea1" }
-    assert_invalid_instance(instance, content_type)
-  end
-
   context "Create instance, missing 'datacenter' returns 422" do
     instance = { "id" => "222", "token" => 1234, "rack" => "1a", "hostname" => "cass01ea1" }
     assert_invalid_instance(instance, content_type)
@@ -108,11 +103,6 @@ context "[agathon:CassandraInstance]" do
 
   context "Create instance, empty 'id' returns 422" do
     instance = { "id" => "", "token" => 1234, "datacenter" => "us-east", "rack" => "1a", "hostname" => "cass01ea1" }
-    assert_invalid_instance(instance, content_type)
-  end
-
-  context "Create instance, empty 'token' returns 422" do
-    instance = { "id" => "222", "token" => "", "datacenter" => "us-east", "rack" => "1a", "hostname" => "cass01ea1" }
     assert_invalid_instance(instance, content_type)
   end
 

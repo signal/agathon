@@ -11,7 +11,7 @@ import com.brighttag.agathon.model.CassandraInstance;
 import com.brighttag.agathon.service.CassandraInstanceService;
 
 /**
- * DAO-Proxy implementation of {@link CassandraInstanceService}.
+ * DAO-based proxy implementation of {@link CassandraInstanceService}.
  *
  * @author codyaray
  * @since 5/12/12

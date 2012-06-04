@@ -1,6 +1,7 @@
 package com.brighttag.agathon.model;
 
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Set;
 
 import javax.validation.ConstraintViolation;
@@ -8,6 +9,8 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Ordering;
 import com.google.common.testing.EqualsTester;
 
 import org.junit.BeforeClass;
@@ -32,6 +35,10 @@ public class CassandraInstanceTest {
   private static final BigInteger TOKEN2 = BigInteger.valueOf(2);
   private static final BigInteger TOKEN3 = BigInteger.valueOf(3);
 
+  private static final int ID1 = 1;
+  private static final int ID2 = 2;
+  private static final int ID3 = 3;
+
   private static Validator validator;
 
   @BeforeClass
@@ -49,7 +56,6 @@ public class CassandraInstanceTest {
 
   @Test
   public void validate_invalidWithNullValues() {
-    assertNotNullViolation("token", builder().token(null).build());
     assertNotEmptyViolation(DATA_CENTER, builder().dataCenter(null).build());
     assertNotEmptyViolation(RACK, builder().rack(null).build());
     assertNotEmptyViolation(HOST_NAME, builder().hostName(null).build());
@@ -81,14 +87,36 @@ public class CassandraInstanceTest {
   }
 
   @Test
-  public void compareTo_orderedByToken() {
+  public void compareTo() {
+    CassandraInstance instance1 = builder().token(TOKEN1).build();
+    CassandraInstance instance2 = builder().token(TOKEN2).build();
+    CassandraInstance instance3 = builder().token(TOKEN3).id(ID1).build();
+    CassandraInstance instance4 = builder().token(TOKEN3).id(ID2).build();
+    CassandraInstance instance5 = builder().token(null).id(ID1).build();
+    CassandraInstance instance6 = builder().token(null).id(ID2).build();
+    List<CassandraInstance> expected = ImmutableList.of(
+        instance1, instance2, instance3, instance4, instance5, instance6);
+
+    List<CassandraInstance> random = ImmutableList.of(
+        instance6, instance2, instance3, instance5, instance1, instance4);
+    assertEquals(expected, Ordering.natural().sortedCopy(random));
+  }
+
+  @Test
+  public void compareTo_primaryOrderByToken() {
     assertTrue(builder().token(TOKEN1).build().compareTo(builder().token(TOKEN2).build()) < 0);
     assertTrue(builder().token(TOKEN2).build().compareTo(builder().token(TOKEN2).build()) == 0);
     assertTrue(builder().token(TOKEN3).build().compareTo(builder().token(TOKEN2).build()) > 0);
   }
 
-  private void assertNotNullViolation(String key, CassandraInstance instance) {
-    assertViolation(key, "may not be null", instance);
+  @Test
+  public void compareTo_secondaryOrderById() {
+    assertTrue(builder().id(ID1).build().compareTo(
+        builder().id(ID2).build()) < 0);
+    assertTrue(builder().id(ID2).build().compareTo(
+        builder().id(ID2).build()) == 0);
+    assertTrue(builder().id(ID3).build().compareTo(
+        builder().id(ID2).build()) > 0);
   }
 
   private void assertNotEmptyViolation(String key, CassandraInstance instance) {

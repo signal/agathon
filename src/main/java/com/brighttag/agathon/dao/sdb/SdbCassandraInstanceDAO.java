@@ -14,7 +14,6 @@ import com.amazonaws.services.simpledb.model.ReplaceableAttribute;
 import com.amazonaws.services.simpledb.model.SelectRequest;
 import com.amazonaws.services.simpledb.model.SelectResult;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import com.google.inject.Inject;
@@ -42,7 +41,7 @@ public class SdbCassandraInstanceDAO implements CassandraInstanceDAO {
   @VisibleForTesting static final String HOSTNAME_KEY = "hostname";
 
   @VisibleForTesting static final String ALL_QUERY =
-      "SELECT * FROM " + DOMAIN + " WHERE " + TOKEN_KEY + " is not null ORDER BY " + TOKEN_KEY;
+      "SELECT * FROM " + DOMAIN;
   @VisibleForTesting static final String INSTANCE_QUERY =
       "SELECT * FROM " + DOMAIN + " WHERE " + ID_KEY + " = '%s' LIMIT 1";
 
@@ -55,7 +54,7 @@ public class SdbCassandraInstanceDAO implements CassandraInstanceDAO {
 
   @Override
   public List<CassandraInstance> findAll() {
-    ImmutableList.Builder<CassandraInstance> instances = ImmutableList.builder();
+    List<CassandraInstance> instances = Lists.newArrayList();
     String nextToken = null;
 
     do {
@@ -69,7 +68,7 @@ public class SdbCassandraInstanceDAO implements CassandraInstanceDAO {
       nextToken = result.getNextToken();
     } while (nextToken != null);
 
-    return Ordering.natural().immutableSortedCopy(instances.build());
+    return Ordering.natural().immutableSortedCopy(instances);
   }
 
   @Override
@@ -119,20 +118,24 @@ public class SdbCassandraInstanceDAO implements CassandraInstanceDAO {
   private static List<ReplaceableAttribute> buildSaveAttributes(CassandraInstance instance) {
     List<ReplaceableAttribute> attrs = Lists.newArrayList();
     attrs.add(attribute(ID_KEY, String.valueOf(instance.getId()), false));
-    attrs.add(attribute(TOKEN_KEY, instance.getToken().toString(), true));
     attrs.add(attribute(DATACENTER_KEY, instance.getDataCenter(), true));
     attrs.add(attribute(RACK_KEY, instance.getRack(), true));
     attrs.add(attribute(HOSTNAME_KEY, instance.getHostName(), true));
+    if (instance.getToken() != null) {
+      attrs.add(attribute(TOKEN_KEY, instance.getToken().toString(), true));
+    }
     return attrs;
   }
 
   private static List<Attribute> buildDeleteAttributes(CassandraInstance instance) {
     List<Attribute> attrs = Lists.newArrayList();
     attrs.add(attribute(ID_KEY, String.valueOf(instance.getId())));
-    attrs.add(attribute(TOKEN_KEY, instance.getToken().toString()));
     attrs.add(attribute(DATACENTER_KEY, instance.getDataCenter()));
     attrs.add(attribute(RACK_KEY, instance.getRack()));
     attrs.add(attribute(HOSTNAME_KEY, instance.getHostName()));
+    if (instance.getToken() != null) {
+      attrs.add(attribute(TOKEN_KEY, instance.getToken().toString()));
+    }
     return attrs;
   }
 

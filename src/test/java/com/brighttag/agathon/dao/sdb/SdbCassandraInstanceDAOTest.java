@@ -14,6 +14,7 @@ import com.amazonaws.services.simpledb.model.SelectResult;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
 
 import org.easymock.Capture;
 import org.easymock.CaptureType;
@@ -93,7 +94,7 @@ public class SdbCassandraInstanceDAOTest extends EasyMockSupport {
 
     List<CassandraInstance> expected = Lists.newArrayList(
         Iterables.concat(transform(items1), transform(items2)));
-    assertEquals(expected, dao.findAll());
+    assertEquals(Ordering.natural().sortedCopy(expected), dao.findAll());
 
     List<SelectRequest> requests = requestCapture.getValues();
     assertEquals(2, requests.size());
@@ -139,7 +140,7 @@ public class SdbCassandraInstanceDAOTest extends EasyMockSupport {
     CassandraInstance instance = createMock(CassandraInstance.class);
     Capture<PutAttributesRequest> requestCapture = new Capture<PutAttributesRequest>();
     expect(instance.getId()).andReturn(ID).times(2);
-    expect(instance.getToken()).andReturn(TOKEN);
+    expect(instance.getToken()).andStubReturn(TOKEN);
     expect(instance.getDataCenter()).andReturn(DATACENTER);
     expect(instance.getRack()).andReturn(RACK);
     expect(instance.getHostName()).andReturn(HOSTNAME);
@@ -159,7 +160,7 @@ public class SdbCassandraInstanceDAOTest extends EasyMockSupport {
     CassandraInstance instance = createMock(CassandraInstance.class);
     Capture<DeleteAttributesRequest> requestCapture = new Capture<DeleteAttributesRequest>();
     expect(instance.getId()).andReturn(ID).times(2);
-    expect(instance.getToken()).andReturn(TOKEN);
+    expect(instance.getToken()).andStubReturn(TOKEN);
     expect(instance.getDataCenter()).andReturn(DATACENTER);
     expect(instance.getRack()).andReturn(RACK);
     expect(instance.getHostName()).andReturn(HOSTNAME);

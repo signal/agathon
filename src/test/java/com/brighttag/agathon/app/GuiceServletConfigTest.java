@@ -14,6 +14,7 @@ import com.brighttag.agathon.dao.DAOModule;
 import com.brighttag.agathon.model.CassandraInstance;
 import com.brighttag.agathon.resources.CassandraInstanceResource;
 import com.brighttag.agathon.resources.SeedResource;
+import com.brighttag.agathon.resources.TokenResource;
 import com.brighttag.agathon.resources.ValidatingJacksonJsonProvider;
 import com.brighttag.agathon.service.impl.SystemPropertyCoprocessProvider;
 
@@ -58,6 +59,7 @@ public class GuiceServletConfigTest {
     assertNotNull(injector.getInstance(ValidatingJacksonJsonProvider.class));
     assertNotNull(injector.getInstance(CassandraInstanceResource.class));
     assertNotNull(injector.getInstance(SeedResource.class));
+    assertNotNull(injector.getInstance(TokenResource.class));
   }
 
   private static void saveCassandraCoprocess(CassandraInstanceDAO dao) {

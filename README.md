@@ -29,7 +29,8 @@ Configuration is currently done through system properties.
 ### Optional Properties
 
 * `com.brighttag.agathon.database`: the database used for storing Cassandra instance records; one of `sdb` (SimpleDB), `fake` (in-memory store); defaults to `sdb`
-* `com.brighttag.agathon.seeds.per_datacenter`: the number of seed nodes per data center returned to the `AgathonSeedProvider`; defaults to `2`
+* `com.brighttag.agathon.nodes.per_datacenter`: the number of seeds per data center returned to the `AgathonSeedProvider`; defaults to `2`
+* `com.brighttag.agathon.seeds.per_datacenter`: the number of nodes per data center used for token calculations; defaults to `4`
 * `com.brighttag.agathon.aws.access_key`: your Amazon Web Service Access Key. Required for AWS support (e.g., for SimpleDB)
 * `com.brighttag.agathon.aws.secret_key`: your Amazon Web Service Secret Key. Required for AWS support (e.g., for SimpleDB)
 
@@ -47,17 +48,26 @@ Cassandra coprocess instance (i.e., the ID given as a system property).
 
 ## REST API
 
-### Cassandra Seeds
+### Cassandra Configuration
 
-* Get the list of seeds for the coprocess: `GET /seeds`
+* Get the set of seeds for the coprocess: `GET /seeds`
+* Get the initial token for the coprocess: `GET /token`
 
-#### Get the list of seeds for the coprocess
+#### Get the set of seeds for the coprocess
 
     GET /seeds
 
-The server will reply with a comma-separated list of seed hosts. The order is arbitrary.
+The server will reply with a comma-separated set of seed hosts.
 
     cass02ea1,cass01we1,cass02we1
+
+#### Get the initial token for the coprocess
+
+    GET /token
+
+The server will reply with the initial token.
+
+    1808575600
 
 ### Cassandra Instance Record Management
 

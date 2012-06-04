@@ -3,11 +3,12 @@ package com.brighttag.agathon.model;
 import java.math.BigInteger;
 import java.util.Arrays;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.Ordering;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -22,28 +23,28 @@ import org.hibernate.validator.constraints.NotEmpty;
 public class CassandraInstance implements Comparable<CassandraInstance> {
 
   private final int id;
-  private final BigInteger token;
   private final String datacenter;
   private final String rack;
   private final String hostname;
+  private final @Nullable BigInteger token;
 
   private CassandraInstance(
-      @JsonProperty("id") int id, @JsonProperty("token") BigInteger token,
-      @JsonProperty("datacenter") String datacenter, @JsonProperty("rack") String rack,
-      @JsonProperty("hostname") String hostname) {
+      @JsonProperty("id") int id, @JsonProperty("datacenter") String datacenter,
+      @JsonProperty("rack") String rack, @JsonProperty("hostname") String hostname,
+      @Nullable @JsonProperty("token") BigInteger token) {
     this.id = id;
-    this.token = token;
     this.datacenter = datacenter;
     this.rack = rack;
     this.hostname = hostname;
+    this.token = token;
   }
 
   private CassandraInstance(Builder builder) {
     this.id = builder.id;
-    this.token = builder.token;
     this.datacenter = builder.datacenter;
     this.rack = builder.rack;
     this.hostname = builder.hostname;
+    this.token = builder.token;
   }
 
   public @Min(1) int getId() {
@@ -62,7 +63,7 @@ public class CassandraInstance implements Comparable<CassandraInstance> {
     return hostname;
   }
 
-  public @NotNull @Min(0) BigInteger getToken() {
+  public @Nullable @Min(0) BigInteger getToken() {
     return token;
   }
 
@@ -70,7 +71,7 @@ public class CassandraInstance implements Comparable<CassandraInstance> {
   public int compareTo(CassandraInstance that) {
     // compare significant fields beyond the token so the ordering is consistent with equals
     return ComparisonChain.start()
-        .compare(this.token, that.token)
+        .compare(this.token, that.token, Ordering.natural().nullsLast())
         .compare(this.id, that.id)
         .compare(this.datacenter, that.datacenter)
         .compare(this.rack, that.rack)
@@ -99,15 +100,15 @@ public class CassandraInstance implements Comparable<CassandraInstance> {
   public String toString() {
     return Objects.toStringHelper(this)
         .add("id", id)
-        .add("token", token)
         .add("datacenter", datacenter)
         .add("rack", rack)
         .add("hostname", hostname)
+        .add("token", token)
         .toString();
   }
 
   private Object[] significantAttributes() {
-    return new Object[] {id, token, datacenter, rack, hostname};
+    return new Object[] {id, datacenter, rack, hostname, token};
   }
 
   /**
@@ -119,18 +120,13 @@ public class CassandraInstance implements Comparable<CassandraInstance> {
   public static class Builder {
 
     private int id;
-    private BigInteger token;
     private String datacenter;
     private String rack;
     private String hostname;
+    private @Nullable BigInteger token;
 
     public Builder id(int id) {
       this.id = id;
-      return this;
-    }
-
-    public Builder token(BigInteger token) {
-      this.token = token;
       return this;
     }
 
@@ -146,6 +142,11 @@ public class CassandraInstance implements Comparable<CassandraInstance> {
 
     public Builder hostName(String hostName) {
       this.hostname = hostName;
+      return this;
+    }
+
+    public Builder token(@Nullable BigInteger token) {
+      this.token = token;
       return this;
     }
 
