@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 import com.brighttag.agathon.model.CassandraInstance;
 
 /**
- * Resource for manipulating Cassandra instances.
+ * Service for manipulating Cassandra instances.
  *
  * @author codyaray
  * @since 5/12/2012

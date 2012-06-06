@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import com.brighttag.agathon.dao.CassandraInstanceDAO;
 import com.brighttag.agathon.service.CassandraInstanceService;
+import com.brighttag.agathon.service.CoprocessProvider;
 import com.brighttag.agathon.service.SeedService;
 
 import static org.junit.Assert.assertEquals;
@@ -25,12 +26,12 @@ public class ServiceModuleTest extends EasyMockSupport {
 
   @Before
   public void setRequiredSystemProperties() {
-    System.setProperty(ServiceModule.CASSANDRA_ID_PROPERTY, CASSANDRA_ID);
+    System.setProperty(SystemPropertyCoprocessProvider.CASSANDRA_ID_PROPERTY, CASSANDRA_ID);
   }
 
   @After
   public void clearRequiredSystemProperties() {
-    System.clearProperty(ServiceModule.CASSANDRA_ID_PROPERTY);
+    System.clearProperty(SystemPropertyCoprocessProvider.CASSANDRA_ID_PROPERTY);
   }
 
   @Test
@@ -40,6 +41,8 @@ public class ServiceModuleTest extends EasyMockSupport {
 
     assertEquals(CassandraInstanceServiceImpl.class,
         injector.getInstance(CassandraInstanceService.class).getClass());
+    assertEquals(SystemPropertyCoprocessProvider.class,
+        injector.getInstance(CoprocessProvider.class).getClass());
     assertEquals(PerDataCenterSeedService.class,
         injector.getInstance(SeedService.class).getClass());
     verifyAll();

@@ -15,7 +15,7 @@ import com.brighttag.agathon.model.CassandraInstance;
 import com.brighttag.agathon.resources.CassandraInstanceResource;
 import com.brighttag.agathon.resources.SeedResource;
 import com.brighttag.agathon.resources.ValidatingJacksonJsonProvider;
-import com.brighttag.agathon.service.impl.ServiceModule;
+import com.brighttag.agathon.service.impl.SystemPropertyCoprocessProvider;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -31,13 +31,13 @@ public class GuiceServletConfigTest {
 
   @BeforeClass
   public static void setRequiredSystemProperties() {
-    System.setProperty(ServiceModule.CASSANDRA_ID_PROPERTY, CASSANDRA_ID);
+    System.setProperty(SystemPropertyCoprocessProvider.CASSANDRA_ID_PROPERTY, CASSANDRA_ID);
     System.setProperty(DAOModule.DATABASE_PROPERTY, "fake"); // Use in-memory DAO for unit tests
   }
 
   @AfterClass
   public static void clearRequiredSystemProperties() {
-    System.clearProperty(ServiceModule.CASSANDRA_ID_PROPERTY);
+    System.clearProperty(SystemPropertyCoprocessProvider.CASSANDRA_ID_PROPERTY);
     System.clearProperty(DAOModule.DATABASE_PROPERTY);
   }
 
