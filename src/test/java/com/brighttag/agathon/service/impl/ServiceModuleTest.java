@@ -10,11 +10,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.brighttag.agathon.dao.CassandraInstanceDAO;
-import com.brighttag.agathon.model.CassandraInstance;
 import com.brighttag.agathon.service.CassandraInstanceService;
 import com.brighttag.agathon.service.SeedService;
 
-import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -55,14 +53,10 @@ public class ServiceModuleTest extends EasyMockSupport {
    */
   private class MockDependenciesModule extends AbstractModule {
 
-    private final CassandraInstance instance;
     private final CassandraInstanceDAO dao;
 
     MockDependenciesModule() {
-      // DAO must return non-null Cassandra instance for ID set in system property
-      instance = createMock(CassandraInstance.class);
       dao = createMock(CassandraInstanceDAO.class);
-      expect(dao.findById(CASSANDRA_ID)).andReturn(instance);
     }
 
     @Override
