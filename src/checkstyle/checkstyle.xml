@@ -102,7 +102,9 @@
       <property name="caseIndent" value="2"/>
     </module>
     <module name="OuterTypeFilename"/>
-    <module name="UncommentedMain"/>
+    <module name="UncommentedMain">
+      <property name="excludedClasses" value="Main"/>
+    </module>
     <module name="UpperEll"/>
 
     <!-- Modifiers -->
