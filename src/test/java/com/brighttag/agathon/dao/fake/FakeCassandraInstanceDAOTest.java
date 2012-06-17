@@ -41,8 +41,8 @@ public class FakeCassandraInstanceDAOTest extends EasyMockSupport {
 
   @Test
   public void findAll() {
-    CassandraInstance instance1 = createMock(CassandraInstance.class);
-    CassandraInstance instance2 = createMock(CassandraInstance.class);
+    CassandraInstance instance1 = buildInstance("1");
+    CassandraInstance instance2 = buildInstance("2");
     List<CassandraInstance> expected = ImmutableList.of(instance1, instance2);
     expect(instances.values()).andStubReturn(expected);
     replayAll();
@@ -85,6 +85,13 @@ public class FakeCassandraInstanceDAOTest extends EasyMockSupport {
     replayAll();
 
     dao.delete(instance);
+  }
+
+  private CassandraInstance buildInstance(String token) {
+    return new CassandraInstance.Builder()
+        .id("1")
+        .token(token)
+        .build();
   }
 
 }

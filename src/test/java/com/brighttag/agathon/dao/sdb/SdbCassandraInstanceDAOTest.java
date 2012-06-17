@@ -178,8 +178,8 @@ public class SdbCassandraInstanceDAOTest extends EasyMockSupport {
     Item item = createItem(1);
     replayAll();
     CassandraInstance instance = SdbCassandraInstanceDAO.transform(item);
-    assertEquals("id1", instance.getId());
-    assertEquals("token1", instance.getToken());
+    assertEquals("1", instance.getId());
+    assertEquals("1", instance.getToken());
     assertEquals("dc1", instance.getDataCenter());
     assertEquals("rack1", instance.getRack());
     assertEquals("host1", instance.getHostName());
@@ -201,8 +201,8 @@ public class SdbCassandraInstanceDAOTest extends EasyMockSupport {
 
   private List<Attribute> createAttributes(int ordinal) {
     return ImmutableList.of(
-        createAttribute(SdbCassandraInstanceDAO.ID_KEY, ID + ordinal),
-        createAttribute(SdbCassandraInstanceDAO.TOKEN_KEY, TOKEN + ordinal),
+        createAttribute(SdbCassandraInstanceDAO.ID_KEY, String.valueOf(ordinal)),
+        createAttribute(SdbCassandraInstanceDAO.TOKEN_KEY, String.valueOf(ordinal)),
         createAttribute(SdbCassandraInstanceDAO.DATACENTER_KEY, DATACENTER + ordinal),
         createAttribute(SdbCassandraInstanceDAO.RACK_KEY, RACK + ordinal),
         createAttribute(SdbCassandraInstanceDAO.HOSTNAME_KEY, HOSTNAME + ordinal));

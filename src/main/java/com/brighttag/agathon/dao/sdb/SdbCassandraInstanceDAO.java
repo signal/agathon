@@ -15,6 +15,7 @@ import com.amazonaws.services.simpledb.model.SelectResult;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
 import com.google.inject.Inject;
 
 import com.brighttag.agathon.dao.CassandraInstanceDAO;
@@ -67,7 +68,7 @@ public class SdbCassandraInstanceDAO implements CassandraInstanceDAO {
       nextToken = result.getNextToken();
     } while (nextToken != null);
 
-    return instances.build();
+    return Ordering.natural().immutableSortedCopy(instances.build());
   }
 
   @Override

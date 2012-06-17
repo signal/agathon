@@ -22,10 +22,10 @@ import static org.junit.Assert.assertEquals;
  */
 public class PerDataCenterSeedServiceTest extends EasyMockSupport {
 
-  private static final String TOKEN1 = "token1";
-  private static final String TOKEN2 = "token2";
-  private static final String TOKEN3 = "token3";
-  private static final String TOKEN4 = "token4";
+  private static final String TOKEN1 = "1";
+  private static final String TOKEN2 = "2";
+  private static final String TOKEN3 = "3";
+  private static final String TOKEN4 = "4";
 
   private static final String DATACENTER1 = "dc1";
   private static final String DATACENTER2 = "dc2";
@@ -76,6 +76,7 @@ public class PerDataCenterSeedServiceTest extends EasyMockSupport {
 
   private CassandraInstance buildInstance(String token, String dataCenter, String hostName) {
     return new CassandraInstance.Builder()
+        .id("1")
         .token(token)
         .dataCenter(dataCenter)
         .hostName(hostName)

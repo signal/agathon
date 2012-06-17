@@ -1,5 +1,6 @@
 package com.brighttag.agathon.model;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 
 import com.google.common.base.Objects;
@@ -66,8 +67,9 @@ public class CassandraInstance implements Comparable<CassandraInstance> {
   public int compareTo(CassandraInstance that) {
     // compare significant fields beyond the token so the ordering is consistent with equals
     return ComparisonChain.start()
-        .compare(this.token, that.token)
-        .compare(this.id, that.id)
+        .compare(new BigInteger(this.token), new BigInteger(that.token))
+        // temporary hack until we convert these to true integers
+        .compare(Integer.parseInt(this.id), Integer.parseInt(that.id))
         .compare(this.datacenter, that.datacenter)
         .compare(this.rack, that.rack)
         .compare(this.hostname, that.hostname)

@@ -103,7 +103,7 @@ public class CassandraInstanceTest {
 
   private CassandraInstance.Builder builder() {
     return new CassandraInstance.Builder()
-        .id("id0")
+        .id("0")
         .token("token0")
         .dataCenter("dataCenter0")
         .rack("rack0")

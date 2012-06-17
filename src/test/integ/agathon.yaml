@@ -1,0 +1,71 @@
+1:
+    token: '0'
+    datacenter: 'us-east'
+    rack: '1a'
+    hostname: 'cass01ea1'
+
+2:
+    token: '1'
+    datacenter: 'eu-west'
+    rack: '1a'
+    hostname: 'cass01eu1'
+
+3:
+    token: '2'
+    datacenter: 'us-west'
+    rack: '1a'
+    hostname: 'cass01we1'
+
+4:
+    token: '42535295865117307932921825928971026432'
+    datacenter: 'us-east'
+    rack: '1b'
+    hostname: 'cass02ea1'
+
+5:
+    token: '42535295865117307932921825928971026433'
+    datacenter: 'eu-west'
+    rack: '1b'
+    hostname: 'cass02eu1'
+
+6:
+    token: '42535295865117307932921825928971026434'
+    datacenter: 'us-west'
+    rack: '1b'
+    hostname: 'cass02we1'
+
+7:
+    token: '85070591730234615865843651857942052864'
+    datacenter: 'us-east'
+    rack: '1c'
+    hostname: 'cass03ea1'
+
+8:
+    token: '85070591730234615865843651857942052865'
+    datacenter: 'eu-west'
+    rack: '1c'
+    hostname: 'cass03eu1'
+
+9:
+    token: '85070591730234615865843651857942052866'
+    datacenter: 'us-west'
+    rack: '1c'
+    hostname: 'cass03we1'
+
+10:
+    token: '127605887595351923798765477786913079296'
+    datacenter: 'us-east'
+    rack: '1d'
+    hostname: 'cass04ea1'
+
+11:
+    token: '127605887595351923798765477786913079297'
+    datacenter: 'eu-west'
+    rack: '1b'
+    hostname: 'cass04eu1'
+
+12:
+    token: '127605887595351923798765477786913079298'
+    datacenter: 'us-west'
+    rack: '1b'
+    hostname: 'cass04we1'

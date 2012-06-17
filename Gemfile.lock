@@ -1,0 +1,27 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    aws-sdb (0.3.1)
+      uuidtools
+    crack (0.1.7)
+    httparty (0.6.0)
+      crack (= 0.1.7)
+    json_pure (1.4.6)
+    riot (0.12.4)
+      rr
+    riot-gear (0.0.8)
+      httparty
+      riot
+    rr (1.0.4)
+    uuidtools (2.1.2)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  aws-sdb (= 0.3.1)
+  crack (= 0.1.7)
+  httparty (= 0.6.0)
+  json_pure (= 1.4.6)
+  riot (= 0.12.4)
+  riot-gear (= 0.0.8)

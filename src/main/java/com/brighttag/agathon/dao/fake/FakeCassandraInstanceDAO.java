@@ -6,8 +6,8 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Ordering;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,7 @@ public class FakeCassandraInstanceDAO implements CassandraInstanceDAO {
   @Override
   public List<CassandraInstance> findAll() {
     LOG.info("Returning instances: {}", instances.values());
-    return ImmutableList.copyOf(instances.values());
+    return Ordering.natural().immutableSortedCopy(instances.values());
   }
 
   @Override

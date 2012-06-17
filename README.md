@@ -107,8 +107,38 @@ the given ID.
 
 ## Testing
 
+### Unit Tests
+
 Lots of units.
 
     mvn test
 
-Integration tests to come.
+### Integration Tests
+
+Integration tests exist for all endpoints. All tests are implemented in ruby using a DSL described with Riot Gear,
+a combination of Riot (a ruby unit-testing framework) and HTTParty (a simple restful webservice framework).
+
+#### Running tests locally
+
+Make sure you have everything:
+
+    > bundle install
+
+If you haven't, tests will complain about not being able to find a gem. Then, to run the integration tests:
+
+    > rake test
+
+Just type that. It assumes you are running
+
+* An instance of `agathon` at `http://localhost:8080/agathon`
+
+#### Running tests against an ad-hoc environment
+
+If you would like to run integration tests against an `agathon` running on some other hostname or port, go for it.
+Simply define the `AGATHON_HOST` environment variable before running `rake test`. For instance, you could point
+at a development environment by running the following:
+
+    > AGATHON_HOST="http://cass01.dev.thebrighttag.com" \
+      rake test
+
+It's that easy!
