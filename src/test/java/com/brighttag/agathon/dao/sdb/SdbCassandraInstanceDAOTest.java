@@ -36,7 +36,7 @@ import static org.junit.Assert.fail;
  */
 public class SdbCassandraInstanceDAOTest extends EasyMockSupport {
 
-  private static final String ID = "id";
+  private static final int ID = 1;
   private static final BigInteger TOKEN = BigInteger.valueOf(12345);
   private static final String DATACENTER = "dc";
   private static final String RACK = "rack";
@@ -150,7 +150,7 @@ public class SdbCassandraInstanceDAOTest extends EasyMockSupport {
 
     PutAttributesRequest request = requestCapture.getValue();
     assertEquals(SdbCassandraInstanceDAO.DOMAIN, request.getDomainName());
-    assertEquals(ID, request.getItemName());
+    assertEquals(String.valueOf(ID), request.getItemName());
     assertReplaceableAttributes(request);
   }
 
@@ -170,7 +170,7 @@ public class SdbCassandraInstanceDAOTest extends EasyMockSupport {
 
     DeleteAttributesRequest request = requestCapture.getValue();
     assertEquals(SdbCassandraInstanceDAO.DOMAIN, request.getDomainName());
-    assertEquals(ID, request.getItemName());
+    assertEquals(String.valueOf(ID), request.getItemName());
     assertAttributes(request);
   }
 
@@ -179,7 +179,7 @@ public class SdbCassandraInstanceDAOTest extends EasyMockSupport {
     Item item = createItem(1);
     replayAll();
     CassandraInstance instance = SdbCassandraInstanceDAO.transform(item);
-    assertEquals("1", instance.getId());
+    assertEquals(1, instance.getId());
     assertEquals("1", instance.getToken().toString());
     assertEquals("dc1", instance.getDataCenter());
     assertEquals("rack1", instance.getRack());
@@ -228,7 +228,7 @@ public class SdbCassandraInstanceDAOTest extends EasyMockSupport {
     assertEquals(5, request.getAttributes().size());
     for (ReplaceableAttribute attr : request.getAttributes()) {
       if (attr.getName().equals(SdbCassandraInstanceDAO.ID_KEY)) {
-        assertEquals(ID, attr.getValue());
+        assertEquals(String.valueOf(ID), attr.getValue());
         assertEquals(false, attr.getReplace());
       } else if (attr.getName().equals(SdbCassandraInstanceDAO.TOKEN_KEY)) {
         assertEquals(TOKEN.toString(), attr.getValue());
@@ -252,7 +252,7 @@ public class SdbCassandraInstanceDAOTest extends EasyMockSupport {
     assertEquals(5, request.getAttributes().size());
     for (Attribute attr : request.getAttributes()) {
       if (attr.getName().equals(SdbCassandraInstanceDAO.ID_KEY)) {
-        assertEquals(ID, attr.getValue());
+        assertEquals(String.valueOf(ID), attr.getValue());
       } else if (attr.getName().equals(SdbCassandraInstanceDAO.TOKEN_KEY)) {
         assertEquals(TOKEN.toString(), attr.getValue());
       } else if (attr.getName().equals(SdbCassandraInstanceDAO.DATACENTER_KEY)) {

@@ -25,7 +25,7 @@ public interface CassandraInstanceDAO {
    * @param id the Cassandra instance ID
    * @return the entity or {@code null} if it could not be found
    */
-  @Nullable CassandraInstance findById(String id);
+  @Nullable CassandraInstance findById(int id);
 
   /**
    * Saves the Cassandra instance.

@@ -77,7 +77,7 @@ public class PerDataCenterSeedServiceTest extends EasyMockSupport {
 
   private CassandraInstance buildInstance(BigInteger token, String dataCenter, String hostName) {
     return new CassandraInstance.Builder()
-        .id("1")
+        .id(1)
         .token(token)
         .dataCenter(dataCenter)
         .hostName(hostName)

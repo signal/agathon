@@ -21,14 +21,14 @@ import org.hibernate.validator.constraints.NotEmpty;
  */
 public class CassandraInstance implements Comparable<CassandraInstance> {
 
-  private final String id;
+  private final int id;
   private final BigInteger token;
   private final String datacenter;
   private final String rack;
   private final String hostname;
 
   private CassandraInstance(
-      @JsonProperty("id") String id, @JsonProperty("token") BigInteger token,
+      @JsonProperty("id") int id, @JsonProperty("token") BigInteger token,
       @JsonProperty("datacenter") String datacenter, @JsonProperty("rack") String rack,
       @JsonProperty("hostname") String hostname) {
     this.id = id;
@@ -46,7 +46,7 @@ public class CassandraInstance implements Comparable<CassandraInstance> {
     this.hostname = builder.hostname;
   }
 
-  public @NotEmpty String getId() {
+  public @Min(1) int getId() {
     return id;
   }
 
@@ -71,8 +71,7 @@ public class CassandraInstance implements Comparable<CassandraInstance> {
     // compare significant fields beyond the token so the ordering is consistent with equals
     return ComparisonChain.start()
         .compare(this.token, that.token)
-        // temporary hack until we convert these to true integers
-        .compare(Integer.parseInt(this.id), Integer.parseInt(that.id))
+        .compare(this.id, that.id)
         .compare(this.datacenter, that.datacenter)
         .compare(this.rack, that.rack)
         .compare(this.hostname, that.hostname)
@@ -119,13 +118,13 @@ public class CassandraInstance implements Comparable<CassandraInstance> {
    */
   public static class Builder {
 
-    private String id;
+    private int id;
     private BigInteger token;
     private String datacenter;
     private String rack;
     private String hostname;
 
-    public Builder id(String id) {
+    public Builder id(int id) {
       this.id = id;
       return this;
     }

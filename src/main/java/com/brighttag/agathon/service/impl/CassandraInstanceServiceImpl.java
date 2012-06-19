@@ -31,7 +31,7 @@ public class CassandraInstanceServiceImpl implements CassandraInstanceService {
   }
 
   @Override
-  public @Nullable CassandraInstance findById(String id) {
+  public @Nullable CassandraInstance findById(int id) {
     return dao.findById(id);
   }
 

@@ -70,7 +70,7 @@ public class CassandraInstanceResource {
    */
   @GET
   @Path("{id}")
-  public CassandraInstance findById(@PathParam("id") String id) {
+  public CassandraInstance findById(@PathParam("id") int id) {
     return getByIdIfFound(id);
   }
 
@@ -83,12 +83,12 @@ public class CassandraInstanceResource {
    */
   @DELETE
   @Path("{id}")
-  public Response deleteInstance(@PathParam("id") String id) {
+  public Response deleteInstance(@PathParam("id") int id) {
     service.delete(getByIdIfFound(id));
     return Response.noContent().build();
   }
 
-  private CassandraInstance getByIdIfFound(String id) {
+  private CassandraInstance getByIdIfFound(int id) {
     CassandraInstance instance = service.findById(id);
     if (instance == null) {
       throw new NotFoundException(String.format("No instance found with id: %s", id));

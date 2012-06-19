@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class CassandraInstanceServiceImplTest extends EasyMockSupport {
 
-  private static final String CASSANDRA_ID = "id";
+  private static final int CASSANDRA_ID = 1;
 
   private CassandraInstanceDAO dao;
   private CassandraInstanceServiceImpl service;

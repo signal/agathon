@@ -25,13 +25,13 @@ public class FakeCassandraInstanceDAO implements CassandraInstanceDAO {
 
   private static final Logger LOG = LoggerFactory.getLogger(FakeCassandraInstanceDAO.class);
 
-  private final Map<String, CassandraInstance> instances;
+  private final Map<Integer, CassandraInstance> instances;
 
   public FakeCassandraInstanceDAO() {
-    this(Maps.<String, CassandraInstance>newHashMap());
+    this(Maps.<Integer, CassandraInstance>newHashMap());
   }
 
-  @VisibleForTesting FakeCassandraInstanceDAO(Map<String, CassandraInstance> instances) {
+  @VisibleForTesting FakeCassandraInstanceDAO(Map<Integer, CassandraInstance> instances) {
     this.instances = instances;
   }
 
@@ -42,7 +42,7 @@ public class FakeCassandraInstanceDAO implements CassandraInstanceDAO {
   }
 
   @Override
-  public @Nullable CassandraInstance findById(String id) {
+  public @Nullable CassandraInstance findById(int id) {
     LOG.info("Returning instance: {}", instances.get(id));
     return instances.get(id);
   }

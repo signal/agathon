@@ -73,7 +73,7 @@ public class SdbCassandraInstanceDAO implements CassandraInstanceDAO {
   }
 
   @Override
-  public @Nullable CassandraInstance findById(String id) {
+  public @Nullable CassandraInstance findById(int id) {
     SelectRequest request = new SelectRequest(String.format(INSTANCE_QUERY, id));
     SelectResult result = client.select(request);
 
@@ -87,14 +87,14 @@ public class SdbCassandraInstanceDAO implements CassandraInstanceDAO {
   @Override
   public void save(CassandraInstance instance) {
     PutAttributesRequest request = new PutAttributesRequest(
-        DOMAIN, instance.getId(), buildSaveAttributes(instance));
+        DOMAIN, String.valueOf(instance.getId()), buildSaveAttributes(instance));
     client.putAttributes(request);
   }
 
   @Override
   public void delete(CassandraInstance instance) {
     DeleteAttributesRequest request = new DeleteAttributesRequest(
-        DOMAIN, instance.getId(), buildDeleteAttributes(instance));
+        DOMAIN, String.valueOf(instance.getId()), buildDeleteAttributes(instance));
     client.deleteAttributes(request);
   }
 
@@ -102,7 +102,7 @@ public class SdbCassandraInstanceDAO implements CassandraInstanceDAO {
     CassandraInstance.Builder instanceBuilder = new CassandraInstance.Builder();
     for (Attribute attr : item.getAttributes()) {
       if (attr.getName().equals(ID_KEY)) {
-        instanceBuilder.id(attr.getValue());
+        instanceBuilder.id(Integer.parseInt(attr.getValue()));
       } else if (attr.getName().equals(TOKEN_KEY)) {
         instanceBuilder.token(new BigInteger(attr.getValue()));
       } else if (attr.getName().equals(DATACENTER_KEY)) {
@@ -118,7 +118,7 @@ public class SdbCassandraInstanceDAO implements CassandraInstanceDAO {
 
   private static List<ReplaceableAttribute> buildSaveAttributes(CassandraInstance instance) {
     List<ReplaceableAttribute> attrs = Lists.newArrayList();
-    attrs.add(attribute(ID_KEY, instance.getId(), false));
+    attrs.add(attribute(ID_KEY, String.valueOf(instance.getId()), false));
     attrs.add(attribute(TOKEN_KEY, instance.getToken().toString(), true));
     attrs.add(attribute(DATACENTER_KEY, instance.getDataCenter(), true));
     attrs.add(attribute(RACK_KEY, instance.getRack(), true));
@@ -128,7 +128,7 @@ public class SdbCassandraInstanceDAO implements CassandraInstanceDAO {
 
   private static List<Attribute> buildDeleteAttributes(CassandraInstance instance) {
     List<Attribute> attrs = Lists.newArrayList();
-    attrs.add(attribute(ID_KEY, instance.getId()));
+    attrs.add(attribute(ID_KEY, String.valueOf(instance.getId())));
     attrs.add(attribute(TOKEN_KEY, instance.getToken().toString()));
     attrs.add(attribute(DATACENTER_KEY, instance.getDataCenter()));
     attrs.add(attribute(RACK_KEY, instance.getRack()));

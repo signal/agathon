@@ -34,8 +34,8 @@ public class SystemPropertyCoprocessProvider implements CoprocessProvider {
     return checkNotNull(dao.findById(getCassandraId()), "Coprocess instance must be in database");
   }
 
-  private String getCassandraId() {
-    return checkNotNull(System.getProperty(CASSANDRA_ID_PROPERTY), "Cassandra ID must be set");
+  private int getCassandraId() {
+    return checkNotNull(Integer.getInteger(CASSANDRA_ID_PROPERTY), "Cassandra ID must be set");
   }
 
 }

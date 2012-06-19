@@ -25,13 +25,13 @@ import static org.junit.Assert.assertNotNull;
  */
 public class GuiceServletConfigTest {
 
-  private static final String CASSANDRA_ID = "id";
+  private static final int CASSANDRA_ID = 1;
 
   private Injector injector;
 
   @BeforeClass
   public static void setRequiredSystemProperties() {
-    System.setProperty(SystemPropertyCoprocessProvider.CASSANDRA_ID_PROPERTY, CASSANDRA_ID);
+    System.setProperty(SystemPropertyCoprocessProvider.CASSANDRA_ID_PROPERTY, String.valueOf(CASSANDRA_ID));
     System.setProperty(DAOModule.DATABASE_PROPERTY, "fake"); // Use in-memory DAO for unit tests
   }
 

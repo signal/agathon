@@ -25,7 +25,7 @@ public interface CassandraInstanceService {
    * @param id the Cassandra instance ID
    * @return the Cassandra instance or {@code null} if not found
    */
-  @Nullable CassandraInstance findById(String id);
+  @Nullable CassandraInstance findById(int id);
 
   /**
    * Save the given Cassandra {@code instance}.

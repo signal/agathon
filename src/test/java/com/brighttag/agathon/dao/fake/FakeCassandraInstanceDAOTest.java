@@ -23,9 +23,9 @@ import static org.junit.Assert.assertNull;
  */
 public class FakeCassandraInstanceDAOTest extends EasyMockSupport {
 
-  private static final String CASSANDRA_ID = "id";
+  private static final int CASSANDRA_ID = 1;
 
-  private Map<String, CassandraInstance> instances;
+  private Map<Integer, CassandraInstance> instances;
   private FakeCassandraInstanceDAO dao;
 
   @SuppressWarnings("unchecked")
@@ -90,7 +90,7 @@ public class FakeCassandraInstanceDAOTest extends EasyMockSupport {
 
   private CassandraInstance buildInstance(String token) {
     return new CassandraInstance.Builder()
-        .id("1")
+        .id(1)
         .token(new BigInteger(token))
         .build();
   }

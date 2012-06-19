@@ -19,14 +19,14 @@ import static org.junit.Assert.fail;
  */
 public class SystemPropertyCoprocessProviderTest extends EasyMockSupport {
 
-  private static final String CASSANDRA_ID = "1";
+  private static final int CASSANDRA_ID = 1;
 
   private CassandraInstanceDAO dao;
   private CoprocessProvider service;
 
   @Before
   public void setRequiredSystemProperties() {
-    System.setProperty(SystemPropertyCoprocessProvider.CASSANDRA_ID_PROPERTY, CASSANDRA_ID);
+    System.setProperty(SystemPropertyCoprocessProvider.CASSANDRA_ID_PROPERTY, String.valueOf(CASSANDRA_ID));
   }
 
   @After

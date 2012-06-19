@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class CassandraInstanceTest {
 
-  private static final String ID = "id";
+  private static final int ID = 10;
   private static final BigInteger TOKEN = BigInteger.ONE;
   private static final String DATA_CENTER = "dataCenter";
   private static final String RACK = "rack";
@@ -49,7 +49,6 @@ public class CassandraInstanceTest {
 
   @Test
   public void validate_invalidWithNullValues() {
-    assertNotEmptyViolation(ID, builder().id(null).build());
     assertNotNullViolation("token", builder().token(null).build());
     assertNotEmptyViolation(DATA_CENTER, builder().dataCenter(null).build());
     assertNotEmptyViolation(RACK, builder().rack(null).build());
@@ -58,7 +57,6 @@ public class CassandraInstanceTest {
 
   @Test
   public void validate_invalidWithEmptyValues() {
-    assertNotEmptyViolation(ID, builder().id("").build());
     assertNotEmptyViolation(DATA_CENTER, builder().dataCenter("").build());
     assertNotEmptyViolation(RACK, builder().rack("").build());
     assertNotEmptyViolation(HOST_NAME, builder().hostName("").build());
@@ -66,6 +64,7 @@ public class CassandraInstanceTest {
 
   @Test
   public void validate_invalidWithLessThanMinValues() {
+    assertNotLessThanViolation("id", 1, builder().id(0).build());
     assertNotLessThanViolation("token", 0, builder().token(BigInteger.valueOf(-1)).build());
   }
 
@@ -110,7 +109,7 @@ public class CassandraInstanceTest {
 
   private CassandraInstance.Builder builder() {
     return new CassandraInstance.Builder()
-        .id("0")
+        .id(1)
         .token(BigInteger.valueOf(0))
         .dataCenter("dataCenter0")
         .rack("rack0")

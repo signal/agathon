@@ -27,7 +27,7 @@ import static org.junit.Assert.fail;
  */
 public class CassandraInstanceResourceTest extends EasyMockSupport {
 
-  private static final String CASSANDRA_ID = "id";
+  private static final int CASSANDRA_ID = 1;
 
   private CassandraInstanceResource resource;
   private CassandraInstanceService service;
@@ -63,7 +63,8 @@ public class CassandraInstanceResourceTest extends EasyMockSupport {
 
     Response response = resource.createInstance(instance);
     assertEquals(Status.CREATED.getStatusCode(), response.getStatus());
-    assertEquals(CASSANDRA_ID, response.getMetadata().getFirst(HttpHeaders.LOCATION).toString());
+    assertEquals(String.valueOf(CASSANDRA_ID),
+        response.getMetadata().getFirst(HttpHeaders.LOCATION).toString());
   }
 
   @Test
