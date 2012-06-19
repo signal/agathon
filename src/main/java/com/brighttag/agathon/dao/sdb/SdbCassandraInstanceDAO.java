@@ -1,5 +1,6 @@
 package com.brighttag.agathon.dao.sdb;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -103,7 +104,7 @@ public class SdbCassandraInstanceDAO implements CassandraInstanceDAO {
       if (attr.getName().equals(ID_KEY)) {
         instanceBuilder.id(attr.getValue());
       } else if (attr.getName().equals(TOKEN_KEY)) {
-        instanceBuilder.token(attr.getValue());
+        instanceBuilder.token(new BigInteger(attr.getValue()));
       } else if (attr.getName().equals(DATACENTER_KEY)) {
         instanceBuilder.dataCenter(attr.getValue());
       } else if (attr.getName().equals(RACK_KEY)) {
@@ -118,7 +119,7 @@ public class SdbCassandraInstanceDAO implements CassandraInstanceDAO {
   private static List<ReplaceableAttribute> buildSaveAttributes(CassandraInstance instance) {
     List<ReplaceableAttribute> attrs = Lists.newArrayList();
     attrs.add(attribute(ID_KEY, instance.getId(), false));
-    attrs.add(attribute(TOKEN_KEY, instance.getToken(), true));
+    attrs.add(attribute(TOKEN_KEY, instance.getToken().toString(), true));
     attrs.add(attribute(DATACENTER_KEY, instance.getDataCenter(), true));
     attrs.add(attribute(RACK_KEY, instance.getRack(), true));
     attrs.add(attribute(HOSTNAME_KEY, instance.getHostName(), true));
@@ -128,7 +129,7 @@ public class SdbCassandraInstanceDAO implements CassandraInstanceDAO {
   private static List<Attribute> buildDeleteAttributes(CassandraInstance instance) {
     List<Attribute> attrs = Lists.newArrayList();
     attrs.add(attribute(ID_KEY, instance.getId()));
-    attrs.add(attribute(TOKEN_KEY, instance.getToken()));
+    attrs.add(attribute(TOKEN_KEY, instance.getToken().toString()));
     attrs.add(attribute(DATACENTER_KEY, instance.getDataCenter()));
     attrs.add(attribute(RACK_KEY, instance.getRack()));
     attrs.add(attribute(HOSTNAME_KEY, instance.getHostName()));

@@ -1,5 +1,6 @@
 package com.brighttag.agathon.dao.fake;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
@@ -90,7 +91,7 @@ public class FakeCassandraInstanceDAOTest extends EasyMockSupport {
   private CassandraInstance buildInstance(String token) {
     return new CassandraInstance.Builder()
         .id("1")
-        .token(token)
+        .token(new BigInteger(token))
         .build();
   }
 

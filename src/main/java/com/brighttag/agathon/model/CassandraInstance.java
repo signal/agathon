@@ -3,6 +3,9 @@ package com.brighttag.agathon.model;
 import java.math.BigInteger;
 import java.util.Arrays;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+
 import com.google.common.base.Objects;
 import com.google.common.collect.ComparisonChain;
 
@@ -19,13 +22,13 @@ import org.hibernate.validator.constraints.NotEmpty;
 public class CassandraInstance implements Comparable<CassandraInstance> {
 
   private final String id;
-  private final String token;
+  private final BigInteger token;
   private final String datacenter;
   private final String rack;
   private final String hostname;
 
   private CassandraInstance(
-      @JsonProperty("id") String id, @JsonProperty("token") String token,
+      @JsonProperty("id") String id, @JsonProperty("token") BigInteger token,
       @JsonProperty("datacenter") String datacenter, @JsonProperty("rack") String rack,
       @JsonProperty("hostname") String hostname) {
     this.id = id;
@@ -59,7 +62,7 @@ public class CassandraInstance implements Comparable<CassandraInstance> {
     return hostname;
   }
 
-  public @NotEmpty String getToken() {
+  public @NotNull @Min(0) BigInteger getToken() {
     return token;
   }
 
@@ -67,7 +70,7 @@ public class CassandraInstance implements Comparable<CassandraInstance> {
   public int compareTo(CassandraInstance that) {
     // compare significant fields beyond the token so the ordering is consistent with equals
     return ComparisonChain.start()
-        .compare(new BigInteger(this.token), new BigInteger(that.token))
+        .compare(this.token, that.token)
         // temporary hack until we convert these to true integers
         .compare(Integer.parseInt(this.id), Integer.parseInt(that.id))
         .compare(this.datacenter, that.datacenter)
@@ -117,7 +120,7 @@ public class CassandraInstance implements Comparable<CassandraInstance> {
   public static class Builder {
 
     private String id;
-    private String token;
+    private BigInteger token;
     private String datacenter;
     private String rack;
     private String hostname;
@@ -127,7 +130,7 @@ public class CassandraInstance implements Comparable<CassandraInstance> {
       return this;
     }
 
-    public Builder token(String token) {
+    public Builder token(BigInteger token) {
       this.token = token;
       return this;
     }

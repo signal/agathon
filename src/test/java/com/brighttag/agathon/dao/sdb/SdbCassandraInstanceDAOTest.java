@@ -1,5 +1,6 @@
 package com.brighttag.agathon.dao.sdb;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import com.amazonaws.services.simpledb.AmazonSimpleDBClient;
@@ -36,7 +37,7 @@ import static org.junit.Assert.fail;
 public class SdbCassandraInstanceDAOTest extends EasyMockSupport {
 
   private static final String ID = "id";
-  private static final String TOKEN = "token";
+  private static final BigInteger TOKEN = BigInteger.valueOf(12345);
   private static final String DATACENTER = "dc";
   private static final String RACK = "rack";
   private static final String HOSTNAME = "host";
@@ -179,7 +180,7 @@ public class SdbCassandraInstanceDAOTest extends EasyMockSupport {
     replayAll();
     CassandraInstance instance = SdbCassandraInstanceDAO.transform(item);
     assertEquals("1", instance.getId());
-    assertEquals("1", instance.getToken());
+    assertEquals("1", instance.getToken().toString());
     assertEquals("dc1", instance.getDataCenter());
     assertEquals("rack1", instance.getRack());
     assertEquals("host1", instance.getHostName());
@@ -230,7 +231,7 @@ public class SdbCassandraInstanceDAOTest extends EasyMockSupport {
         assertEquals(ID, attr.getValue());
         assertEquals(false, attr.getReplace());
       } else if (attr.getName().equals(SdbCassandraInstanceDAO.TOKEN_KEY)) {
-        assertEquals(TOKEN, attr.getValue());
+        assertEquals(TOKEN.toString(), attr.getValue());
         assertEquals(true, attr.getReplace());
       } else if (attr.getName().equals(SdbCassandraInstanceDAO.DATACENTER_KEY)) {
         assertEquals(DATACENTER, attr.getValue());
@@ -253,7 +254,7 @@ public class SdbCassandraInstanceDAOTest extends EasyMockSupport {
       if (attr.getName().equals(SdbCassandraInstanceDAO.ID_KEY)) {
         assertEquals(ID, attr.getValue());
       } else if (attr.getName().equals(SdbCassandraInstanceDAO.TOKEN_KEY)) {
-        assertEquals(TOKEN, attr.getValue());
+        assertEquals(TOKEN.toString(), attr.getValue());
       } else if (attr.getName().equals(SdbCassandraInstanceDAO.DATACENTER_KEY)) {
         assertEquals(DATACENTER, attr.getValue());
       } else if (attr.getName().equals(SdbCassandraInstanceDAO.RACK_KEY)) {

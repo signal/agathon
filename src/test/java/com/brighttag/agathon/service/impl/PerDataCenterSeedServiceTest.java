@@ -1,5 +1,6 @@
 package com.brighttag.agathon.service.impl;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -22,10 +23,10 @@ import static org.junit.Assert.assertEquals;
  */
 public class PerDataCenterSeedServiceTest extends EasyMockSupport {
 
-  private static final String TOKEN1 = "1";
-  private static final String TOKEN2 = "2";
-  private static final String TOKEN3 = "3";
-  private static final String TOKEN4 = "4";
+  private static final BigInteger TOKEN1 = BigInteger.valueOf(1);
+  private static final BigInteger TOKEN2 = BigInteger.valueOf(2);
+  private static final BigInteger TOKEN3 = BigInteger.valueOf(3);
+  private static final BigInteger TOKEN4 = BigInteger.valueOf(4);
 
   private static final String DATACENTER1 = "dc1";
   private static final String DATACENTER2 = "dc2";
@@ -74,7 +75,7 @@ public class PerDataCenterSeedServiceTest extends EasyMockSupport {
     assertEquals(ImmutableSet.of(HOSTNAME1, HOSTNAME2, HOSTNAME3), seedProvider.getSeeds());
   }
 
-  private CassandraInstance buildInstance(String token, String dataCenter, String hostName) {
+  private CassandraInstance buildInstance(BigInteger token, String dataCenter, String hostName) {
     return new CassandraInstance.Builder()
         .id("1")
         .token(token)

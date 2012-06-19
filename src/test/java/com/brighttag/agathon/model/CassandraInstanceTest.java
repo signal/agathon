@@ -1,5 +1,6 @@
 package com.brighttag.agathon.model;
 
+import java.math.BigInteger;
 import java.util.Set;
 
 import javax.validation.ConstraintViolation;
@@ -22,14 +23,14 @@ import static org.junit.Assert.assertTrue;
 public class CassandraInstanceTest {
 
   private static final String ID = "id";
-  private static final String TOKEN = "token";
+  private static final BigInteger TOKEN = BigInteger.ONE;
   private static final String DATA_CENTER = "dataCenter";
   private static final String RACK = "rack";
   private static final String HOST_NAME = "hostName";
 
-  private static final String TOKEN1 = "1";
-  private static final String TOKEN2 = "2";
-  private static final String TOKEN3 = "3";
+  private static final BigInteger TOKEN1 = BigInteger.valueOf(1);
+  private static final BigInteger TOKEN2 = BigInteger.valueOf(2);
+  private static final BigInteger TOKEN3 = BigInteger.valueOf(3);
 
   private static Validator validator;
 
@@ -49,7 +50,7 @@ public class CassandraInstanceTest {
   @Test
   public void validate_invalidWithNullValues() {
     assertNotEmptyViolation(ID, builder().id(null).build());
-    assertNotEmptyViolation(TOKEN, builder().token(null).build());
+    assertNotNullViolation("token", builder().token(null).build());
     assertNotEmptyViolation(DATA_CENTER, builder().dataCenter(null).build());
     assertNotEmptyViolation(RACK, builder().rack(null).build());
     assertNotEmptyViolation(HOST_NAME, builder().hostName(null).build());
@@ -58,10 +59,14 @@ public class CassandraInstanceTest {
   @Test
   public void validate_invalidWithEmptyValues() {
     assertNotEmptyViolation(ID, builder().id("").build());
-    assertNotEmptyViolation(TOKEN, builder().token("").build());
     assertNotEmptyViolation(DATA_CENTER, builder().dataCenter("").build());
     assertNotEmptyViolation(RACK, builder().rack("").build());
     assertNotEmptyViolation(HOST_NAME, builder().hostName("").build());
+  }
+
+  @Test
+  public void validate_invalidWithLessThanMinValues() {
+    assertNotLessThanViolation("token", 0, builder().token(BigInteger.valueOf(-1)).build());
   }
 
   @Test
@@ -81,30 +86,32 @@ public class CassandraInstanceTest {
     assertTrue(builder().token(TOKEN1).build().compareTo(builder().token(TOKEN2).build()) < 0);
     assertTrue(builder().token(TOKEN2).build().compareTo(builder().token(TOKEN2).build()) == 0);
     assertTrue(builder().token(TOKEN3).build().compareTo(builder().token(TOKEN2).build()) > 0);
+  }
 
-    // test token ordering trumps other properties
-    assertTrue(builder().token(TOKEN1).id(TOKEN2).build()
-        .compareTo(builder().token(TOKEN2).id(TOKEN1).build()) < 0);
-    assertTrue(builder().token(TOKEN1).dataCenter(TOKEN2).build()
-        .compareTo(builder().token(TOKEN2).dataCenter(TOKEN1).build()) < 0);
-    assertTrue(builder().token(TOKEN1).rack(TOKEN2).build()
-        .compareTo(builder().token(TOKEN2).rack(TOKEN1).build()) < 0);
-    assertTrue(builder().token(TOKEN1).hostName(TOKEN2).build()
-        .compareTo(builder().token(TOKEN2).hostName(TOKEN1).build()) < 0);
+  private void assertNotNullViolation(String key, CassandraInstance instance) {
+    assertViolation(key, "may not be null", instance);
   }
 
   private void assertNotEmptyViolation(String key, CassandraInstance instance) {
+    assertViolation(key, "may not be empty", instance);
+  }
+
+  private void assertNotLessThanViolation(String key, int value, CassandraInstance instance) {
+    assertViolation(key, "must be greater than or equal to " + value, instance);
+  }
+
+  private void assertViolation(String key, String message, CassandraInstance instance) {
     Set<ConstraintViolation<CassandraInstance>> violations = validator.validate(instance);
     assertEquals(1, violations.size());
     ConstraintViolation<CassandraInstance> violation = violations.iterator().next();
     assertEquals(key, violation.getPropertyPath().toString());
-    assertEquals("may not be empty", violation.getMessage());
+    assertEquals(message, violation.getMessage());
   }
 
   private CassandraInstance.Builder builder() {
     return new CassandraInstance.Builder()
         .id("0")
-        .token("token0")
+        .token(BigInteger.valueOf(0))
         .dataCenter("dataCenter0")
         .rack("rack0")
         .hostName("hostName0");
