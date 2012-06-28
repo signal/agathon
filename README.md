@@ -29,8 +29,8 @@ Configuration is currently done through system properties.
 ### Optional Properties
 
 * `com.brighttag.agathon.database`: the database used for storing Cassandra instance records; one of `sdb` (SimpleDB), `fake` (in-memory store); defaults to `sdb`
-* `com.brighttag.agathon.nodes.per_datacenter`: the number of seeds per data center returned to the `AgathonSeedProvider`; defaults to `2`
-* `com.brighttag.agathon.seeds.per_datacenter`: the number of nodes per data center used for token calculations; defaults to `4`
+* `com.brighttag.agathon.nodes.per_datacenter`: the number of nodes per data center returned to the `AgathonSeedProvider`; defaults to `4`
+* `com.brighttag.agathon.seeds.per_datacenter`: the number of seeds per data center used for token calculations; defaults to `2`
 * `com.brighttag.agathon.aws.access_key`: your Amazon Web Service Access Key. Required for AWS support (e.g., for SimpleDB)
 * `com.brighttag.agathon.aws.secret_key`: your Amazon Web Service Secret Key. Required for AWS support (e.g., for SimpleDB)
 

@@ -6,11 +6,11 @@ import java.util.Arrays;
 import javax.annotation.Nullable;
 import javax.validation.constraints.Min;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Ordering;
 
-import org.codehaus.jackson.annotate.JsonProperty;
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**

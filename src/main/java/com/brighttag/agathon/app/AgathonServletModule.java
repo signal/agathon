@@ -25,7 +25,7 @@ public class AgathonServletModule extends JerseyServletModule {
         ImmutableMap.of(
             JSONConfiguration.FEATURE_POJO_MAPPING, "true",
             PackagesResourceConfig.PROPERTY_PACKAGES,
-                "com.brighttag.agathon.resources,org.codehaus.jackson.jaxrs"));
+                "com.brighttag.agathon.resources,com.fasterxml.jackson.jaxrs.json"));
   }
 
   @Provides @Singleton

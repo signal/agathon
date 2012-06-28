@@ -17,10 +17,10 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.google.common.collect.ImmutableSet;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 import org.easymock.EasyMockSupport;
 import org.junit.After;
 import org.junit.Before;
