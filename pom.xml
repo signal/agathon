@@ -76,6 +76,25 @@
             <version>${guava.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>1.6</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.proofpoint.platform</groupId>
+            <artifactId>units</artifactId>
+            <version>0.64</version>
+            <exclusions>
+                <exclusion>
+                    <!-- Avoid conflict between Apache BVal and Hibernate's Validation impl -->
+                    <groupId>org.apache.bval</groupId>
+                    <artifactId>bval-jsr303</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
         <!-- Cassandra dependencies and exclusions -->
 
         <dependency>
@@ -167,10 +186,19 @@
             <version>${jackson.version}</version>
         </dependency>
 
+        <!-- Bean Validation (JSR-303) -->
+
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>1.0.0.GA</version>
+        </dependency>
+
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
             <version>4.3.0.Final</version>
+            <optional>true</optional>
         </dependency>
 
         <!-- Guice-Jersey integration -->
@@ -181,7 +209,7 @@
             <version>${jersey.version}</version>
         </dependency>
 
-        <!-- logging -->
+        <!-- Logging -->
 
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -196,7 +224,7 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- unit testing -->
+        <!-- Unit Testing -->
 
         <dependency>
             <groupId>junit</groupId>
