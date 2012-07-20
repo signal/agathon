@@ -71,6 +71,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.10</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
@@ -263,6 +269,7 @@
                 <version>2.9.1</version>
                 <configuration>
                     <configLocation>src/checkstyle/checkstyle.xml</configLocation>
+                    <propertyExpansion>basedir=${basedir}</propertyExpansion>
                 </configuration>
             </plugin>
 

@@ -175,4 +175,9 @@
   <!-- Whitespace -->
   <module name="FileTabCharacter"/>
 
+  <!-- Suppressions -->
+  <module name="SuppressionFilter">
+    <property name="file" value="${basedir}/src/checkstyle/suppressions.xml"/>
+  </module>
+
 </module>
