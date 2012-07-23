@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import com.google.common.collect.ImmutableList;
+
 import org.yaml.snakeyaml.Yaml;
 
 /**
@@ -17,15 +19,20 @@ import org.yaml.snakeyaml.Yaml;
 public class YamlArray extends AbstractHeterogeneousArray {
 
   public YamlArray() {
-    this((List<?>) null);
+    this(ImmutableList.of());
   }
 
+  @SuppressWarnings("unchecked")
   public YamlArray(InputStream inputStream) {
-    this((List<?>) new Yaml().load(inputStream));
+    this((List<Object>) new Yaml().load(inputStream));
   }
 
-  YamlArray(@Nullable List<?> array) {
+  YamlArray(List<Object> array) {
     super(array);
+  }
+
+  private YamlArray(Builder builder) {
+    super(builder);
   }
 
   /*
@@ -127,6 +134,22 @@ public class YamlArray extends AbstractHeterogeneousArray {
   public @Nullable YamlObject optMap(Integer index) {
     HeterogeneousMap object = super.optMap(index);
     return (object == null) ? null : new YamlObject(object.asMap());
+  }
+
+  /**
+   * @author codyaray
+   * @since 7/22/12
+   */
+  public static class Builder extends AbstractHeterogeneousArray.Builder<Builder> {
+
+    public Builder() {
+      super(Builder.class);
+    }
+
+    public YamlArray build() {
+      return new YamlArray(this);
+    }
+
   }
 
 }

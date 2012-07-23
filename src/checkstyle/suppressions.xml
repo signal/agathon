@@ -9,7 +9,7 @@
     <!-- Main Exclusions -->
 
     <suppress checks="ClassFanOutComplexityCheck"
-              files="CassandraConfigurationReader.java"/>
+              files="CassandraConfiguration(Reader|Writer).java"/>
 
     <!-- Test Exclusions -->
 
@@ -19,6 +19,8 @@
               files=".*Test.java"/>
     <suppress checks="ClassDataAbstractionCouplingCheck"
               files="CassandraConfigurationTest.java"/>
+    <suppress checks="ClassDataAbstractionCouplingCheck"
+              files="AbstractConfigurationWriterTest.java"/>
 
 </suppressions>
 

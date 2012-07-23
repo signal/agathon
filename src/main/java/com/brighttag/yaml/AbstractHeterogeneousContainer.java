@@ -189,7 +189,13 @@ public abstract class AbstractHeterogeneousContainer<T> implements Heterogeneous
     if (o instanceof HeterogeneousArray) {
       return (HeterogeneousArray) o;
     } else if (o instanceof List) {
-      return new SimpleHeterogeneousArray((List<?>) o);
+      /*
+       * This cast is always safe; we first check instanceof List.
+       * We only put List<Object> into the HeterogenousList.
+       */
+      @SuppressWarnings("unchecked")
+      List<Object> objects = (List<Object>) o;
+      return new SimpleHeterogeneousArray(objects);
     }
     throw exception(key, "is not a HeterogeneousArray");
   }
@@ -218,7 +224,13 @@ public abstract class AbstractHeterogeneousContainer<T> implements Heterogeneous
     if (o instanceof HeterogeneousMap) {
       return (HeterogeneousMap) o;
     } else if (o instanceof Map) {
-      return new SimpleHeterogeneousMap((Map<?, ?>) o);
+      /*
+       * This cast is always safe; we first check instanceof Map.
+       * We only put Map<String, Object> into the HeterogenousMap.
+       */
+      @SuppressWarnings("unchecked")
+      Map<String, Object> map = (Map<String, Object>) o;
+      return new SimpleHeterogeneousMap(map);
     }
     throw exception(key, "is not a HeterogeneousMap");
   }

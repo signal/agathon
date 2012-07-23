@@ -5,7 +5,9 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 /**
  * Base class for heterogeneous arrays.
@@ -16,12 +18,14 @@ import com.google.common.collect.ImmutableList;
 public abstract class AbstractHeterogeneousArray extends AbstractHeterogeneousContainer<Integer>
     implements HeterogeneousArray {
 
-  private final List<?> array;
+  private final ImmutableList<Object> array;
 
-  public AbstractHeterogeneousArray(@Nullable List<?> array) {
-    this.array = (array == null) ?
-        ImmutableList.of() :
-        ImmutableList.copyOf(array);
+  protected AbstractHeterogeneousArray(Builder<?> builder) {
+    this(builder.array);
+  }
+
+  protected AbstractHeterogeneousArray(List<Object> array) {
+    this.array = ImmutableList.copyOf(array);
   }
 
   @Override
@@ -35,7 +39,7 @@ public abstract class AbstractHeterogeneousArray extends AbstractHeterogeneousCo
   }
 
   @Override
-  public List<?> asList() {
+  public List<Object> asList() {
     return array;
   }
 
@@ -61,6 +65,124 @@ public abstract class AbstractHeterogeneousArray extends AbstractHeterogeneousCo
     return Objects.toStringHelper(this)
         .add("array", array)
         .toString();
+  }
+
+  /**
+   * @author codyaray
+   * @since 7/24/12
+   */
+  public static class Builder<B extends Builder<?>> {
+
+    private final Class<B> clazz;
+    private final List<Object> array;
+
+    public Builder(Class<B> klass) {
+      this.clazz = klass;
+      this.array = Lists.newArrayList();
+    }
+
+    public B add(boolean value) {
+      array.add(value);
+      return clazz.cast(this);
+    }
+
+    public B add(int value) {
+      array.add(value);
+      return clazz.cast(this);
+    }
+
+    public B add(long value) {
+      array.add(value);
+      return clazz.cast(this);
+    }
+
+    public B add(double value) {
+      array.add(value);
+      return clazz.cast(this);
+    }
+
+    public B add(String value) {
+      array.add(value);
+      return clazz.cast(this);
+    }
+
+    public B add(YamlArray value) {
+      array.add(value.asList());
+      return clazz.cast(this);
+    }
+
+    public B add(YamlObject value) {
+      array.add(value.asMap());
+      return clazz.cast(this);
+    }
+
+    public B addIfNotNull(String key, @Nullable Boolean value) {
+      if (value != null) {
+        return add(value);
+      }
+      return clazz.cast(this);
+    }
+
+    public B addIfNotNull(String key, @Nullable Integer value) {
+      if (value != null) {
+        return add(value);
+      }
+      return clazz.cast(this);
+    }
+
+    public B addIfNotNull(String key, @Nullable Long value) {
+      if (value != null) {
+        return add(value);
+      }
+      return clazz.cast(this);
+    }
+
+    public B addIfNotNull(String key, @Nullable Double value) {
+      if (value != null) {
+        return add(value);
+      }
+      return clazz.cast(this);
+    }
+
+    public B addIfNotNull(String key, @Nullable String value) {
+      if (value != null) {
+        return add(value);
+      }
+      return clazz.cast(this);
+    }
+
+    public B addIfNotNull(String key, @Nullable YamlArray value) {
+      if (value != null) {
+        return add(value);
+      }
+      return clazz.cast(this);
+    }
+
+    public B addIfNotNull(String key, @Nullable YamlObject value) {
+      if (value != null) {
+        return add(value);
+      }
+      return clazz.cast(this);
+    }
+
+    public B addIfNotNull(YamlObject value) {
+      if (value != null) {
+        return add(value);
+      }
+      return clazz.cast(this);
+    }
+
+    public <T> B add(Optional<T> value) {
+      if (value.isPresent()) {
+        array.add(value.get());
+      }
+      return clazz.cast(this);
+    }
+
+    public <T> B addIfNotNull(String key, Optional<T> value) {
+      return add(value);
+    }
+
   }
 
 }

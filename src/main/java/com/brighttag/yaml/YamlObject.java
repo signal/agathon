@@ -1,10 +1,14 @@
 package com.brighttag.yaml;
 
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import com.google.common.collect.ImmutableMap;
+
+import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 /**
@@ -17,15 +21,30 @@ import org.yaml.snakeyaml.Yaml;
 public class YamlObject extends AbstractHeterogeneousMap {
 
   public YamlObject() {
-    this((Map<?, ?>) null);
+    this(ImmutableMap.<String, Object>of());
   }
 
+  @SuppressWarnings("unchecked")
   public YamlObject(InputStream inputStream) {
-    this((Map<?, ?>) new Yaml().load(inputStream));
+    this((Map<String, Object>) new Yaml().load(inputStream));
   }
 
-  YamlObject(@Nullable Map<?, ?> object) {
+  YamlObject(Map<String, Object> object) {
     super(object);
+  }
+
+  private YamlObject(Builder builder) {
+    super(builder);
+  }
+
+  @Override
+  public String toString() {
+    DumperOptions options = new DumperOptions();
+    options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+    Yaml yaml = new Yaml(options);
+    StringWriter sw = new StringWriter();
+    yaml.dump(asMap(), sw);
+    return sw.toString();
   }
 
   /*
@@ -127,6 +146,22 @@ public class YamlObject extends AbstractHeterogeneousMap {
   public @Nullable YamlObject optMap(String key) {
     HeterogeneousMap object = super.optMap(key);
     return (object == null) ? null : new YamlObject(object.asMap());
+  }
+
+  /**
+   * @author codyaray
+   * @since 7/22/12
+   */
+  public static class Builder extends AbstractHeterogeneousMap.Builder<Builder> {
+
+    public Builder() {
+      super(Builder.class);
+    }
+
+    public YamlObject build() {
+      return new YamlObject(this);
+    }
+
   }
 
 }

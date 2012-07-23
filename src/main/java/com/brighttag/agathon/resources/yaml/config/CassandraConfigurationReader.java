@@ -108,7 +108,7 @@ public class CassandraConfigurationReader
       }
     }
     return new RequestSchedulerOptions.Builder()
-        .throttleLimit(config.optInt("throttle_limit", null))
+        .throttleLimit(config.getInt("throttle_limit"))
         .defaultWeight(config.optInt("default_weight", null))
         .weights(weightsBuilder.build())
         .build();

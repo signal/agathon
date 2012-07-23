@@ -10,7 +10,7 @@ import java.util.List;
  */
 class SimpleHeterogeneousArray extends AbstractHeterogeneousArray {
 
-  public SimpleHeterogeneousArray(List<?> array) {
+  public SimpleHeterogeneousArray(List<Object> array) {
     super(array);
   }
 

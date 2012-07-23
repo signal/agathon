@@ -34,6 +34,6 @@ public interface HeterogeneousMap extends HeterogeneousContainer<String> {
    */
   boolean has(String key);
 
-  Map<?, ?> asMap();
+  Map<String, Object> asMap();
 
 }

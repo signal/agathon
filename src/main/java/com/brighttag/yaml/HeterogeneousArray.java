@@ -32,5 +32,5 @@ public interface HeterogeneousArray extends HeterogeneousContainer<Integer> {
    */
   int size();
 
-  List<?> asList();
+  List<Object> asList();
 }

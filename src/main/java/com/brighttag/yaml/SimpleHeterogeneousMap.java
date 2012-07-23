@@ -10,7 +10,7 @@ import java.util.Map;
  */
 class SimpleHeterogeneousMap extends AbstractHeterogeneousMap {
 
-  SimpleHeterogeneousMap(Map<?, ?> object) {
+  SimpleHeterogeneousMap(Map<String, Object> object) {
     super(object);
   }
 
