@@ -22,8 +22,6 @@ import org.apache.cassandra.locator.SeedProvider;
 import org.apache.cassandra.locator.SimpleSeedProvider;
 import org.apache.cassandra.scheduler.IRequestScheduler;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 /**
  * An immutable Cassandra configuration containing all the configuration parameters
  * from {@code cassandra.yaml}. Most parameters are {@link Optional}, allowing Cassandra
@@ -47,8 +45,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class CassandraConfiguration {
 
   /**
+   * The default configuration if no options are specified.
+   */
+  public static final CassandraConfiguration DEFAULT = new Builder().build();
+
+  /**
    * The name of this cluster. This is mainly used to prevent machines
-   * in one logical cluster from joining another.
+   * in one logical cluster from joining another. Defaults to "Test Cluster".
    */
   private final String clusterName;
 
@@ -357,13 +360,9 @@ public class CassandraConfiguration {
   public static class Builder {
 
     /*
-     * Required attributes
-     */
-    private String clusterName;
-
-    /*
      * Required attributes with defaults set in build()
      */
+    private @Nullable String clusterName;
     private @Nullable Class<? extends IPartitioner<?>> partitioner;
     private @Nullable Class<? extends SeedProvider> seedProvider;
     private @Nullable ImmutableMap<String, String> seedProviderOptions;
@@ -390,7 +389,7 @@ public class CassandraConfiguration {
     private @Nullable CompactionConfiguration compactionConfiguration;
     private @Nullable SnitchConfiguration snitchConfiguration;
 
-    public Builder clusterName(String clusterName) {
+    public Builder clusterName(@Nullable String clusterName) {
       this.clusterName = clusterName;
       return this;
     }
@@ -405,12 +404,12 @@ public class CassandraConfiguration {
       return this;
     }
 
-    public Builder seedProviderOptions(@Nullable Map<String, String> seedProviderOptions) {
+    public Builder seedProviderOptions(Map<String, String> seedProviderOptions) {
       this.seedProviderOptions = ImmutableMap.copyOf(seedProviderOptions);
       return this;
     }
 
-    public Builder dataFileDirectories(@Nullable Set<File> dataFileDirectories) {
+    public Builder dataFileDirectories(Set<File> dataFileDirectories) {
       this.dataFileDirectories = ImmutableSet.copyOf(dataFileDirectories);
       return this;
     }
@@ -496,7 +495,7 @@ public class CassandraConfiguration {
     }
 
     public CassandraConfiguration build() {
-      checkNotNull(clusterName);
+      clusterName = Objects.firstNonNull(clusterName, "Test Cluster");
       partitioner = Objects.firstNonNull(partitioner, RandomPartitioner.class);
       seedProvider = Objects.firstNonNull(seedProvider, SimpleSeedProvider.class);
       if (seedProviderOptions == null || seedProviderOptions.isEmpty()) {

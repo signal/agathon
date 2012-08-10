@@ -62,11 +62,6 @@ public class CassandraConfigurationTest {
   }
 
   @Test(expected = NullPointerException.class)
-  public void build_nullClusterName() {
-    builder().clusterName(null).build();
-  }
-
-  @Test(expected = NullPointerException.class)
   public void build_nullSeedProviderOptions() {
     builder().seedProviderOptions(null).build();
   }
@@ -77,14 +72,9 @@ public class CassandraConfigurationTest {
   }
 
   @Test
-  public void accessors_requiredAttributes() {
-    CassandraConfiguration config = builder().build();
-    assertEquals("cluster", config.getClusterName());
-  }
-
-  @Test
   public void accessors_optionalAttributes_defaults() {
     CassandraConfiguration config = builder().build();
+    assertEquals("Test Cluster", config.getClusterName());
     assertEquals(RandomPartitioner.class, config.getPartitioner());
     assertEquals(SimpleSeedProvider.class, config.getSeedProvider());
     assertEquals(ImmutableMap.of("seeds", "127.0.0.1"), config.getSeedProviderOptions());
@@ -120,6 +110,6 @@ public class CassandraConfigurationTest {
   }
 
   private CassandraConfiguration.Builder builder() {
-    return new CassandraConfiguration.Builder().clusterName("cluster");
+    return new CassandraConfiguration.Builder();
   }
 }

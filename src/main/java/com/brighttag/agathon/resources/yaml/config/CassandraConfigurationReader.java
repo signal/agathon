@@ -71,7 +71,7 @@ public class CassandraConfigurationReader
     YamlObject seedProvider = config.has("seed_provider") ?
         config.getArray("seed_provider").getMap(0) : new YamlObject();
     return new CassandraConfiguration.Builder()
-        .clusterName(config.getString("cluster_name"))
+        .clusterName(config.optString("cluster_name"))
         .partitioner(this.<IPartitioner<?>>optClass(config, "partitioner"))
         .seedProvider(this.<SeedProvider>optClass(seedProvider, "class_name"))
         .seedProviderOptions(optSeedProviderOptions(seedProvider))

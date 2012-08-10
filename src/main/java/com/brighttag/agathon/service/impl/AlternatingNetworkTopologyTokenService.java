@@ -72,7 +72,7 @@ public class AlternatingNetworkTopologyTokenService implements TokenService {
   @Override
   public BigInteger getToken() {
     return initialToken(numNodes,
-        positionInDataCenter(Integer.valueOf(coprocess.getId())),
+        positionInDataCenter(coprocess.getId()),
         offsetForDataCenter(coprocess.getDataCenter()));
   }
 

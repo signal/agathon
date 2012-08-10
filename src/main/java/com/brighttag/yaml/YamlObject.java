@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 
 import org.yaml.snakeyaml.DumperOptions;
@@ -26,7 +27,9 @@ public class YamlObject extends AbstractHeterogeneousMap {
 
   @SuppressWarnings("unchecked")
   public YamlObject(InputStream inputStream) {
-    this((Map<String, Object>) new Yaml().load(inputStream));
+    this(Objects.firstNonNull(
+        (Map<String, Object>) new Yaml().load(inputStream),
+        ImmutableMap.<String, Object>of()));
   }
 
   YamlObject(Map<String, Object> object) {

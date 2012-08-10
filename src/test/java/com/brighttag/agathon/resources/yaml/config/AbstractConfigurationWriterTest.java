@@ -46,12 +46,10 @@ public abstract class AbstractConfigurationWriterTest extends EasyMockSupport {
     return writer.toYaml(obj).toString();
   }
 
-  protected static final CassandraConfiguration MIN_CONFIG = new CassandraConfiguration.Builder()
-      .clusterName("cluster")
-      .build();
+  protected static final CassandraConfiguration MIN_CONFIG = CassandraConfiguration.DEFAULT;
 
   protected static final CassandraConfiguration MAX_CONFIG = new CassandraConfiguration.Builder()
-    .clusterName("Test Cluster")
+    .clusterName("My Cluster")
     .initialToken(BigInteger.TEN)
     .autoBootstrap(true)
     .hintedHandoffConfiguration(new HintedHandoffConfiguration.Builder()

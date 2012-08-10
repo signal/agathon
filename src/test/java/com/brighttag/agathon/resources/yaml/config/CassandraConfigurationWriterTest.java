@@ -63,7 +63,7 @@ public class CassandraConfigurationWriterTest extends AbstractConfigurationWrite
     replayAll();
     String config = createConfig(MIN_CONFIG, writer);
     assertEquals(LINE_JOINER.join(
-        "cluster_name: cluster",
+        "cluster_name: Test Cluster",
         "partitioner: org.apache.cassandra.dht.RandomPartitioner",
         "seed_provider:",
         "  class_name: org.apache.cassandra.locator.SimpleSeedProvider",
@@ -84,7 +84,7 @@ public class CassandraConfigurationWriterTest extends AbstractConfigurationWrite
     replayAll();
     String config = createConfig(MAX_CONFIG, writer);
     assertEquals(LINE_JOINER.join(
-        "cluster_name: Test Cluster",
+        "cluster_name: My Cluster",
         "partitioner: org.apache.cassandra.dht.ByteOrderedPartitioner",
         "seed_provider:",
         "  class_name: com.brighttag.agathon.cassandra.AgathonSeedProvider",

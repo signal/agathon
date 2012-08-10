@@ -23,13 +23,11 @@ public abstract class AbstractConfigurationReaderTest extends EasyMockSupport {
     return reader.fromYaml(new YamlObject(inputStream));
   }
 
-  protected static final String MIN_CASSANDRA_YAML = Joiner.on("\n").join(
-    "# Cassandra storage config YAML",
-    "cluster_name: 'Test Cluster'");
+  protected static final String MIN_CASSANDRA_YAML = "";
 
   protected static final String MAX_CASSANDRA_YAML = Joiner.on("\n").join(
     "# Cassandra storage config YAML",
-    "cluster_name: 'Test Cluster'",
+    "cluster_name: 'My Cluster'",
     "initial_token: 10",
     "auto_bootstrap: true",
     "hinted_handoff_enabled: true",

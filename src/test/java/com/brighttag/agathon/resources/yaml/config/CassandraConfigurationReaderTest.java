@@ -83,16 +83,16 @@ public class CassandraConfigurationReaderTest extends AbstractConfigurationReade
   public void getConfiguration_min() throws Exception {
     CassandraConfiguration config = createConfig(MIN_CASSANDRA_YAML, reader);
     /*
-     * Just confirm that MIN_CASSANDRA_YAML equals the default configuration (with required cluster name).
+     * Just confirm that MIN_CASSANDRA_YAML equals the default configuration.
      * The actual default values are tested in the CassandraConfigurationTest.
      */
-    assertEquals(new CassandraConfiguration.Builder().clusterName("Test Cluster").build(), config);
+    assertEquals(CassandraConfiguration.DEFAULT, config);
   }
 
   @Test
   public void getConfiguration_max() throws Exception {
     CassandraConfiguration config = createConfig(MAX_CASSANDRA_YAML, reader);
-    assertEquals("Test Cluster", config.getClusterName());
+    assertEquals("My Cluster", config.getClusterName());
     assertEquals(ByteOrderedPartitioner.class, config.getPartitioner());
     assertEquals(AgathonSeedProvider.class, config.getSeedProvider());
     assertEquals(ImmutableMap.of("seeds", "127.0.0.2"), config.getSeedProviderOptions());
