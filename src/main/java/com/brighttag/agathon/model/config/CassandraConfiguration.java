@@ -389,6 +389,34 @@ public class CassandraConfiguration {
     private @Nullable CompactionConfiguration compactionConfiguration;
     private @Nullable SnitchConfiguration snitchConfiguration;
 
+    public Builder() {
+      // Nothing to do
+    }
+
+    public Builder(CassandraConfiguration configuration) {
+      this.clusterName = configuration.clusterName;
+      this.partitioner = configuration.partitioner;
+      this.seedProvider = configuration.seedProvider;
+      this.seedProviderOptions = configuration.seedProviderOptions;
+      this.dataFileDirectories = configuration.dataFileDirectories;
+      this.savedCachesDirectory = configuration.savedCachesDirectory;
+      this.initialToken = configuration.initialToken;
+      this.autoBootstrap = configuration.autoBootstrap;
+      this.authenticator = configuration.authenticator;
+      this.authority = configuration.authority;
+      this.storagePort = configuration.storagePort;
+      this.listenAddress = configuration.listenAddress;
+      this.incrementalBackups = configuration.incrementalBackups;
+      this.requestScheduler = configuration.requestScheduler;
+      this.requestSchedulerOptions = configuration.requestSchedulerOptions;
+      this.hintedHandoffConfiguration = configuration.hintedHandoffConfiguration;
+      this.commitLogConfiguration = configuration.commitLogConfiguration;
+      this.performanceConfiguration = configuration.performanceConfiguration;
+      this.rpcConfiguration = configuration.rpcConfiguration;
+      this.compactionConfiguration = configuration.compactionConfiguration;
+      this.snitchConfiguration = configuration.snitchConfiguration;
+    }
+
     public Builder clusterName(@Nullable String clusterName) {
       this.clusterName = clusterName;
       return this;

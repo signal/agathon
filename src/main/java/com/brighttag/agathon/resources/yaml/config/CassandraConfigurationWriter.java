@@ -85,15 +85,17 @@ public class CassandraConfigurationWriter
         .build();
   }
 
-  private YamlObject optSeedProvider(Class<? extends SeedProvider> seedProvider,
+  private YamlArray optSeedProvider(Class<? extends SeedProvider> seedProvider,
       Map<String, String> options) {
     YamlObject.Builder parameters = new YamlObject.Builder();
     for (Map.Entry<String, String> parameter : options.entrySet()) {
       parameters.put(parameter.getKey(), parameter.getValue());
     }
-    return new YamlObject.Builder()
-        .put("class_name", seedProvider.getName())
-        .put("parameters", parameters.build())
+    return new YamlArray.Builder()
+        .add(new YamlObject.Builder()
+            .put("class_name", seedProvider.getName())
+            .put("parameters", parameters.build())
+            .build())
         .build();
   }
 

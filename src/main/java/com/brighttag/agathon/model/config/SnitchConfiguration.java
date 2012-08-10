@@ -141,6 +141,18 @@ public class SnitchConfiguration {
     private Optional<Period> dynamicSnitchResetInterval = Optional.absent();
     private Optional<Double> dynamicSnitchBadnessThreshold = Optional.absent();
 
+    public Builder() {
+      // Nothing to do
+    }
+
+    public Builder(SnitchConfiguration configuration) {
+      this.endpointSnitch = configuration.endpointSnitch;
+      this.dynamicSnitch = configuration.dynamicSnitch;
+      this.dynamicSnitchUpdateInterval = configuration.dynamicSnitchUpdateInterval;
+      this.dynamicSnitchResetInterval = configuration.dynamicSnitchResetInterval;
+      this.dynamicSnitchBadnessThreshold = configuration.dynamicSnitchBadnessThreshold;
+    }
+
     public Builder endpointSnitch(@Nullable Class<? extends IEndpointSnitch> endpointSnitch) {
       this.endpointSnitch = endpointSnitch;
       return this;

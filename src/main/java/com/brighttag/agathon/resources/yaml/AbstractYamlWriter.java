@@ -33,6 +33,10 @@ public abstract class AbstractYamlWriter<T> implements YamlWriter<T>, MessageBod
   public void writeTo(T obj, Class<?> type, Type genericType, Annotation[] annotations,
       MediaType mediaType, MultivaluedMap<String, Object> httpHeaders,
       OutputStream entityStream) throws IOException {
+    writeTo(obj, entityStream);
+  }
+
+  public void writeTo(T obj, OutputStream entityStream) throws IOException {
     try {
       entityStream.write(toYaml(obj).toString().getBytes(Charsets.UTF_8));
     } catch (YamlException e) {

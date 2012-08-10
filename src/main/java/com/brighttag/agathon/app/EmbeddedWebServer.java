@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.brighttag.agathon.servlet.GuiceServletConfig;
+import com.brighttag.agathon.servlet.ServiceRegistryServletContextListener;
 
 /**
  * An embedded web server for running Agathon.
@@ -39,6 +40,7 @@ public class EmbeddedWebServer {
     context.addFilter(GuiceFilter.class, "/*", 0);
     context.addServlet(DefaultServlet.class, "/");
     context.addEventListener(new GuiceServletConfig());
+    context.addEventListener(new ServiceRegistryServletContextListener());
   }
 
   /**

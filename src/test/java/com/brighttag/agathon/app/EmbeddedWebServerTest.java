@@ -15,6 +15,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.brighttag.agathon.servlet.GuiceServletConfig;
+import com.brighttag.agathon.servlet.ServiceRegistryServletContextListener;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
@@ -48,6 +49,7 @@ public class EmbeddedWebServerTest  {
     expect(context.addFilter(GuiceFilter.class, "/*", 0)).andReturn(null);
     expect(context.addServlet(DefaultServlet.class, "/")).andReturn(null);
     context.addEventListener(isA(GuiceServletConfig.class));
+    context.addEventListener(isA(ServiceRegistryServletContextListener.class));
   }
 
   @After

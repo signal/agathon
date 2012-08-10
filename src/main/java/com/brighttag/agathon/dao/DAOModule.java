@@ -1,5 +1,6 @@
 package com.brighttag.agathon.dao;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.AbstractModule;
 
 import org.slf4j.Logger;
@@ -18,7 +19,7 @@ public class DAOModule extends AbstractModule {
 
   private static final Logger LOG = LoggerFactory.getLogger(DAOModule.class);
 
-  public static final String DATABASE_PROPERTY = "com.brighttag.agathon.database";
+  @VisibleForTesting public static final String DATABASE_PROPERTY = "com.brighttag.agathon.database";
 
   @Override
   protected void configure() {

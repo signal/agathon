@@ -9,6 +9,10 @@
         <listener-class>com.brighttag.agathon.servlet.GuiceServletConfig</listener-class>
     </listener>
 
+    <listener>
+        <listener-class>com.brighttag.agathon.servlet.ServiceRegistryServletContextListener</listener-class>
+    </listener>
+
     <filter>
         <filter-name>guiceFilter</filter-name>
         <filter-class>com.google.inject.servlet.GuiceFilter</filter-class>

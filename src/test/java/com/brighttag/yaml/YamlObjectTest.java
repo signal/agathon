@@ -8,11 +8,23 @@ import com.google.common.testing.EqualsTester;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author codyaray
  * @since 7/16/12
  */
 public class YamlObjectTest {
+
+  @Test
+  public void constructor_emptyInputStream() {
+    assertEquals(new YamlObject(), new YamlObject(baos("")));
+  }
+
+  @Test
+  public void constructor_nullValueInputStream() {
+    assertEquals(new YamlObject(), new YamlObject(baos("key_without_value: ")));
+  }
 
   @Test
   public void equals() {

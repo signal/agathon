@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -27,9 +28,9 @@ public class YamlObject extends AbstractHeterogeneousMap {
 
   @SuppressWarnings("unchecked")
   public YamlObject(InputStream inputStream) {
-    this(Objects.firstNonNull(
+    this(denullifyMap(Objects.firstNonNull(
         (Map<String, Object>) new Yaml().load(inputStream),
-        ImmutableMap.<String, Object>of()));
+        ImmutableMap.<String, Object>of())));
   }
 
   YamlObject(Map<String, Object> object) {
@@ -149,6 +150,18 @@ public class YamlObject extends AbstractHeterogeneousMap {
   public @Nullable YamlObject optMap(String key) {
     HeterogeneousMap object = super.optMap(key);
     return (object == null) ? null : new YamlObject(object.asMap());
+  }
+
+  private static Map<String, Object> denullifyMap(Map<String, Object> object) {
+    Map<String, Object> ret = Maps.newLinkedHashMap();
+    for (Map.Entry<String, Object> entry : object.entrySet()) {
+      String key = entry.getKey();
+      Object value = entry.getValue();
+      if (key != null && value != null) {
+        ret.put(key, value);
+      }
+    }
+    return ret;
   }
 
   /**

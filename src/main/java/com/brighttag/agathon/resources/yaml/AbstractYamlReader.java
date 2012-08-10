@@ -33,6 +33,10 @@ public abstract class AbstractYamlReader<T> implements YamlReader<T>, MessageBod
   public T readFrom(Class<T> type, Type genericType, Annotation[] annotations,
       MediaType mediaType, MultivaluedMap<String, String> httpHeaders,
       InputStream entityStream) throws IOException {
+    return readFrom(entityStream);
+  }
+
+  public T readFrom(InputStream entityStream) throws IOException {
     try {
       return fromYaml(new YamlObject(entityStream));
     } catch (YamlException e) {
