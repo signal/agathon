@@ -6,7 +6,7 @@
     <display-name>agathon</display-name>
 
     <listener>
-        <listener-class>com.brighttag.agathon.app.GuiceServletConfig</listener-class>
+        <listener-class>com.brighttag.agathon.servlet.GuiceServletConfig</listener-class>
     </listener>
 
     <filter>

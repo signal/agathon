@@ -11,6 +11,8 @@ import org.mortbay.jetty.servlet.DefaultServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.brighttag.agathon.servlet.GuiceServletConfig;
+
 /**
  * An embedded web server for running Agathon.
  *

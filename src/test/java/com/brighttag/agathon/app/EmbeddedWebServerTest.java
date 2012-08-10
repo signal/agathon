@@ -14,6 +14,8 @@ import org.mortbay.jetty.servlet.DefaultServlet;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import com.brighttag.agathon.servlet.GuiceServletConfig;
+
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.isA;

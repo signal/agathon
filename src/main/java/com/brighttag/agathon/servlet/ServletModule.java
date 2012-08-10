@@ -1,4 +1,4 @@
-package com.brighttag.agathon.app;
+package com.brighttag.agathon.servlet;
 
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -17,7 +17,7 @@ import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
  * @author codyaray
  * @since 5/12/12
  */
-public class AgathonServletModule extends JerseyServletModule {
+public class ServletModule extends JerseyServletModule {
 
   @Override
   protected void configureServlets() {

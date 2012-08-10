@@ -1,4 +1,4 @@
-package com.brighttag.agathon.app;
+package com.brighttag.agathon.servlet;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -18,7 +18,7 @@ public class GuiceServletConfig extends GuiceServletContextListener {
   @Override
   protected Injector getInjector() {
     return Guice.createInjector(
-        new AgathonServletModule(),
+        new ServletModule(),
         new ServiceModule(),
         new DAOModule());
   }

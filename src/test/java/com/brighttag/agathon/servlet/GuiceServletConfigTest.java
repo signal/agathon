@@ -1,4 +1,4 @@
-package com.brighttag.agathon.app;
+package com.brighttag.agathon.servlet;
 
 import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceFilter;
