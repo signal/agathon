@@ -31,7 +31,8 @@ public class CassandraConfigurationRewriterServiceTest extends EasyMockSupport {
     configuration = createMock(CassandraConfiguration.class);
     writer = createMock(CassandraConfigurationWriter.class);
     outputStream = createMock(OutputStream.class);
-    service = new CassandraConfigurationRewriterService(configuration, writer, Providers.of(outputStream));
+    service = new CassandraConfigurationRewriterService(Providers.of(configuration),
+        writer, Providers.of(outputStream));
   }
 
   @After

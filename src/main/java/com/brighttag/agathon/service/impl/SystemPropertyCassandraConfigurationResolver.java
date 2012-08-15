@@ -9,9 +9,9 @@ import org.apache.cassandra.locator.Ec2MultiRegionSnitch;
 import org.apache.cassandra.locator.IEndpointSnitch;
 
 import com.brighttag.agathon.cassandra.AgathonSeedProvider;
+import com.brighttag.agathon.model.CassandraInstance;
 import com.brighttag.agathon.model.config.CassandraConfiguration;
 import com.brighttag.agathon.model.config.SnitchConfiguration;
-import com.brighttag.agathon.service.CassandraConfigurationResolver;
 
 /**
  * Reads in a Cassandra configuration from system properties.
@@ -19,13 +19,14 @@ import com.brighttag.agathon.service.CassandraConfigurationResolver;
  * @author codyaray
  * @since 8/3/12
  */
-public class SystemPropertyCassandraConfigurationResolver implements CassandraConfigurationResolver {
+class SystemPropertyCassandraConfigurationResolver implements CassandraConfigurationResolver {
 
   @VisibleForTesting static final String CLUSTER_NAME = "com.brighttag.agathon.config.cluster_name";
   @VisibleForTesting static final String ENDPOINT_SNITCH = "com.brighttag.agathon.config.endpoint_snitch";
 
   @Override
-  public CassandraConfiguration getConfiguration(CassandraConfiguration chainedConfiguration) {
+  public CassandraConfiguration getConfiguration(CassandraInstance unused,
+      CassandraConfiguration chainedConfiguration) {
     return new CassandraConfiguration.Builder(chainedConfiguration)
         .clusterName(Objects.firstNonNull(
             System.getProperty(CLUSTER_NAME), chainedConfiguration.getClusterName()))

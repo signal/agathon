@@ -9,6 +9,7 @@ import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.brighttag.agathon.model.CassandraInstance;
 import com.brighttag.agathon.service.TokenService;
 
 /**
@@ -30,9 +31,9 @@ public class CompositeTokenService implements TokenService {
   }
 
   @Override
-  public @Nullable BigInteger getToken() {
+  public @Nullable BigInteger getToken(CassandraInstance instance) {
     for (TokenService service : services) {
-      BigInteger token = service.getToken();
+      BigInteger token = service.getToken(instance);
       if (token != null) {
         LOG.debug("Using token {} from {}", token, service.getClass().getSimpleName());
         return token;

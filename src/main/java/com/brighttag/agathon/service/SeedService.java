@@ -3,9 +3,8 @@ package com.brighttag.agathon.service;
 import java.util.Set;
 
 /**
- * Provides the hostnames of Cassandra instances as seeds for the
- * Cassandra coprocess. Alternative implementations may provide
- * support for different network and ring topologies.
+ * Provides the set of hostnames used to seed the Cassandra cluster. Alternative
+ * implementations may provide support for different network and ring topologies.
  *
  * @author codyaray
  * @since 5/25/12
@@ -13,8 +12,8 @@ import java.util.Set;
 public interface SeedService {
 
   /**
-   * Returns the seeds for the coprocess instance.
-   * @return the seeds for the coprocess instance
+   * Returns the seeds for the Cassandra cluster.
+   * @return the seeds for the Cassandra cluster
    */
   Set<String> getSeeds();
 

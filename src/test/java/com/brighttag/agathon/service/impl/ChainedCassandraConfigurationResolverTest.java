@@ -9,8 +9,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.brighttag.agathon.model.CassandraInstance;
 import com.brighttag.agathon.model.config.CassandraConfiguration;
-import com.brighttag.agathon.service.CassandraConfigurationResolver;
 
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertSame;
@@ -22,10 +22,12 @@ import static org.junit.Assert.assertSame;
 public class ChainedCassandraConfigurationResolverTest extends EasyMockSupport {
 
   private CassandraConfiguration chainedConfiguration;
+  private CassandraInstance instance;
 
   @Before
   public void setUp() {
     chainedConfiguration = createMock(CassandraConfiguration.class);
+    instance = createMock(CassandraInstance.class);
   }
 
   @After
@@ -37,7 +39,7 @@ public class ChainedCassandraConfigurationResolverTest extends EasyMockSupport {
   public void getConfiguration_empty() {
     CassandraConfigurationResolver resolver = resolver(ImmutableList.<CassandraConfigurationResolver>of());
     replayAll();
-    assertSame(chainedConfiguration, resolver.getConfiguration(chainedConfiguration));
+    assertSame(chainedConfiguration, resolver.getConfiguration(instance, chainedConfiguration));
   }
 
   @Test
@@ -46,11 +48,11 @@ public class ChainedCassandraConfigurationResolverTest extends EasyMockSupport {
     CassandraConfigurationResolver resolver2 = createMock(CassandraConfigurationResolver.class);
     CassandraConfiguration config1 = createMock(CassandraConfiguration.class);
     CassandraConfiguration config2 = createMock(CassandraConfiguration.class);
-    expect(resolver1.getConfiguration(chainedConfiguration)).andReturn(config1);
-    expect(resolver2.getConfiguration(config1)).andReturn(config2);
+    expect(resolver1.getConfiguration(instance, chainedConfiguration)).andReturn(config1);
+    expect(resolver2.getConfiguration(instance, config1)).andReturn(config2);
     CassandraConfigurationResolver resolver = resolver(ImmutableList.of(resolver1, resolver2));
     replayAll();
-    assertSame(config2, resolver.getConfiguration(chainedConfiguration));
+    assertSame(config2, resolver.getConfiguration(instance, chainedConfiguration));
     verifyAll();
   }
 

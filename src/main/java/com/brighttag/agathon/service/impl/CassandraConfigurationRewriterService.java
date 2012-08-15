@@ -23,13 +23,13 @@ import static com.brighttag.agathon.service.impl.ServiceModule.CASSANDRA_YAML_LO
  */
 public class CassandraConfigurationRewriterService extends AbstractIdleService {
 
-  private final CassandraConfiguration configuration;
+  private final Provider<CassandraConfiguration> configuration;
   private final CassandraConfigurationWriter writer;
   private final Provider<OutputStream> yamlOutputStreamProvider;
 
   @Inject
   public CassandraConfigurationRewriterService(
-      @Coprocess CassandraConfiguration configuration, CassandraConfigurationWriter writer,
+      @Coprocess Provider<CassandraConfiguration> configuration, CassandraConfigurationWriter writer,
       @Named(CASSANDRA_YAML_LOCATION) Provider<OutputStream> yamlOutputStreamProvider) {
     this.configuration = configuration;
     this.writer = writer;
@@ -40,7 +40,7 @@ public class CassandraConfigurationRewriterService extends AbstractIdleService {
   protected void startUp() throws IOException {
     OutputStream out = yamlOutputStreamProvider.get();
     try {
-      writer.writeTo(configuration, out);
+      writer.writeTo(configuration.get(), out);
     } finally {
       Closeables.closeQuietly(out);
     }

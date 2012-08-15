@@ -11,9 +11,9 @@ import com.google.inject.name.Named;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.brighttag.agathon.model.CassandraInstance;
 import com.brighttag.agathon.model.config.CassandraConfiguration;
 import com.brighttag.agathon.resources.yaml.config.CassandraConfigurationReader;
-import com.brighttag.agathon.service.CassandraConfigurationResolver;
 
 import static com.brighttag.agathon.service.impl.ServiceModule.CASSANDRA_YAML_LOCATION;
 
@@ -23,7 +23,7 @@ import static com.brighttag.agathon.service.impl.ServiceModule.CASSANDRA_YAML_LO
  * @author codyaray
  * @since 8/6/12
  */
-public class StreamBasedCassandraConfigurationResolver implements CassandraConfigurationResolver {
+class StreamBasedCassandraConfigurationResolver implements CassandraConfigurationResolver {
 
   private static final Logger LOG = LoggerFactory.getLogger(StreamBasedCassandraConfigurationResolver.class);
 
@@ -38,7 +38,8 @@ public class StreamBasedCassandraConfigurationResolver implements CassandraConfi
   }
 
   @Override
-  public CassandraConfiguration getConfiguration(CassandraConfiguration chainedConfiguration) {
+  public CassandraConfiguration getConfiguration(CassandraInstance instance,
+      CassandraConfiguration chainedConfiguration) {
     InputStream in = yamlInputStreamProvider.get();
     try {
       return reader.readFrom(in);

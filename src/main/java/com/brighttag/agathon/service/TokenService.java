@@ -4,8 +4,10 @@ import java.math.BigInteger;
 
 import javax.annotation.Nullable;
 
+import com.brighttag.agathon.model.CassandraInstance;
+
 /**
- * Provides the token for the Cassandra coprocess. Alternative implementations
+ * Provides the token for a Cassandra instance. Alternative implementations
  * may provide support for different network and ring topologies.
  *
  * @author codyaray
@@ -14,9 +16,9 @@ import javax.annotation.Nullable;
 public interface TokenService {
 
   /**
-   * Returns the token for the coprocess instance, or {@code null} if not available.
-   * @return the token for the coprocess instance
+   * Returns the token for the instance, or {@code null} if not available.
+   * @return the token for the instance
    */
-  @Nullable BigInteger getToken();
+  @Nullable BigInteger getToken(CassandraInstance instance);
 
 }

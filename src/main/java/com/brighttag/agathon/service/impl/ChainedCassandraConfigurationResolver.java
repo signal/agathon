@@ -2,8 +2,8 @@ package com.brighttag.agathon.service.impl;
 
 import com.google.inject.Inject;
 
+import com.brighttag.agathon.model.CassandraInstance;
 import com.brighttag.agathon.model.config.CassandraConfiguration;
-import com.brighttag.agathon.service.CassandraConfigurationResolver;
 
 /**
  * A {@link CassandraConfigurationResolver} that chains the configurations
@@ -13,7 +13,7 @@ import com.brighttag.agathon.service.CassandraConfigurationResolver;
  * @author codyaray
  * @since 8/6/12
  */
-public class ChainedCassandraConfigurationResolver implements CassandraConfigurationResolver {
+class ChainedCassandraConfigurationResolver implements CassandraConfigurationResolver {
 
   private final Iterable<CassandraConfigurationResolver> resolvers;
 
@@ -23,10 +23,11 @@ public class ChainedCassandraConfigurationResolver implements CassandraConfigura
   }
 
   @Override
-  public CassandraConfiguration getConfiguration(CassandraConfiguration chainedConfiguration) {
+  public CassandraConfiguration getConfiguration(CassandraInstance instance,
+      CassandraConfiguration chainedConfiguration) {
     CassandraConfiguration configuration = chainedConfiguration;
     for (CassandraConfigurationResolver resolver : resolvers) {
-      configuration = resolver.getConfiguration(configuration);
+      configuration = resolver.getConfiguration(instance, configuration);
     }
     return configuration;
   }

@@ -1,7 +1,6 @@
 package com.brighttag.agathon.service.impl;
 
 import java.io.File;
-import java.math.BigInteger;
 import java.util.Set;
 
 import com.google.common.util.concurrent.Service;
@@ -16,17 +15,13 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.brighttag.agathon.annotation.Coprocess;
 import com.brighttag.agathon.dao.CassandraInstanceDAO;
-import com.brighttag.agathon.model.CassandraInstance;
-import com.brighttag.agathon.model.config.CassandraConfiguration;
-import com.brighttag.agathon.service.CassandraConfigurationResolver;
+import com.brighttag.agathon.service.CassandraConfigurationService;
 import com.brighttag.agathon.service.CassandraInstanceService;
 import com.brighttag.agathon.service.CoprocessProvider;
 import com.brighttag.agathon.service.SeedService;
 import com.brighttag.agathon.service.TokenService;
 
-import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -58,8 +53,8 @@ public class ServiceModuleTest extends EasyMockSupport {
     Injector injector = Guice.createInjector(new MockDependenciesModule(), new ServiceModule());
     replayAll();
 
-    assertEquals(ChainedCassandraConfigurationResolver.class,
-        injector.getInstance(CassandraConfigurationResolver.class).getClass());
+    assertEquals(CassandraConfigurationServiceImpl.class,
+        injector.getInstance(CassandraConfigurationService.class).getClass());
     assertEquals(CassandraInstanceServiceImpl.class,
         injector.getInstance(CassandraInstanceService.class).getClass());
     assertEquals(SystemPropertyCoprocessProvider.class,
@@ -69,8 +64,6 @@ public class ServiceModuleTest extends EasyMockSupport {
     assertEquals(CompositeTokenService.class,
         injector.getInstance(TokenService.class).getClass());
 
-    assertNotNull(injector.getInstance(Key.get(CassandraConfiguration.class, Coprocess.class)));
-    assertNotNull(injector.getInstance(Key.get(CassandraInstance.class, Coprocess.class)));
     assertNotNull(injector.getInstance(CassandraConfigurationRewriterService.class));
     assertNotNull(injector.getInstance(ServiceRegistry.class));
 
@@ -88,14 +81,10 @@ public class ServiceModuleTest extends EasyMockSupport {
    */
   private class MockDependenciesModule extends AbstractModule {
 
-    private final CassandraInstance coprocess;
     private final CassandraInstanceDAO dao;
 
     MockDependenciesModule() {
-      coprocess = createMock(CassandraInstance.class);
       dao = createMock(CassandraInstanceDAO.class);
-      expect(dao.findById(CASSANDRA_ID)).andReturn(coprocess);
-      expect(coprocess.getToken()).andReturn(BigInteger.ZERO);
     }
 
     @Override

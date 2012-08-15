@@ -2,8 +2,8 @@ package com.brighttag.agathon.service.impl;
 
 import com.google.inject.Inject;
 
+import com.brighttag.agathon.model.CassandraInstance;
 import com.brighttag.agathon.model.config.CassandraConfiguration;
-import com.brighttag.agathon.service.CassandraConfigurationResolver;
 import com.brighttag.agathon.service.TokenService;
 
 /**
@@ -12,7 +12,7 @@ import com.brighttag.agathon.service.TokenService;
  * @author codyaray
  * @since 8/2/12
  */
-public class TokenAppendingCassandraConfigurationResolver implements CassandraConfigurationResolver {
+class TokenAppendingCassandraConfigurationResolver implements CassandraConfigurationResolver {
 
   private final TokenService tokenService;
 
@@ -22,9 +22,10 @@ public class TokenAppendingCassandraConfigurationResolver implements CassandraCo
   }
 
   @Override
-  public CassandraConfiguration getConfiguration(CassandraConfiguration chainedConfiguration) {
+  public CassandraConfiguration getConfiguration(CassandraInstance instance,
+      CassandraConfiguration chainedConfiguration) {
     return new CassandraConfiguration.Builder(chainedConfiguration)
-        .initialToken(tokenService.getToken())
+        .initialToken(tokenService.getToken(instance))
         .build();
   }
 

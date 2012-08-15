@@ -10,9 +10,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.brighttag.agathon.model.CassandraInstance;
 import com.brighttag.agathon.model.config.CassandraConfiguration;
 import com.brighttag.agathon.resources.yaml.config.CassandraConfigurationReader;
-import com.brighttag.agathon.service.CassandraConfigurationResolver;
 
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
@@ -25,10 +25,12 @@ public class StreamBasedCassandraConfigurationResolverTest extends EasyMockSuppo
 
   private CassandraConfigurationResolver resolver;
   private CassandraConfigurationReader reader;
+  private CassandraInstance instance;
   private InputStream inputStream;
 
   @Before
   public void setUp() {
+    instance = createMock(CassandraInstance.class);
     reader = createMock(CassandraConfigurationReader.class);
     inputStream = createMock(InputStream.class);
     resolver = new StreamBasedCassandraConfigurationResolver(reader, Providers.of(inputStream));
@@ -45,7 +47,7 @@ public class StreamBasedCassandraConfigurationResolverTest extends EasyMockSuppo
     expect(reader.readFrom(inputStream)).andReturn(expected);
     inputStream.close();
     replayAll();
-    assertEquals(expected, resolver.getConfiguration(CassandraConfiguration.DEFAULT));
+    assertEquals(expected, resolver.getConfiguration(instance, CassandraConfiguration.DEFAULT));
   }
 
   @Test
@@ -54,7 +56,7 @@ public class StreamBasedCassandraConfigurationResolverTest extends EasyMockSuppo
     inputStream.close();
     replayAll();
     assertEquals(CassandraConfiguration.DEFAULT,
-        resolver.getConfiguration(CassandraConfiguration.DEFAULT));
+        resolver.getConfiguration(instance, CassandraConfiguration.DEFAULT));
   }
 
 }

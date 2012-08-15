@@ -21,14 +21,11 @@ public class AssignedTokenServiceTest extends EasyMockSupport {
 
   private static final BigInteger TOKEN = BigInteger.TEN;
 
-  private CassandraInstance coprocess;
-
   private TokenService service;
 
   @Before
   public void setUp() {
-    coprocess = createMock(CassandraInstance.class);
-    service = new AssignedTokenService(coprocess);
+    service = new AssignedTokenService();
   }
 
   @After
@@ -38,10 +35,11 @@ public class AssignedTokenServiceTest extends EasyMockSupport {
 
   @Test
   public void getToken() {
+    CassandraInstance coprocess = createMock(CassandraInstance.class);
     expect(coprocess.getToken()).andReturn(TOKEN);
     replayAll();
 
-    assertEquals(TOKEN, service.getToken());
+    assertEquals(TOKEN, service.getToken(coprocess));
   }
 
 }

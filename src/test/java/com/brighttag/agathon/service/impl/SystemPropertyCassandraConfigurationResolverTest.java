@@ -2,13 +2,14 @@ package com.brighttag.agathon.service.impl;
 
 import org.apache.cassandra.locator.Ec2MultiRegionSnitch;
 import org.apache.cassandra.locator.Ec2Snitch;
+import org.easymock.EasyMockSupport;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.brighttag.agathon.cassandra.AgathonSeedProvider;
+import com.brighttag.agathon.model.CassandraInstance;
 import com.brighttag.agathon.model.config.CassandraConfiguration;
 import com.brighttag.agathon.model.config.SnitchConfiguration;
-import com.brighttag.agathon.service.CassandraConfigurationResolver;
 
 import static org.junit.Assert.assertEquals;
 
@@ -16,12 +17,14 @@ import static org.junit.Assert.assertEquals;
  * @author codyaray
  * @since 8/3/12
  */
-public class SystemPropertyCassandraConfigurationResolverTest {
+public class SystemPropertyCassandraConfigurationResolverTest extends EasyMockSupport {
 
   private CassandraConfigurationResolver resolver;
+  private CassandraInstance instance;
 
   @Before
   public void setUp() {
+    instance = createMock(CassandraInstance.class);
     resolver = new SystemPropertyCassandraConfigurationResolver();
   }
 
@@ -33,7 +36,7 @@ public class SystemPropertyCassandraConfigurationResolverTest {
             .endpointSnitch(Ec2MultiRegionSnitch.class)
             .build())
         .build();
-    assertEquals(expected, resolver.getConfiguration(CassandraConfiguration.DEFAULT));
+    assertEquals(expected, resolver.getConfiguration(instance, CassandraConfiguration.DEFAULT));
   }
 
   @Test
@@ -49,7 +52,7 @@ public class SystemPropertyCassandraConfigurationResolverTest {
             .endpointSnitch(Ec2Snitch.class)
             .build())
         .build();
-    assertEquals(expected, resolver.getConfiguration(chainedConfiguration));
+    assertEquals(expected, resolver.getConfiguration(instance, chainedConfiguration));
     System.clearProperty(SystemPropertyCassandraConfigurationResolver.CLUSTER_NAME);
     System.clearProperty(SystemPropertyCassandraConfigurationResolver.ENDPOINT_SNITCH);
   }

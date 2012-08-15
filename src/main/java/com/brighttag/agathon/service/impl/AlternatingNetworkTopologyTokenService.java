@@ -6,7 +6,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
-import com.brighttag.agathon.annotation.Coprocess;
 import com.brighttag.agathon.model.CassandraInstance;
 import com.brighttag.agathon.service.TokenService;
 
@@ -59,21 +58,19 @@ public class AlternatingNetworkTopologyTokenService implements TokenService {
 
   private static final BigInteger MAXIMUM_TOKEN = new BigInteger("2").pow(127);
 
-  private final CassandraInstance coprocess;
   private final int numNodes;
 
   @Inject
-  public AlternatingNetworkTopologyTokenService(@Coprocess CassandraInstance coprocess,
+  public AlternatingNetworkTopologyTokenService(
       @Named(ServiceModule.NODES_PER_DATACENTER_PROPERTY) int numNodes) {
-    this.coprocess = coprocess;
     this.numNodes = numNodes;
   }
 
   @Override
-  public BigInteger getToken() {
+  public BigInteger getToken(CassandraInstance instance) {
     return initialToken(numNodes,
-        positionInDataCenter(coprocess.getId()),
-        offsetForDataCenter(coprocess.getDataCenter()));
+        positionInDataCenter(instance.getId()),
+        offsetForDataCenter(instance.getDataCenter()));
   }
 
   /**

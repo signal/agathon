@@ -25,7 +25,7 @@ public class AlternatingNetworkTopologyTokenServiceTest extends EasyMockSupport 
   @Before
   public void setUp() {
     coprocess = createMock(CassandraInstance.class);
-    service = new AlternatingNetworkTopologyTokenService(coprocess, 4);
+    service = new AlternatingNetworkTopologyTokenService(4);
   }
 
   @After
@@ -40,9 +40,9 @@ public class AlternatingNetworkTopologyTokenServiceTest extends EasyMockSupport 
     expectTokenFor(3, "eu-west-1");
     replayAll();
 
-    assertEquals("1808575600", service.getToken().toString());
-    assertEquals("42535295865117307932921825929151137186", service.getToken().toString());
-    assertEquals("85070591730234615865843651858314800976", service.getToken().toString());
+    assertEquals("1808575600", service.getToken(coprocess).toString());
+    assertEquals("42535295865117307932921825929151137186", service.getToken(coprocess).toString());
+    assertEquals("85070591730234615865843651858314800976", service.getToken(coprocess).toString());
   }
 
   private void expectTokenFor(int id, String dataCenter) {
