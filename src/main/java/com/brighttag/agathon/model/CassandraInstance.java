@@ -26,16 +26,19 @@ public class CassandraInstance implements Comparable<CassandraInstance> {
   private final String datacenter;
   private final String rack;
   private final String hostname;
+  private final String publicIpAddress;
   private final @Nullable BigInteger token;
 
   private CassandraInstance(
       @JsonProperty("id") int id, @JsonProperty("datacenter") String datacenter,
       @JsonProperty("rack") String rack, @JsonProperty("hostname") String hostname,
+      @JsonProperty("publicIpAddress") String publicIpAddress,
       @Nullable @JsonProperty("token") BigInteger token) {
     this.id = id;
     this.datacenter = datacenter;
     this.rack = rack;
     this.hostname = hostname;
+    this.publicIpAddress = publicIpAddress;
     this.token = token;
   }
 
@@ -44,6 +47,7 @@ public class CassandraInstance implements Comparable<CassandraInstance> {
     this.datacenter = builder.datacenter;
     this.rack = builder.rack;
     this.hostname = builder.hostname;
+    this.publicIpAddress = builder.publicIpAddress;
     this.token = builder.token;
   }
 
@@ -63,6 +67,10 @@ public class CassandraInstance implements Comparable<CassandraInstance> {
     return hostname;
   }
 
+  public @NotEmpty String getPublicIpAddress() {
+    return publicIpAddress;
+  }
+
   public @Nullable @Min(0) BigInteger getToken() {
     return token;
   }
@@ -76,6 +84,7 @@ public class CassandraInstance implements Comparable<CassandraInstance> {
         .compare(this.datacenter, that.datacenter)
         .compare(this.rack, that.rack)
         .compare(this.hostname, that.hostname)
+        .compare(this.publicIpAddress, that.publicIpAddress)
         .result();
   }
 
@@ -103,12 +112,13 @@ public class CassandraInstance implements Comparable<CassandraInstance> {
         .add("datacenter", datacenter)
         .add("rack", rack)
         .add("hostname", hostname)
+        .add("publicIpAddress", publicIpAddress)
         .add("token", token)
         .toString();
   }
 
   private Object[] significantAttributes() {
-    return new Object[] {id, datacenter, rack, hostname, token};
+    return new Object[] {id, datacenter, rack, hostname, publicIpAddress, token};
   }
 
   /**
@@ -123,6 +133,7 @@ public class CassandraInstance implements Comparable<CassandraInstance> {
     private String datacenter;
     private String rack;
     private String hostname;
+    private String publicIpAddress;
     private @Nullable BigInteger token;
 
     public Builder id(int id) {
@@ -142,6 +153,11 @@ public class CassandraInstance implements Comparable<CassandraInstance> {
 
     public Builder hostName(String hostName) {
       this.hostname = hostName;
+      return this;
+    }
+
+    public Builder publicIpAddress(String publicIpAddress) {
+      this.publicIpAddress = publicIpAddress;
       return this;
     }
 

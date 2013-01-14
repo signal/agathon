@@ -30,6 +30,7 @@ public class CassandraInstanceTest {
   private static final String DATA_CENTER = "dataCenter";
   private static final String RACK = "rack";
   private static final String HOST_NAME = "hostName";
+  private static final String PUBLIC_IP_ADDRESS = "publicIpAddress";
 
   private static final BigInteger TOKEN1 = BigInteger.valueOf(1);
   private static final BigInteger TOKEN2 = BigInteger.valueOf(2);
@@ -59,6 +60,7 @@ public class CassandraInstanceTest {
     assertNotEmptyViolation(DATA_CENTER, builder().dataCenter(null).build());
     assertNotEmptyViolation(RACK, builder().rack(null).build());
     assertNotEmptyViolation(HOST_NAME, builder().hostName(null).build());
+    assertNotEmptyViolation(PUBLIC_IP_ADDRESS, builder().publicIpAddress(null) .build());
   }
 
   @Test
@@ -66,6 +68,7 @@ public class CassandraInstanceTest {
     assertNotEmptyViolation(DATA_CENTER, builder().dataCenter("").build());
     assertNotEmptyViolation(RACK, builder().rack("").build());
     assertNotEmptyViolation(HOST_NAME, builder().hostName("").build());
+    assertNotEmptyViolation(PUBLIC_IP_ADDRESS, builder().publicIpAddress("").build());
   }
 
   @Test
@@ -83,6 +86,7 @@ public class CassandraInstanceTest {
         .addEqualityGroup(builder().dataCenter(DATA_CENTER).build())
         .addEqualityGroup(builder().rack(RACK).build())
         .addEqualityGroup(builder().hostName(HOST_NAME).build())
+        .addEqualityGroup(builder().publicIpAddress(PUBLIC_IP_ADDRESS).build())
         .testEquals();
   }
 
@@ -141,7 +145,8 @@ public class CassandraInstanceTest {
         .token(BigInteger.valueOf(0))
         .dataCenter("dataCenter0")
         .rack("rack0")
-        .hostName("hostName0");
+        .hostName("hostName0")
+        .publicIpAddress("1.1.1.1");
   }
 
 }

@@ -11,6 +11,7 @@ import com.amazonaws.services.simpledb.model.PutAttributesRequest;
 import com.amazonaws.services.simpledb.model.ReplaceableAttribute;
 import com.amazonaws.services.simpledb.model.SelectRequest;
 import com.amazonaws.services.simpledb.model.SelectResult;
+import com.brighttag.agathon.model.CassandraInstance;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -22,8 +23,6 @@ import org.easymock.EasyMockSupport;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.brighttag.agathon.model.CassandraInstance;
 
 import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.expect;
@@ -42,6 +41,7 @@ public class SdbCassandraInstanceDAOTest extends EasyMockSupport {
   private static final String DATACENTER = "dc";
   private static final String RACK = "rack";
   private static final String HOSTNAME = "host";
+  private static final String PUBLIC_IP_ADDRESS = "publicIpAddress";
   private static final String NEXT_TOKEN = "nextToken";
 
   private AmazonSimpleDBClient simpleDbClient;
@@ -144,6 +144,7 @@ public class SdbCassandraInstanceDAOTest extends EasyMockSupport {
     expect(instance.getDataCenter()).andReturn(DATACENTER);
     expect(instance.getRack()).andReturn(RACK);
     expect(instance.getHostName()).andReturn(HOSTNAME);
+    expect(instance.getPublicIpAddress()).andReturn(PUBLIC_IP_ADDRESS);
     simpleDbClient.putAttributes(capture(requestCapture));
     replayAll();
 
@@ -164,6 +165,7 @@ public class SdbCassandraInstanceDAOTest extends EasyMockSupport {
     expect(instance.getDataCenter()).andReturn(DATACENTER);
     expect(instance.getRack()).andReturn(RACK);
     expect(instance.getHostName()).andReturn(HOSTNAME);
+    expect(instance.getPublicIpAddress()).andReturn(PUBLIC_IP_ADDRESS);
     simpleDbClient.deleteAttributes(capture(requestCapture));
     replayAll();
 
@@ -185,6 +187,7 @@ public class SdbCassandraInstanceDAOTest extends EasyMockSupport {
     assertEquals("dc1", instance.getDataCenter());
     assertEquals("rack1", instance.getRack());
     assertEquals("host1", instance.getHostName());
+    assertEquals("publicIpAddress1", instance.getPublicIpAddress());
   }
 
   private List<Item> createItems() {
@@ -207,7 +210,8 @@ public class SdbCassandraInstanceDAOTest extends EasyMockSupport {
         createAttribute(SdbCassandraInstanceDAO.TOKEN_KEY, String.valueOf(ordinal)),
         createAttribute(SdbCassandraInstanceDAO.DATACENTER_KEY, DATACENTER + ordinal),
         createAttribute(SdbCassandraInstanceDAO.RACK_KEY, RACK + ordinal),
-        createAttribute(SdbCassandraInstanceDAO.HOSTNAME_KEY, HOSTNAME + ordinal));
+        createAttribute(SdbCassandraInstanceDAO.HOSTNAME_KEY, HOSTNAME + ordinal),
+        createAttribute(SdbCassandraInstanceDAO.PUBLIC_IP_ADDRESS_KEY, PUBLIC_IP_ADDRESS + ordinal));
   }
 
   private Attribute createAttribute(String key, String value) {
@@ -226,7 +230,7 @@ public class SdbCassandraInstanceDAOTest extends EasyMockSupport {
   }
 
   private static void assertReplaceableAttributes(PutAttributesRequest request) {
-    assertEquals(5, request.getAttributes().size());
+    assertEquals(6, request.getAttributes().size());
     for (ReplaceableAttribute attr : request.getAttributes()) {
       if (attr.getName().equals(SdbCassandraInstanceDAO.ID_KEY)) {
         assertEquals(String.valueOf(ID), attr.getValue());
@@ -243,6 +247,9 @@ public class SdbCassandraInstanceDAOTest extends EasyMockSupport {
       } else if (attr.getName().equals(SdbCassandraInstanceDAO.HOSTNAME_KEY)) {
         assertEquals(HOSTNAME, attr.getValue());
         assertEquals(true, attr.getReplace());
+      } else if (attr.getName().endsWith(SdbCassandraInstanceDAO.PUBLIC_IP_ADDRESS_KEY)) {
+        assertEquals(PUBLIC_IP_ADDRESS, attr.getValue());
+        assertEquals(true, attr.getReplace());
       } else {
         assertDuplicateAttribute(attr.getName(), attr.getValue());
       }
@@ -250,7 +257,7 @@ public class SdbCassandraInstanceDAOTest extends EasyMockSupport {
   }
 
   private static void assertAttributes(DeleteAttributesRequest request) {
-    assertEquals(5, request.getAttributes().size());
+    assertEquals(6, request.getAttributes().size());
     for (Attribute attr : request.getAttributes()) {
       if (attr.getName().equals(SdbCassandraInstanceDAO.ID_KEY)) {
         assertEquals(String.valueOf(ID), attr.getValue());
@@ -262,6 +269,8 @@ public class SdbCassandraInstanceDAOTest extends EasyMockSupport {
         assertEquals(RACK, attr.getValue());
       } else if (attr.getName().equals(SdbCassandraInstanceDAO.HOSTNAME_KEY)) {
         assertEquals(HOSTNAME, attr.getValue());
+      } else if (attr.getName().endsWith(SdbCassandraInstanceDAO.PUBLIC_IP_ADDRESS_KEY)) {
+        assertEquals(PUBLIC_IP_ADDRESS, attr.getValue());
       } else {
         assertDuplicateAttribute(attr.getName(), attr.getValue());
       }

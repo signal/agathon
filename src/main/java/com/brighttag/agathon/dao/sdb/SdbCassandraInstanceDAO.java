@@ -39,6 +39,7 @@ public class SdbCassandraInstanceDAO implements CassandraInstanceDAO {
   @VisibleForTesting static final String DATACENTER_KEY = "datacenter";
   @VisibleForTesting static final String RACK_KEY = "rack";
   @VisibleForTesting static final String HOSTNAME_KEY = "hostname";
+  @VisibleForTesting static final String PUBLIC_IP_ADDRESS_KEY = "publicIpAddress";
 
   @VisibleForTesting static final String ALL_QUERY =
       "SELECT * FROM " + DOMAIN;
@@ -110,6 +111,8 @@ public class SdbCassandraInstanceDAO implements CassandraInstanceDAO {
         instanceBuilder.rack(attr.getValue());
       } else if (attr.getName().equals(HOSTNAME_KEY)) {
         instanceBuilder.hostName(attr.getValue());
+      } else if (attr.getName().equals(PUBLIC_IP_ADDRESS_KEY)) {
+        instanceBuilder.publicIpAddress(attr.getValue());
       }
     }
     return instanceBuilder.build();
@@ -121,6 +124,7 @@ public class SdbCassandraInstanceDAO implements CassandraInstanceDAO {
     attrs.add(attribute(DATACENTER_KEY, instance.getDataCenter(), true));
     attrs.add(attribute(RACK_KEY, instance.getRack(), true));
     attrs.add(attribute(HOSTNAME_KEY, instance.getHostName(), true));
+    attrs.add(attribute(PUBLIC_IP_ADDRESS_KEY, instance.getPublicIpAddress(), true));
     if (instance.getToken() != null) {
       attrs.add(attribute(TOKEN_KEY, instance.getToken().toString(), true));
     }
@@ -133,6 +137,7 @@ public class SdbCassandraInstanceDAO implements CassandraInstanceDAO {
     attrs.add(attribute(DATACENTER_KEY, instance.getDataCenter()));
     attrs.add(attribute(RACK_KEY, instance.getRack()));
     attrs.add(attribute(HOSTNAME_KEY, instance.getHostName()));
+    attrs.add(attribute(PUBLIC_IP_ADDRESS_KEY, instance.getPublicIpAddress()));
     if (instance.getToken() != null) {
       attrs.add(attribute(TOKEN_KEY, instance.getToken().toString()));
     }
