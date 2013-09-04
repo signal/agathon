@@ -15,7 +15,8 @@ public class FakeDAOModule extends PrivateModule {
 
   @Override
   protected void configure() {
-    bind(CassandraInstanceDAO.class).to(FakeCassandraInstanceDAO.class).in(Singleton.class);
+    bind(FakeCassandraInstanceDAO.class).in(Singleton.class);
+    bind(CassandraInstanceDAO.class).to(FakeCassandraInstanceDAO.class);
     expose(CassandraInstanceDAO.class);
   }
 

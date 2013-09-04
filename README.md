@@ -29,10 +29,14 @@ Configuration is currently done through system properties.
 ### Optional Properties
 
 * `com.brighttag.agathon.database`: the database used for storing Cassandra instance records; one of `sdb` (SimpleDB), `fake` (in-memory store); defaults to `sdb`
-* `com.brighttag.agathon.nodes.per_datacenter`: the number of nodes per data center returned to the `AgathonSeedProvider`; defaults to `4`
-* `com.brighttag.agathon.seeds.per_datacenter`: the number of seeds per data center used for token calculations; defaults to `2`
-* `com.brighttag.agathon.aws.access_key`: your Amazon Web Service Access Key. Required for AWS support (e.g., for SimpleDB)
-* `com.brighttag.agathon.aws.secret_key`: your Amazon Web Service Secret Key. Required for AWS support (e.g., for SimpleDB)
+* `com.brighttag.agathon.nodes.per_datacenter`: the number of nodes per data center used for token calculations; defaults to `4`
+* `com.brighttag.agathon.seeds.per_datacenter`: the number of seeds per data center returned to the `AgathonSeedProvider`; defaults to `2`
+* `com.brighttag.agathon.aws.access_key`: your Amazon Web Service Access Key. Required for AWS support (e.g., for SimpleDB or EC2 Security Group Management)
+* `com.brighttag.agathon.aws.secret_key`: your Amazon Web Service Secret Key. Required for AWS support (e.g., for SimpleDB or EC2 Security Group Management)
+* `com.brighttag.agathon.security.group_management_enabled`: set to `true` to enable task that updates a security group with current ring members
+* `com.brighttag.agathon.security.group_name`: name of Agathon/Cassandra security group. Required for Security Group Management
+* `com.brighttag.agathon.security.group_update_frequency_seconds`: frequency at which security group updates are applied
+* `com.brighttag.agathon.cassandra.gossip_port`: Cassandra gossip port, used to form ingress rules for security updates
 
 ## Usage
 

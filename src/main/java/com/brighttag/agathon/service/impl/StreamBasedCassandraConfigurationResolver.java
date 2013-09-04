@@ -3,7 +3,10 @@ package com.brighttag.agathon.service.impl;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.annotation.Nullable;
+
 import com.google.common.io.Closeables;
+import com.google.common.io.Closer;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
@@ -40,14 +43,27 @@ class StreamBasedCassandraConfigurationResolver implements CassandraConfiguratio
   @Override
   public CassandraConfiguration getConfiguration(CassandraInstance instance,
       CassandraConfiguration chainedConfiguration) {
-    InputStream in = yamlInputStreamProvider.get();
+    Closer closer = Closer.create();
+    InputStream in = closer.register(yamlInputStreamProvider.get());
     try {
       return reader.readFrom(in);
     } catch (IOException e) {
       LOG.warn("Exception reading Cassandra config input stream; returning default", e);
       return chainedConfiguration;
     } finally {
-      Closeables.closeQuietly(in);
+      closeQuietly(closer);
+    }
+  }
+
+  /**
+   * Guava's {@link Closeables#closeQuietly(Closeable)} was deprecated, but it was
+   * okay and useful for readable streams where exceptions on close are meaningless.
+   */
+  private static void closeQuietly(@Nullable Closer closer) {
+    try {
+      closer.close();
+    } catch (IOException e) {
+      LOG.error("IOException should not have been thrown.", e);
     }
   }
 

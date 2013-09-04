@@ -40,13 +40,13 @@ public class ServiceRegistry extends AbstractIdleService {
     for (Service service : services) {
       Future<State> startFuture = service.start();
       startFutures.add(startFuture);
-      LOG.debug("Start service {0}, future={1}", new Object[] { service, startFuture });
+      LOG.info("Start service {}, future={}", serviceName(service), startFuture);
     }
 
     // Wait for the services ... or let the get() throw an exception
     for (Future<State> stateFuture : startFutures) {
       State state = stateFuture.get();
-      LOG.debug("Service future {0} result={1}", new Object[] { stateFuture, state });
+      LOG.info("Service future {} result={}", stateFuture, state);
     }
 
     LOG.info("Finished starting service registry");
@@ -62,7 +62,7 @@ public class ServiceRegistry extends AbstractIdleService {
       if (service.isRunning()) {
         Future<State> stopFuture = service.stop();
         stopFutures.add(stopFuture);
-        LOG.debug("Stop service {0}, future={1}", new Object[] { service, stopFuture });
+        LOG.info("Stop service {}, future={}", serviceName(service), stopFuture);
       }
     }
 
@@ -70,7 +70,7 @@ public class ServiceRegistry extends AbstractIdleService {
     for (Future<State> stateFuture : stopFutures) {
       try {
         State state = stateFuture.get();
-        LOG.debug("Service future {0} result={1}", new Object[] { stateFuture, state});
+        LOG.info("Service future {} result={}", stateFuture, state);
       } catch (Exception e) {
         // Ok to catch Exception here
         LOG.warn("Problem stopping service, but pushing on", e);
@@ -80,4 +80,7 @@ public class ServiceRegistry extends AbstractIdleService {
     LOG.info("Finished stopping service registry");
   }
 
+  private String serviceName(Service service) {
+    return service.getClass().getSimpleName();
+  }
 }

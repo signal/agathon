@@ -3,7 +3,7 @@ package com.brighttag.agathon.service.impl;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import com.google.common.io.Closeables;
+import com.google.common.io.Closer;
 import com.google.common.util.concurrent.AbstractIdleService;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -38,11 +38,14 @@ public class CassandraConfigurationRewriterService extends AbstractIdleService {
 
   @Override
   protected void startUp() throws IOException {
-    OutputStream out = yamlOutputStreamProvider.get();
+    Closer closer = Closer.create();
     try {
+      OutputStream out = closer.register(yamlOutputStreamProvider.get());
       writer.writeTo(configuration.get(), out);
+    } catch (IOException e) {
+      throw closer.rethrow(e);
     } finally {
-      Closeables.closeQuietly(out);
+      closer.close();
     }
   }
 
