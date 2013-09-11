@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import com.brighttag.agathon.dao.memory.MemoryDaoModule;
 import com.brighttag.agathon.dao.sdb.SdbDaoModule;
+import com.brighttag.agathon.dao.zerg.ZergDaoModule;
 
 /**
  * Guice module to install the appropriate DAO implementation.
@@ -24,10 +25,13 @@ public class DaoModule extends AbstractModule {
   @Override
   protected void configure() {
     if ("fake".equals(System.getProperty(DATABASE_PROPERTY, "sdb"))) {
-      LOG.info("Using in-memory database");
+      LOG.info("Using in-memory instance database");
       install(new MemoryDaoModule());
+    } else if ("zerg".equals(System.getProperty(DATABASE_PROPERTY, "sdb"))) {
+      LOG.info("Using Zerg as instance database");
+      install(new ZergDaoModule());
     } else {
-      LOG.info("Using SimpleDB");
+      LOG.info("Using SimpleDB as instance database");
       install(new SdbDaoModule());
     }
   }
