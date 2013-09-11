@@ -74,10 +74,7 @@ public class Netmask {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
-        .add("networkAddress", networkAddress)
-        .add("routingPrefixLength", routingPrefixLength)
-        .toString();
+    return toCIDR();
   }
 
   @Override

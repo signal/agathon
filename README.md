@@ -89,10 +89,10 @@ must be set appropriately.
 
 This will return a JSON array of Cassandra instance objects.
 
-    [{"id":"1","token":"1234","rack":"1a","hostName":"cass01ea1","dataCenter":"us-east"},
-     {"id":"2","token":"4567","rack":"1a","hostName":"cass01we1","dataCenter":"us-west"},
-     {"id":"3","token":"8910","rack":"1b","hostName":"cass02ea1","dataCenter":"us-east"},
-     {"id":"4","token":"9999","rack":"1b","hostName":"cass02we1","dataCenter":"us-west"}]
+    [{"id":"1","token":"1234","rack":"1a","hostname":"cass01ea1","datacenter":"us-east"},
+     {"id":"2","token":"4567","rack":"1a","hostname":"cass01we1","datacenter":"us-west"},
+     {"id":"3","token":"8910","rack":"1b","hostname":"cass02ea1","datacenter":"us-east"},
+     {"id":"4","token":"9999","rack":"1b","hostname":"cass02we1","datacenter":"us-west"}]
 
 #### Get a single instance by ID
 
@@ -100,7 +100,7 @@ This will return a JSON array of Cassandra instance objects.
 
 This will return a single JSON instance object. 
 
-    {"id":"1","token":"1234","rack":"1a","hostName":"cass01ea1","dataCenter":"us-east"}
+    {"id":"1","token":"1234","rack":"1a","hostname":"cass01ea1","datacenter":"us-east"}
 
 #### Create or update an instance
 
