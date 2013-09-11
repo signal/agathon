@@ -80,8 +80,9 @@ public class ServiceModuleTest extends EasyMockSupport {
         .exposes(Key.get(Integer.class, Names.named(ServiceModule.NODES_PER_DATACENTER_PROPERTY)))
         .exposes(Key.get(Integer.class, Names.named(ServiceModule.SEEDS_PER_DATACENTER_PROPERTY)))
         .exposes(Key.get(OutputStream.class, Names.named(ServiceModule.CASSANDRA_YAML_LOCATION)))
-        .exposes(Key.get(new TypeLiteral<Provider<OutputStream>>() {}, Names.named(ServiceModule.CASSANDRA_YAML_LOCATION)))
-        .exposes(Key.get(new TypeLiteral<Iterable<TokenService>>() {}))
+        .exposes(Key.get(new TypeLiteral<Provider<OutputStream>>() { },
+            Names.named(ServiceModule.CASSANDRA_YAML_LOCATION)))
+        .exposes(Key.get(new TypeLiteral<Iterable<TokenService>>() { }))
         .exposes(CassandraConfigurationResolver.class)
         .exposes(SystemPropertyCassandraConfigurationResolver.class)
         .exposes(TokenAppendingCassandraConfigurationResolver.class)

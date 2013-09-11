@@ -2,9 +2,6 @@ package com.brighttag.agathon.security;
 
 import java.util.Arrays;
 
-import com.brighttag.agathon.model.CassandraInstance;
-import com.brighttag.agathon.service.CassandraInstanceService;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
@@ -13,6 +10,9 @@ import org.easymock.EasyMockSupport;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.brighttag.agathon.model.CassandraInstance;
+import com.brighttag.agathon.service.CassandraInstanceService;
 
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
@@ -50,7 +50,8 @@ public class SecurityGroupUpdaterServiceTest extends EasyMockSupport {
     securityGroupStartingRules("dc1", groupPermission(8888, "111.0.0.0/8"),
         groupPermission(7000, "222.0.0.0/8"), groupPermission(7000, "1.1.1.1/32"));
     replayAll();
-    assertEquals(ImmutableSet.of("222.0.0.0/8", "1.1.1.1/32"), service().listGroupRules("dc1"));
+    assertEquals(Netmask.fromCIDR(Arrays.asList("222.0.0.0/8", "1.1.1.1/32")),
+        service().listGroupRules("dc1"));
   }
 
   @Test
@@ -63,7 +64,7 @@ public class SecurityGroupUpdaterServiceTest extends EasyMockSupport {
   @Test
   public void requiredRulesFor() {
     replayAll();
-    assertEquals(ImmutableSet.of("1.1.1.1/32", "2.2.2.2/32"), service().requiredRulesFor(
+    assertEquals(Netmask.fromCIDR(Arrays.asList("1.1.1.1/32", "2.2.2.2/32")), service().requiredRulesFor(
         ImmutableList.of(new CassandraInstance.Builder().publicIpAddress("1.1.1.1").build(),
             new CassandraInstance.Builder().publicIpAddress("2.2.2.2").build())));
   }
@@ -173,8 +174,8 @@ public class SecurityGroupUpdaterServiceTest extends EasyMockSupport {
         .andReturn(ImmutableSet.copyOf(Arrays.asList(permissions)));
   }
 
-  private static SecurityGroupPermission groupPermission(int port, String... ipRule) {
-    return new SecurityGroupPermissionImpl(Arrays.asList(ipRule), Range.singleton(port));
+  private static SecurityGroupPermission groupPermission(int port, String... ipRules) {
+    return new SecurityGroupPermission(Netmask.fromCIDR(Arrays.asList(ipRules)), Range.singleton(port));
   }
 
 }

@@ -238,7 +238,8 @@ public class ModuleTester {
           ImmutableSet.of(Key.get(Injector.class), Key.get(Stage.class), Key.get(Logger.class)));
       for (Key<?> key : allExposedKeys) {
         if (!isMultibinding(key)) {
-          assertTrue(key + " should not be exposed", exposed.contains(key) || dependencies.getKeys().contains(key));
+          assertTrue(key + " should not be exposed",
+              exposed.contains(key) || dependencies.getKeys().contains(key));
         }
       }
     }
@@ -247,9 +248,9 @@ public class ModuleTester {
   private static final String MULTIBINDING_ELEMENT = "interface com.google.inject.multibindings.Element";
 
   private boolean isMultibinding(Key<?> key) {
-    return (multibindings.contains(key.getTypeLiteral().getType()) &&
+    return multibindings.contains(key.getTypeLiteral().getType()) &&
             key.getAnnotationType() != null &&
-            key.getAnnotationType().toString().equals(MULTIBINDING_ELEMENT));  // XXX gross hack
+            key.getAnnotationType().toString().equals(MULTIBINDING_ELEMENT);  // XXX gross hack
   }
 
   private static Object doInRequestScope(Callable<Object> callable) throws Exception {

@@ -17,7 +17,7 @@ public interface SecurityGroupService {
    * @param dataCenter data center name
    * @return true iff a group with this groupName already exists in this dataCenter
    */
-  public boolean exists(String groupName, String dataCenter);
+  boolean exists(String groupName, String dataCenter);
 
   /**
    * Creates a new security group or faults if the group already exists.
@@ -26,7 +26,7 @@ public interface SecurityGroupService {
    * @param dataCenter data center name
    * @throws RuntimeException if this security group already exists
    */
-  public void create(String groupName, String dataCenter);
+  void create(String groupName, String dataCenter);
 
   /**
    * Retrieves the set of permissions for a security group.
@@ -35,7 +35,7 @@ public interface SecurityGroupService {
    * @param dataCenter data center name
    * @return set of permissions
    */
-  public ImmutableSet<SecurityGroupPermission> getPermissions(String groupName, String dataCenter);
+  ImmutableSet<SecurityGroupPermission> getPermissions(String groupName, String dataCenter);
 
   /**
    * Authorizes ingress rules for a security group.
@@ -44,7 +44,7 @@ public interface SecurityGroupService {
    * @param dataCenter data center name
    * @param permission permissions to authorize for security group
    */
-  public void authorizeIngressRules(String groupName, String dataCenter, SecurityGroupPermission permission);
+  void authorizeIngressRules(String groupName, String dataCenter, SecurityGroupPermission permission);
 
   /**
    * Revokes ingress rules for a security group.
@@ -53,6 +53,6 @@ public interface SecurityGroupService {
    * @param dataCenter data center name
    * @param permission permissions to revoke from security group
    */
-  public void revokeIngressRules(String groupName, String dataCenter, SecurityGroupPermission permission);
+  void revokeIngressRules(String groupName, String dataCenter, SecurityGroupPermission permission);
 
 }

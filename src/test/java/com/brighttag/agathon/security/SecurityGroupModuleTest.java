@@ -12,8 +12,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.brighttag.agathon.security.SecurityGroupModule;
-import com.brighttag.agathon.security.SecurityGroupService;
 import com.brighttag.agathon.service.CassandraInstanceService;
 import com.brighttag.testing.ModuleTester;
 
@@ -45,7 +43,7 @@ public class SecurityGroupModuleTest extends EasyMockSupport {
             Names.named(SecurityGroupModule.SECURITY_GROUP_UPDATE_PERIOD_PROPERTY)))
         .exposes(Key.get(Integer.class,
             Names.named(SecurityGroupModule.CASSANDRA_GOSSIP_PORT_PROPERTY)))
-        .exposes(Key.get(new TypeLiteral<Collection<String>>() {},
+        .exposes(Key.get(new TypeLiteral<Collection<String>>() { },
             Names.named(SecurityGroupModule.SECURITY_GROUP_DATACENTERS_PROPERTY)))
         .exposes(SecurityGroupService.class)
         .exposes(SecurityGroupUpdaterService.class)

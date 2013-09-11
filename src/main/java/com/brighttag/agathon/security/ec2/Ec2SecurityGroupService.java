@@ -24,9 +24,9 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
+import com.brighttag.agathon.security.Netmask;
 import com.brighttag.agathon.security.SecurityGroupModule;
 import com.brighttag.agathon.security.SecurityGroupPermission;
-import com.brighttag.agathon.security.SecurityGroupPermissionImpl;
 import com.brighttag.agathon.security.SecurityGroupService;
 
 /**
@@ -103,7 +103,7 @@ public class Ec2SecurityGroupService implements SecurityGroupService {
         .transform(new Function<IpPermission, SecurityGroupPermission>() {
           @Override
           public SecurityGroupPermission apply(IpPermission permission) {
-            return new SecurityGroupPermissionImpl(permission.getIpRanges(),
+            return new SecurityGroupPermission(Netmask.fromCIDR(permission.getIpRanges()),
                 Range.closed(permission.getFromPort(), permission.getToPort()));
           }
         })
@@ -121,7 +121,7 @@ public class Ec2SecurityGroupService implements SecurityGroupService {
             return new IpPermission().withIpProtocol("tcp")
                 .withFromPort(permission.getPortRange().lowerEndpoint())
                 .withToPort(permission.getPortRange().upperEndpoint())
-                .withIpRanges(permission.getIpRanges());
+                .withIpRanges(Netmask.toCidr(permission.getNetmasks()));
           }
         })
         .toList();
@@ -138,3 +138,4 @@ public class Ec2SecurityGroupService implements SecurityGroupService {
   }
 
 }
+

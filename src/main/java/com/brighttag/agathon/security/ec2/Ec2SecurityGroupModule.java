@@ -8,13 +8,6 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
-
-import com.brighttag.agathon.dao.AwsDaoModule;
-import com.brighttag.agathon.model.CassandraInstance;
-import com.brighttag.agathon.security.SecurityGroupModule;
-import com.brighttag.agathon.security.SecurityGroupService;
-import com.brighttag.agathon.service.CassandraInstanceService;
-
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMap;
@@ -23,6 +16,12 @@ import com.google.inject.PrivateModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+
+import com.brighttag.agathon.dao.AwsDaoModule;
+import com.brighttag.agathon.model.CassandraInstance;
+import com.brighttag.agathon.security.SecurityGroupModule;
+import com.brighttag.agathon.security.SecurityGroupService;
+import com.brighttag.agathon.service.CassandraInstanceService;
 
 /**
  * Guice module to wire up security group management for Amazon EC2.

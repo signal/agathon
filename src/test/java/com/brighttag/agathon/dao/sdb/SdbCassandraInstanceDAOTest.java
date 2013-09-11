@@ -11,7 +11,6 @@ import com.amazonaws.services.simpledb.model.PutAttributesRequest;
 import com.amazonaws.services.simpledb.model.ReplaceableAttribute;
 import com.amazonaws.services.simpledb.model.SelectRequest;
 import com.amazonaws.services.simpledb.model.SelectResult;
-import com.brighttag.agathon.model.CassandraInstance;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -23,6 +22,8 @@ import org.easymock.EasyMockSupport;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.brighttag.agathon.model.CassandraInstance;
 
 import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.expect;

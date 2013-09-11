@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import com.brighttag.agathon.model.CassandraInstance;
-import com.brighttag.agathon.service.CassandraInstanceService;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
@@ -18,6 +15,9 @@ import com.google.inject.name.Named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.brighttag.agathon.model.CassandraInstance;
+import com.brighttag.agathon.service.CassandraInstanceService;
 
 /**
  * Periodically updates the security group associated with the Cassandra ring.
@@ -68,10 +68,10 @@ public class SecurityGroupUpdaterService extends AbstractScheduledService {
   public void runOneIteration() {
     List<CassandraInstance> instances = cassandraInstanceService.findAll();
     for (String dataCenter : dataCenters) {
-      Set<String> currentGroupRules = listGroupRules(dataCenter);
-      Set<String> requiredGroupRules = requiredRulesFor(instances);
-      Set<String> rulesToAdd = Sets.difference(requiredGroupRules, currentGroupRules);
-      Set<String> rulesToRemove = Sets.difference(currentGroupRules, requiredGroupRules);
+      Set<Netmask> currentGroupRules = listGroupRules(dataCenter);
+      Set<Netmask> requiredGroupRules = requiredRulesFor(instances);
+      Set<Netmask> rulesToAdd = Sets.difference(requiredGroupRules, currentGroupRules);
+      Set<Netmask> rulesToRemove = Sets.difference(currentGroupRules, requiredGroupRules);
       if (!rulesToAdd.isEmpty()) {
         LOG.info("Adding rules to data center {}: {}", dataCenter, rulesToAdd);
         securityGroupService.authorizeIngressRules(securityGroupName, dataCenter,
@@ -96,8 +96,8 @@ public class SecurityGroupUpdaterService extends AbstractScheduledService {
    * @param rules IP ranges in CIDR ("slash") notation
    * @return ingress rules
    */
-  private SecurityGroupPermission toSecurityGroupPermission(Collection<String> rules) {
-    return new SecurityGroupPermissionImpl(rules, Range.singleton(listenPort));
+  private SecurityGroupPermission toSecurityGroupPermission(Collection<Netmask> rules) {
+    return new SecurityGroupPermission(rules, Range.singleton(listenPort));
   }
 
   /**
@@ -105,12 +105,13 @@ public class SecurityGroupUpdaterService extends AbstractScheduledService {
    *
    * @return set of ip ranges in CIDR notation associated with the security group
    */
-  @VisibleForTesting Set<String> listGroupRules(String dataCenter) {
-    ImmutableSet.Builder<String> rules = ImmutableSet.builder();
-    Set<SecurityGroupPermission> permissions = securityGroupService.getPermissions(securityGroupName, dataCenter);
+  @VisibleForTesting Set<Netmask> listGroupRules(String dataCenter) {
+    ImmutableSet.Builder<Netmask> rules = ImmutableSet.builder();
+    Set<SecurityGroupPermission> permissions = securityGroupService.getPermissions(
+        securityGroupName, dataCenter);
     for (SecurityGroupPermission permission : permissions) {
       if (permission.getPortRange().contains(listenPort)) {
-        rules.addAll(permission.getIpRanges());
+        rules.addAll(permission.getNetmasks());
       }
     }
     return rules.build();
@@ -122,11 +123,13 @@ public class SecurityGroupUpdaterService extends AbstractScheduledService {
    * @param instances Cassandra ring instances
    * @return set of ingress rules
    */
-  @VisibleForTesting Set<String> requiredRulesFor(List<CassandraInstance> instances) {
-    ImmutableSet.Builder<String> permissions = ImmutableSet.builder();
+  @VisibleForTesting Set<Netmask> requiredRulesFor(List<CassandraInstance> instances) {
+    ImmutableSet.Builder<Netmask> permissions = ImmutableSet.builder();
     for (CassandraInstance instance : instances) {
-      permissions.add(instance.getPublicIpAddress() + "/32");
+      permissions.add(Netmask.fromCIDR(instance.getPublicIpAddress() + "/32"));
     }
     return permissions.build();
   }
+
 }
+

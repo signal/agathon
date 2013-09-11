@@ -25,7 +25,7 @@ public class Ec2SecurityGroupModuleTest extends EasyMockSupport {
     new ModuleTester(new Ec2SecurityGroupModule())
         .dependsOn(CassandraInstanceService.class, createMock(CassandraInstanceService.class))
         .exposes(SecurityGroupService.class)
-        .exposes(Key.get(new TypeLiteral<Collection<String>>() {},
+        .exposes(Key.get(new TypeLiteral<Collection<String>>() { },
             Names.named(SecurityGroupModule.SECURITY_GROUP_DATACENTERS_PROPERTY)))
         .exposesNothingElse()
         .verify();

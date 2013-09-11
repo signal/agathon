@@ -10,11 +10,6 @@ import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
 import com.amazonaws.services.ec2.model.IpPermission;
 import com.amazonaws.services.ec2.model.RevokeSecurityGroupIngressRequest;
 import com.amazonaws.services.ec2.model.SecurityGroup;
-import com.brighttag.agathon.security.SecurityGroupPermission;
-import com.brighttag.agathon.security.SecurityGroupPermissionImpl;
-import com.brighttag.agathon.security.SecurityGroupService;
-import com.brighttag.agathon.security.ec2.Ec2SecurityGroupService;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -29,6 +24,10 @@ import org.junit.runner.RunWith;
 import org.powermock.api.easymock.PowerMock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import com.brighttag.agathon.security.Netmask;
+import com.brighttag.agathon.security.SecurityGroupPermission;
+import com.brighttag.agathon.security.SecurityGroupService;
 
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
@@ -78,7 +77,7 @@ public class Ec2SecurityGroupServiceTest extends EasyMockSupport {
     amazonEc2.setRegion(region);
     expect(amazonEc2.describeSecurityGroups())
         .andReturn(new DescribeSecurityGroupsResult()
-        .withSecurityGroups(ImmutableList.<SecurityGroup> of()));
+          .withSecurityGroups(ImmutableList.<SecurityGroup>of()));
     replayAll();
     assertEquals(ImmutableSet.of(), service().getPermissions("securityGroupName", "dc1"));
   }
@@ -123,7 +122,8 @@ public class Ec2SecurityGroupServiceTest extends EasyMockSupport {
 
   private void securityGroupStartingRules(IpPermission... ipPermissions) {
     amazonEc2.setRegion(region);
-    SecurityGroup group = new SecurityGroup().withGroupName("securityGroupName").withIpPermissions(ipPermissions);
+    SecurityGroup group = new SecurityGroup()
+      .withGroupName("securityGroupName").withIpPermissions(ipPermissions);
     expect(amazonEc2.describeSecurityGroups()).andReturn(
         new DescribeSecurityGroupsResult().withSecurityGroups(ImmutableList.of(group)));
   }
@@ -133,7 +133,7 @@ public class Ec2SecurityGroupServiceTest extends EasyMockSupport {
   }
 
   private static SecurityGroupPermission groupPermission(int port, String... ipRules) {
-    return new SecurityGroupPermissionImpl(Arrays.asList(ipRules), Range.singleton(port));
+    return new SecurityGroupPermission(Netmask.fromCIDR(Arrays.asList(ipRules)), Range.singleton(port));
   }
 
   @Override

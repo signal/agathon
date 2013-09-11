@@ -5,7 +5,6 @@ import java.io.InputStream;
 
 import javax.annotation.Nullable;
 
-import com.google.common.io.Closeables;
 import com.google.common.io.Closer;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
