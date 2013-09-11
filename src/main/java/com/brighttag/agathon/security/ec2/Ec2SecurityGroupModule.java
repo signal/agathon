@@ -17,7 +17,7 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
-import com.brighttag.agathon.dao.AwsDaoModule;
+import com.brighttag.agathon.aws.AwsModule;
 import com.brighttag.agathon.model.CassandraInstance;
 import com.brighttag.agathon.security.SecurityGroupModule;
 import com.brighttag.agathon.security.SecurityGroupService;
@@ -33,13 +33,15 @@ public class Ec2SecurityGroupModule extends PrivateModule {
 
   @Override
   protected void configure() {
-    install(new AwsDaoModule());
+    install(new AwsModule());
     bind(SecurityGroupService.class).to(Ec2SecurityGroupService.class).in(Singleton.class);
     expose(SecurityGroupService.class);
   }
 
-  // Intentionally not a singleton. Must use a new client for each EC2 region.
-  // See AmazonEC2#setEndpoint(String)
+  /**
+   * Intentionally not a singleton. Must use a new client for each EC2 region.
+   * @see AmazonEC2#setEndpoint(String)
+   */
   @Provides
   AmazonEC2 provideAmazonEc2(AWSCredentials credentials) {
     return new AmazonEC2Client(credentials);

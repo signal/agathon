@@ -160,6 +160,11 @@
 
   <!-- Coding Problems -->
   <module name="SuppressWithNearbyCommentFilter">
+    <property name="commentFormat" value="Checkstyle ignore: ([\w\|]+)"/>
+    <property name="checkFormat" value="$1"/>
+    <property name="influenceFormat" value="1"/>
+  </module>
+  <module name="SuppressWithNearbyCommentFilter">
     <property name="commentFormat" value="Ok to catch (\w+) here"/>
     <property name="checkFormat" value="IllegalCatchCheck"/>
     <property name="messageFormat" value="$1"/>

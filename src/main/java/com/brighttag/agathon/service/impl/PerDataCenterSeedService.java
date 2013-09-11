@@ -17,7 +17,7 @@ import com.google.inject.name.Named;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.brighttag.agathon.dao.CassandraInstanceDAO;
+import com.brighttag.agathon.dao.CassandraInstanceDao;
 import com.brighttag.agathon.model.CassandraInstance;
 import com.brighttag.agathon.service.SeedService;
 
@@ -40,11 +40,11 @@ public class PerDataCenterSeedService implements SeedService {
       }
     };
 
-  private final CassandraInstanceDAO dao;
+  private final CassandraInstanceDao dao;
   private final int numSeeds;
 
   @Inject
-  public PerDataCenterSeedService(CassandraInstanceDAO dao,
+  public PerDataCenterSeedService(CassandraInstanceDao dao,
       @Named(ServiceModule.SEEDS_PER_DATACENTER_PROPERTY) int numSeeds) {
     this.dao = dao;
     this.numSeeds = numSeeds;

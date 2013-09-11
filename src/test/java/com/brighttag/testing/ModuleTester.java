@@ -208,9 +208,13 @@ public class ModuleTester {
     return this;
   }
 
-  public void verify() throws Exception {
-    Injector injector = Guice.createInjector(
-        Iterables.concat(modules, Arrays.asList(dependencies)));
+  public Injector getInjector() {
+    return Guice.createInjector(Iterables.concat(modules, Arrays.asList(dependencies)));
+  }
+
+  // Checkstyle ignore: CyclomaticComplexity
+  public Injector verify() throws Exception {
+    Injector injector = getInjector();
     for (Key<?> key : exposed) {
       assertNotNull("Binding for " + key + " should be exposed", injector.getBinding(key));
     }
@@ -237,20 +241,19 @@ public class ModuleTester {
       Set<Key<?>> allExposedKeys = Sets.difference(injector.getAllBindings().keySet(),
           ImmutableSet.of(Key.get(Injector.class), Key.get(Stage.class), Key.get(Logger.class)));
       for (Key<?> key : allExposedKeys) {
-        if (!isMultibinding(key)) {
-          assertTrue(key + " should not be exposed",
-              exposed.contains(key) || dependencies.getKeys().contains(key));
-        }
+        assertTrue(key + " should not be exposed",
+            exposed.contains(key) || dependencies.getKeys().contains(key) || isMultibinding(key));
       }
     }
+    return injector;
   }
 
   private static final String MULTIBINDING_ELEMENT = "interface com.google.inject.multibindings.Element";
 
   private boolean isMultibinding(Key<?> key) {
     return multibindings.contains(key.getTypeLiteral().getType()) &&
-            key.getAnnotationType() != null &&
-            key.getAnnotationType().toString().equals(MULTIBINDING_ELEMENT);  // XXX gross hack
+        key.getAnnotationType() != null &&
+        key.getAnnotationType().toString().equals(MULTIBINDING_ELEMENT);  // XXX gross hack
   }
 
   private static Object doInRequestScope(Callable<Object> callable) throws Exception {
@@ -354,6 +357,9 @@ public class ModuleTester {
       keys.add(key);
     }
 
+    /**
+     * Helper for collecting binding actions. If only java had real anonymous functions...
+     */
     private interface Binding {
       void bind();
     }

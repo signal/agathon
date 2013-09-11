@@ -132,4 +132,3 @@ public class SecurityGroupUpdaterService extends AbstractScheduledService {
   }
 
 }
-

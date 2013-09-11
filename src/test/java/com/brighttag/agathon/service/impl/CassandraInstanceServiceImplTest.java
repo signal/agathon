@@ -9,7 +9,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.brighttag.agathon.dao.CassandraInstanceDAO;
+import com.brighttag.agathon.dao.CassandraInstanceDao;
 import com.brighttag.agathon.model.CassandraInstance;
 
 import static org.easymock.EasyMock.expect;
@@ -23,12 +23,12 @@ public class CassandraInstanceServiceImplTest extends EasyMockSupport {
 
   private static final int CASSANDRA_ID = 1;
 
-  private CassandraInstanceDAO dao;
+  private CassandraInstanceDao dao;
   private CassandraInstanceServiceImpl service;
 
   @Before
   public void setUp() {
-    dao = createMock(CassandraInstanceDAO.class);
+    dao = createMock(CassandraInstanceDao.class);
     service = new CassandraInstanceServiceImpl(dao);
   }
 

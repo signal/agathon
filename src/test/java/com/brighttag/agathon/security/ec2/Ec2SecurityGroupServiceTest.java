@@ -122,8 +122,8 @@ public class Ec2SecurityGroupServiceTest extends EasyMockSupport {
 
   private void securityGroupStartingRules(IpPermission... ipPermissions) {
     amazonEc2.setRegion(region);
-    SecurityGroup group = new SecurityGroup()
-      .withGroupName("securityGroupName").withIpPermissions(ipPermissions);
+    SecurityGroup group = new SecurityGroup().withGroupName("securityGroupName")
+        .withIpPermissions(ipPermissions);
     expect(amazonEc2.describeSecurityGroups()).andReturn(
         new DescribeSecurityGroupsResult().withSecurityGroups(ImmutableList.of(group)));
   }

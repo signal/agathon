@@ -11,7 +11,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.brighttag.agathon.dao.CassandraInstanceDAO;
+import com.brighttag.agathon.dao.CassandraInstanceDao;
 import com.brighttag.agathon.model.CassandraInstance;
 
 import static org.easymock.EasyMock.expect;
@@ -36,12 +36,12 @@ public class PerDataCenterSeedServiceTest extends EasyMockSupport {
   private static final String HOSTNAME3 = "host3";
   private static final String HOSTNAME4 = "host4";
 
-  private CassandraInstanceDAO dao;
+  private CassandraInstanceDao dao;
   private PerDataCenterSeedService seedProvider;
 
   @Before
   public void setUp() {
-    dao = createMock(CassandraInstanceDAO.class);
+    dao = createMock(CassandraInstanceDao.class);
     seedProvider = new PerDataCenterSeedService(dao, 2);
   }
 

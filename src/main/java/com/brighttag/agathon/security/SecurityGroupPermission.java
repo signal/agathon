@@ -8,7 +8,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 /**
- * Represents a security group permission.
+ * Immutable representation of a security group permission.
  *
  * @author codyaray
  * @since 8/30/2013
@@ -68,4 +68,3 @@ public class SecurityGroupPermission {
   }
 
 }
-

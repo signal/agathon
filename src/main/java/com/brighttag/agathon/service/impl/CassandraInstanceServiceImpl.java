@@ -6,7 +6,7 @@ import javax.annotation.Nullable;
 
 import com.google.inject.Inject;
 
-import com.brighttag.agathon.dao.CassandraInstanceDAO;
+import com.brighttag.agathon.dao.CassandraInstanceDao;
 import com.brighttag.agathon.model.CassandraInstance;
 import com.brighttag.agathon.service.CassandraInstanceService;
 
@@ -18,10 +18,10 @@ import com.brighttag.agathon.service.CassandraInstanceService;
  */
 public class CassandraInstanceServiceImpl implements CassandraInstanceService {
 
-  private final CassandraInstanceDAO dao;
+  private final CassandraInstanceDao dao;
 
   @Inject
-  public CassandraInstanceServiceImpl(CassandraInstanceDAO dao) {
+  public CassandraInstanceServiceImpl(CassandraInstanceDao dao) {
     this.dao = dao;
   }
 

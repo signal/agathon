@@ -118,7 +118,7 @@ public class CassandraInstance implements Comparable<CassandraInstance> {
   }
 
   private Object[] significantAttributes() {
-    return new Object[] {id, datacenter, rack, hostname, publicIpAddress, token};
+    return new Object[] { id, datacenter, rack, hostname, publicIpAddress, token };
   }
 
   /**

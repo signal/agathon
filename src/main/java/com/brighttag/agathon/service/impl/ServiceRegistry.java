@@ -83,4 +83,5 @@ public class ServiceRegistry extends AbstractIdleService {
   private String serviceName(Service service) {
     return service.getClass().getSimpleName();
   }
+
 }
