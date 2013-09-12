@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Represents a connection to the Agathon coprocess.
+ * Represents a connection to Agathon.
  *
  * @author codyaray
  * @since 5/23/12
@@ -31,7 +31,7 @@ public class AgathonConnector {
   private static final Splitter SEED_SPLITTER = Splitter.on(",").trimResults().omitEmptyStrings();
 
   @VisibleForTesting static final String SEED_URL =
-      System.getProperty("com.brighttag.agathon.seeds_url", "http://127.0.0.1:8080/agathon/seeds");
+      System.getProperty("com.brighttag.agathon.seeds_url", "http://localhost:8094/seeds");
 
   /**
    * Read the list of seeds from Agathon.

@@ -1,7 +1,7 @@
 package com.brighttag.agathon.dao.sdb;
 
-import java.math.BigInteger;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 
@@ -14,8 +14,8 @@ import com.amazonaws.services.simpledb.model.ReplaceableAttribute;
 import com.amazonaws.services.simpledb.model.SelectRequest;
 import com.amazonaws.services.simpledb.model.SelectResult;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
 import com.google.inject.Inject;
 
 import com.brighttag.agathon.dao.CassandraInstanceDao;
@@ -35,7 +35,6 @@ public class SdbCassandraInstanceDao implements CassandraInstanceDao {
   @VisibleForTesting static final String DOMAIN = "CassandraInstances";
 
   @VisibleForTesting static final String ID_KEY = "id";
-  @VisibleForTesting static final String TOKEN_KEY = "token";
   @VisibleForTesting static final String DATACENTER_KEY = "datacenter";
   @VisibleForTesting static final String RACK_KEY = "rack";
   @VisibleForTesting static final String HOSTNAME_KEY = "hostname";
@@ -54,7 +53,7 @@ public class SdbCassandraInstanceDao implements CassandraInstanceDao {
   }
 
   @Override
-  public List<CassandraInstance> findAll() {
+  public Set<CassandraInstance> findAll() {
     List<CassandraInstance> instances = Lists.newArrayList();
     String nextToken = null;
 
@@ -69,7 +68,7 @@ public class SdbCassandraInstanceDao implements CassandraInstanceDao {
       nextToken = result.getNextToken();
     } while (nextToken != null);
 
-    return Ordering.natural().immutableSortedCopy(instances);
+    return ImmutableSet.copyOf(instances);
   }
 
   @Override
@@ -98,14 +97,11 @@ public class SdbCassandraInstanceDao implements CassandraInstanceDao {
     client.deleteAttributes(request);
   }
 
-  // Checkstyle ignore: CyclomaticComplexity
   @VisibleForTesting static CassandraInstance transform(Item item) {
     CassandraInstance.Builder instanceBuilder = new CassandraInstance.Builder();
     for (Attribute attr : item.getAttributes()) {
       if (attr.getName().equals(ID_KEY)) {
         instanceBuilder.id(Integer.parseInt(attr.getValue()));
-      } else if (attr.getName().equals(TOKEN_KEY)) {
-        instanceBuilder.token(new BigInteger(attr.getValue()));
       } else if (attr.getName().equals(DATACENTER_KEY)) {
         instanceBuilder.dataCenter(attr.getValue());
       } else if (attr.getName().equals(RACK_KEY)) {
@@ -126,9 +122,6 @@ public class SdbCassandraInstanceDao implements CassandraInstanceDao {
     attrs.add(attribute(RACK_KEY, instance.getRack(), true));
     attrs.add(attribute(HOSTNAME_KEY, instance.getHostName(), true));
     attrs.add(attribute(PUBLIC_IP_ADDRESS_KEY, instance.getPublicIpAddress(), true));
-    if (instance.getToken() != null) {
-      attrs.add(attribute(TOKEN_KEY, instance.getToken().toString(), true));
-    }
     return attrs;
   }
 
@@ -139,9 +132,6 @@ public class SdbCassandraInstanceDao implements CassandraInstanceDao {
     attrs.add(attribute(RACK_KEY, instance.getRack()));
     attrs.add(attribute(HOSTNAME_KEY, instance.getHostName()));
     attrs.add(attribute(PUBLIC_IP_ADDRESS_KEY, instance.getPublicIpAddress()));
-    if (instance.getToken() != null) {
-      attrs.add(attribute(TOKEN_KEY, instance.getToken().toString()));
-    }
     return attrs;
   }
 

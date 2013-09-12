@@ -1,8 +1,8 @@
 package com.brighttag.agathon.service.impl;
 
-import java.util.List;
+import java.util.Set;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 import org.easymock.EasyMockSupport;
 import org.junit.After;
@@ -42,7 +42,7 @@ public class CassandraInstanceServiceImplTest extends EasyMockSupport {
     CassandraInstance instance1 = createMock(CassandraInstance.class);
     CassandraInstance instance2 = createMock(CassandraInstance.class);
     CassandraInstance instance3 = createMock(CassandraInstance.class);
-    List<CassandraInstance> instances = ImmutableList.of(instance1, instance2, instance3);
+    Set<CassandraInstance> instances = ImmutableSet.of(instance1, instance2, instance3);
     expect(dao.findAll()).andReturn(instances);
     replayAll();
 

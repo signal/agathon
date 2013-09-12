@@ -10,26 +10,19 @@ Automated Cassandra operations and management. Heavily inspired by Netflix's Pri
 
 ## Cassandra Configuration
 
-Agathon runs as a Cassandra coprocess.
-
 Set the `seed_provider` property in `cassandra.yaml` to `com.brighttag.agathon.cassandra.AgathonSeedProvider`. Any parameters are ignored.
 
 ### Optional Properties
 
-* `com.brighttag.agathon.seeds_url`: the URL to get Cassandra seeds as a comma-separated list; defaults to `http://127.0.0.1:8080/agathon/seeds`
+* `com.brighttag.agathon.seeds_url`: the URL to get Cassandra seeds as a comma-separated list; defaults to `http://localhost:8094/seeds`
 
 ## Agathon Configuration
 
 Configuration is currently done through system properties.
 
-### Required Properties
-
-* `com.brighttag.agathon.cassandra_id`: the ID of the Cassandra coprocess; Cassandra instance record must exist in database
-
 ### Optional Properties
 
 * `com.brighttag.agathon.database`: the database used for storing Cassandra instance records; one of `sdb` (SimpleDB), `fake` (in-memory store); defaults to `sdb`
-* `com.brighttag.agathon.nodes.per_datacenter`: the number of nodes per data center used for token calculations; defaults to `4`
 * `com.brighttag.agathon.seeds.per_datacenter`: the number of seeds per data center returned to the `AgathonSeedProvider`; defaults to `2`
 * `com.brighttag.agathon.aws.access_key`: your Amazon Web Service Access Key. Required for AWS support (e.g., for SimpleDB or EC2 Security Group Management)
 * `com.brighttag.agathon.aws.secret_key`: your Amazon Web Service Secret Key. Required for AWS support (e.g., for SimpleDB or EC2 Security Group Management)
@@ -40,38 +33,28 @@ Configuration is currently done through system properties.
 
 ## Usage
 
-Just startup your J2EE container. To quickly see it in action, run with embedded Tomcat:
+Just startup your J2EE container. To quickly see it in action, run with embedded Jetty from your IDE or run with mvn-tomcat:
 
-    mvn tomcat:run -Dcom.brighttag.agathon.cassandra_id=1 -Dcom.brighttag.agathon.database=fake
+    mvn tomcat:run -Dmaven.tomcat.port=8094 -Dmaven.tomcat.path=/ -Dcom.brighttag.agathon.database=fake
 
-Now you need to tell the Agathon app about your Cassandra instances. At minimum, this must include the
-Cassandra coprocess instance (i.e., the ID given as a system property). 
+Now you need to tell the Agathon app about your Cassandra instances.
 
-    curl -v -HContent-Type:application/json -XPOST "http://localhost:8080/agathon/instances" -d \
-      '{"id":"1","datacenter":"us-east","rack":"1a","token":1234,"hostname":"cass01ea1"}'
+    curl -v -HContent-Type:application/json -XPOST "http://localhost:8094/instances" -d \
+      '{"id":"1","datacenter":"us-east","rack":"1a","hostname":"cass01ea1","publicIpAddress":"1.1.1.1"}'
 
 ## REST API
 
 ### Cassandra Configuration
 
-* Get the set of seeds for the coprocess: `GET /seeds`
-* Get the initial token for the coprocess: `GET /token`
+* Get the set of seeds: `GET /seeds`
 
-#### Get the set of seeds for the coprocess
+#### Get the set of seeds
 
     GET /seeds
 
 The server will reply with a comma-separated set of seed hosts.
 
     cass02ea1,cass01we1,cass02we1
-
-#### Get the initial token for the coprocess
-
-    GET /token
-
-The server will reply with the initial token.
-
-    1808575600
 
 ### Cassandra Instance Record Management
 
@@ -89,10 +72,10 @@ must be set appropriately.
 
 This will return a JSON array of Cassandra instance objects.
 
-    [{"id":"1","token":"1234","rack":"1a","hostname":"cass01ea1","datacenter":"us-east"},
-     {"id":"2","token":"4567","rack":"1a","hostname":"cass01we1","datacenter":"us-west"},
-     {"id":"3","token":"8910","rack":"1b","hostname":"cass02ea1","datacenter":"us-east"},
-     {"id":"4","token":"9999","rack":"1b","hostname":"cass02we1","datacenter":"us-west"}]
+    [{"id":"1","rack":"1a","hostname":"cass01ea1","datacenter":"us-east","publicIpAddress":"1.1.1.1"},
+     {"id":"2","rack":"1a","hostname":"cass01we1","datacenter":"us-west","publicIpAddress":"2.2.2.2"},
+     {"id":"3","rack":"1b","hostname":"cass02ea1","datacenter":"us-east","publicIpAddress":"1.1.1.3"},
+     {"id":"4","rack":"1b","hostname":"cass02we1","datacenter":"us-west","publicIpAddress":"2.2.2.4"}]
 
 #### Get a single instance by ID
 
@@ -100,13 +83,13 @@ This will return a JSON array of Cassandra instance objects.
 
 This will return a single JSON instance object. 
 
-    {"id":"1","token":"1234","rack":"1a","hostname":"cass01ea1","datacenter":"us-east"}
+    {"id":"1","rack":"1a","hostname":"cass01ea1","datacenter":"us-east","publicIpAddress":"1.1.1.1"}
 
 #### Create or update an instance
 
     POST /instances
 
-    {"id":"1","datacenter":"us-east","rack":"1a","token":1234,"hostname":"cass01ea1"}
+    {"id":"1","datacenter":"us-east","rack":"1a","hostname":"cass01ea1","publicIpAddress":"1.1.1.1"}
 
 This will respond with `201 Created` upon success, `400 Bad Request` if the JSON could not be parsed, or
 `422 Unprocessable Entity` if the Cassandra instance failed validation. A `plain/text` error message accompanies
@@ -138,13 +121,15 @@ Make sure you have everything:
 
     > bundle install
 
-If you haven't, tests will complain about not being able to find a gem. Then, to run the integration tests:
+If you haven't, tests will complain about not being able to find a gem. The integration tests
+assume Agathon is using SimpleDB and seeds data directly to AWS. **TODO**: make `SDB_DOMAIN` configurable
+so you don't overwrite production data during integration testing.
+
+Then, to run the integration tests:
 
     > rake test
 
-Just type that. It assumes you are running
-
-* An instance of `agathon` at `http://localhost:8080/agathon`
+Just type that. It assumes you are running an instance of Agathon at `http://localhost:8094`
 
 #### Running tests against an ad-hoc environment
 

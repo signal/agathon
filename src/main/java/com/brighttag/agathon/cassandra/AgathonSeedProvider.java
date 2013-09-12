@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Cassandra seed provider that requests the seed list from its Agathon coprocess.
+ * Cassandra seed provider that requests the seed list from Agathon.
  *
  * @author codyaray
  * @since 5/23/12

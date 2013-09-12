@@ -1,7 +1,6 @@
 package com.brighttag.agathon.security;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -66,7 +65,7 @@ public class SecurityGroupUpdaterService extends AbstractScheduledService {
 
   @Override
   public void runOneIteration() {
-    List<CassandraInstance> instances = cassandraInstanceService.findAll();
+    Set<CassandraInstance> instances = cassandraInstanceService.findAll();
     for (String dataCenter : dataCenters) {
       Set<Netmask> currentGroupRules = listGroupRules(dataCenter);
       Set<Netmask> requiredGroupRules = requiredRulesFor(instances);
@@ -123,7 +122,7 @@ public class SecurityGroupUpdaterService extends AbstractScheduledService {
    * @param instances Cassandra ring instances
    * @return set of ingress rules
    */
-  @VisibleForTesting Set<Netmask> requiredRulesFor(List<CassandraInstance> instances) {
+  @VisibleForTesting Set<Netmask> requiredRulesFor(Collection<CassandraInstance> instances) {
     ImmutableSet.Builder<Netmask> permissions = ImmutableSet.builder();
     for (CassandraInstance instance : instances) {
       permissions.add(Netmask.fromCIDR(instance.getPublicIpAddress() + "/32"));

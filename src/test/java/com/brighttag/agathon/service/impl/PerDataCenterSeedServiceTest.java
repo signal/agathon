@@ -1,9 +1,7 @@
 package com.brighttag.agathon.service.impl;
 
-import java.math.BigInteger;
-import java.util.List;
+import java.util.Set;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 import org.easymock.EasyMockSupport;
@@ -22,11 +20,6 @@ import static org.junit.Assert.assertEquals;
  * @since 5/25/12
  */
 public class PerDataCenterSeedServiceTest extends EasyMockSupport {
-
-  private static final BigInteger TOKEN1 = BigInteger.valueOf(1);
-  private static final BigInteger TOKEN2 = BigInteger.valueOf(2);
-  private static final BigInteger TOKEN3 = BigInteger.valueOf(3);
-  private static final BigInteger TOKEN4 = BigInteger.valueOf(4);
 
   private static final String DATACENTER1 = "dc1";
   private static final String DATACENTER2 = "dc2";
@@ -52,11 +45,11 @@ public class PerDataCenterSeedServiceTest extends EasyMockSupport {
 
   @Test
   public void getSeeds() {
-    CassandraInstance instance1 = buildInstance(TOKEN1, DATACENTER1, HOSTNAME1);
-    CassandraInstance instance2 = buildInstance(TOKEN2, DATACENTER1, HOSTNAME2);
-    CassandraInstance instance3 = buildInstance(TOKEN3, DATACENTER2, HOSTNAME3);
-    CassandraInstance instance4 = buildInstance(TOKEN4, DATACENTER2, HOSTNAME4);
-    List<CassandraInstance> instances = ImmutableList.of(instance1, instance2, instance3, instance4);
+    CassandraInstance instance1 = buildInstance(DATACENTER1, HOSTNAME1);
+    CassandraInstance instance2 = buildInstance(DATACENTER1, HOSTNAME2);
+    CassandraInstance instance3 = buildInstance(DATACENTER2, HOSTNAME3);
+    CassandraInstance instance4 = buildInstance(DATACENTER2, HOSTNAME4);
+    Set<CassandraInstance> instances = ImmutableSet.of(instance1, instance2, instance3, instance4);
     expect(dao.findAll()).andReturn(instances);
     replayAll();
 
@@ -65,20 +58,19 @@ public class PerDataCenterSeedServiceTest extends EasyMockSupport {
 
   @Test
   public void getSeeds_insufficientInstancesInDataCenter() {
-    CassandraInstance instance1 = buildInstance(TOKEN1, DATACENTER1, HOSTNAME1);
-    CassandraInstance instance2 = buildInstance(TOKEN2, DATACENTER2, HOSTNAME2);
-    CassandraInstance instance3 = buildInstance(TOKEN3, DATACENTER2, HOSTNAME3);
-    List<CassandraInstance> instances = ImmutableList.of(instance1, instance2, instance3);
+    CassandraInstance instance1 = buildInstance(DATACENTER1, HOSTNAME1);
+    CassandraInstance instance2 = buildInstance(DATACENTER2, HOSTNAME2);
+    CassandraInstance instance3 = buildInstance(DATACENTER2, HOSTNAME3);
+    Set<CassandraInstance> instances = ImmutableSet.of(instance1, instance2, instance3);
     expect(dao.findAll()).andReturn(instances);
     replayAll();
 
     assertEquals(ImmutableSet.of(HOSTNAME1, HOSTNAME2, HOSTNAME3), seedProvider.getSeeds());
   }
 
-  private CassandraInstance buildInstance(BigInteger token, String dataCenter, String hostName) {
+  private CassandraInstance buildInstance(String dataCenter, String hostName) {
     return new CassandraInstance.Builder()
         .id(1)
-        .token(token)
         .dataCenter(dataCenter)
         .hostName(hostName)
         .build();

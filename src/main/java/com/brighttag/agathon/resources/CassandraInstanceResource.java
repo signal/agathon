@@ -1,7 +1,7 @@
 package com.brighttag.agathon.resources;
 
 import java.net.URI;
-import java.util.List;
+import java.util.Set;
 
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
@@ -40,11 +40,11 @@ public class CassandraInstanceResource {
   }
 
   /**
-   * Return the list of Cassandra instances ordered by position on ring, indicated by token.
-   * @return the list of Cassandra instances
+   * Return the set of Cassandra instances.
+   * @return the set of Cassandra instances
    */
   @GET
-  public List<CassandraInstance> findAll() {
+  public Set<CassandraInstance> findAll() {
     return service.findAll();
   }
 

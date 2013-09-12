@@ -9,10 +9,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.brighttag.agathon.coprocess.SystemPropertyCoprocessProvider;
-import com.brighttag.agathon.dao.CassandraInstanceDao;
 import com.brighttag.agathon.dao.DaoModule;
-import com.brighttag.agathon.model.CassandraInstance;
 import com.brighttag.agathon.resources.CassandraInstanceResource;
 import com.brighttag.agathon.resources.SeedResource;
 import com.brighttag.agathon.resources.ValidatingJacksonJsonProvider;
@@ -25,26 +22,21 @@ import static org.junit.Assert.assertNotNull;
  */
 public class GuiceServletConfigTest {
 
-  private static final int CASSANDRA_ID = 1;
-
   private Injector injector;
 
   @BeforeClass
   public static void setRequiredSystemProperties() {
-    System.setProperty(SystemPropertyCoprocessProvider.CASSANDRA_ID_PROPERTY, String.valueOf(CASSANDRA_ID));
     System.setProperty(DaoModule.DATABASE_PROPERTY, "fake"); // Use in-memory DAO for unit tests
   }
 
   @AfterClass
   public static void clearRequiredSystemProperties() {
-    System.clearProperty(SystemPropertyCoprocessProvider.CASSANDRA_ID_PROPERTY);
     System.clearProperty(DaoModule.DATABASE_PROPERTY);
   }
 
   @Before
   public void setUp() {
     injector = new GuiceServletConfig().getInjector();
-    saveCassandraCoprocess(injector.getInstance(CassandraInstanceDao.class));
   }
 
   @After
@@ -58,10 +50,6 @@ public class GuiceServletConfigTest {
     assertNotNull(injector.getInstance(ValidatingJacksonJsonProvider.class));
     assertNotNull(injector.getInstance(CassandraInstanceResource.class));
     assertNotNull(injector.getInstance(SeedResource.class));
-  }
-
-  private static void saveCassandraCoprocess(CassandraInstanceDao dao) {
-    dao.save(new CassandraInstance.Builder().id(CASSANDRA_ID).build());
   }
 
 }

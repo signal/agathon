@@ -1,13 +1,13 @@
 package com.brighttag.agathon.dao.memory;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Ordering;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,9 +36,9 @@ class MemoryCassandraInstanceDao implements CassandraInstanceDao {
   }
 
   @Override
-  public List<CassandraInstance> findAll() {
+  public Set<CassandraInstance> findAll() {
     LOG.info("Returning instances: {}", instances.values());
-    return Ordering.natural().immutableSortedCopy(instances.values());
+    return ImmutableSet.copyOf(instances.values());
   }
 
   @Override

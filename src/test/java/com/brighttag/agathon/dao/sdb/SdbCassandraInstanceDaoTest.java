@@ -1,7 +1,7 @@
 package com.brighttag.agathon.dao.sdb;
 
-import java.math.BigInteger;
 import java.util.List;
+import java.util.Set;
 
 import com.amazonaws.services.simpledb.AmazonSimpleDBClient;
 import com.amazonaws.services.simpledb.model.Attribute;
@@ -13,8 +13,7 @@ import com.amazonaws.services.simpledb.model.SelectRequest;
 import com.amazonaws.services.simpledb.model.SelectResult;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
+import com.google.common.collect.Sets;
 
 import org.easymock.Capture;
 import org.easymock.CaptureType;
@@ -38,7 +37,6 @@ import static org.junit.Assert.fail;
 public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
 
   private static final int ID = 1;
-  private static final BigInteger TOKEN = BigInteger.valueOf(12345);
   private static final String DATACENTER = "dc";
   private static final String RACK = "rack";
   private static final String HOSTNAME = "host";
@@ -70,7 +68,7 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
     expect(result.getNextToken()).andReturn(null);
     replayAll();
 
-    List<CassandraInstance> expected = transform(items);
+    Set<CassandraInstance> expected = transform(items);
     assertEquals(expected, dao.findAll());
 
     assertEquals(SdbCassandraInstanceDao.ALL_QUERY, requestCapture.getValue().getSelectExpression());
@@ -93,9 +91,9 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
     expect(result.getNextToken()).andReturn(null);
     replayAll();
 
-    List<CassandraInstance> expected = Lists.newArrayList(
+    Set<CassandraInstance> expected = Sets.newHashSet(
         Iterables.concat(transform(items1), transform(items2)));
-    assertEquals(Ordering.natural().sortedCopy(expected), dao.findAll());
+    assertEquals(expected, dao.findAll());
 
     List<SelectRequest> requests = requestCapture.getValues();
     assertEquals(2, requests.size());
@@ -115,8 +113,8 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
     expect(result.getItems()).andStubReturn(items);
     replayAll();
 
-    List<CassandraInstance> expected = transform(items);
-    assertEquals(expected.get(0), dao.findById(ID));
+    Set<CassandraInstance> expected = transform(items);
+    assertEquals(expected.iterator().next(), dao.findById(ID));
 
     assertEquals(String.format(SdbCassandraInstanceDao.INSTANCE_QUERY, ID),
         requestCapture.getValue().getSelectExpression());
@@ -141,7 +139,6 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
     CassandraInstance instance = createMock(CassandraInstance.class);
     Capture<PutAttributesRequest> requestCapture = new Capture<PutAttributesRequest>();
     expect(instance.getId()).andReturn(ID).times(2);
-    expect(instance.getToken()).andStubReturn(TOKEN);
     expect(instance.getDataCenter()).andReturn(DATACENTER);
     expect(instance.getRack()).andReturn(RACK);
     expect(instance.getHostName()).andReturn(HOSTNAME);
@@ -162,7 +159,6 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
     CassandraInstance instance = createMock(CassandraInstance.class);
     Capture<DeleteAttributesRequest> requestCapture = new Capture<DeleteAttributesRequest>();
     expect(instance.getId()).andReturn(ID).times(2);
-    expect(instance.getToken()).andStubReturn(TOKEN);
     expect(instance.getDataCenter()).andReturn(DATACENTER);
     expect(instance.getRack()).andReturn(RACK);
     expect(instance.getHostName()).andReturn(HOSTNAME);
@@ -184,7 +180,6 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
     replayAll();
     CassandraInstance instance = SdbCassandraInstanceDao.transform(item);
     assertEquals(1, instance.getId());
-    assertEquals("1", instance.getToken().toString());
     assertEquals("dc1", instance.getDataCenter());
     assertEquals("rack1", instance.getRack());
     assertEquals("host1", instance.getHostName());
@@ -208,7 +203,6 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
   private List<Attribute> createAttributes(int ordinal) {
     return ImmutableList.of(
         createAttribute(SdbCassandraInstanceDao.ID_KEY, String.valueOf(ordinal)),
-        createAttribute(SdbCassandraInstanceDao.TOKEN_KEY, String.valueOf(ordinal)),
         createAttribute(SdbCassandraInstanceDao.DATACENTER_KEY, DATACENTER + ordinal),
         createAttribute(SdbCassandraInstanceDao.RACK_KEY, RACK + ordinal),
         createAttribute(SdbCassandraInstanceDao.HOSTNAME_KEY, HOSTNAME + ordinal),
@@ -222,24 +216,20 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
     return attribute;
   }
 
-  private static List<CassandraInstance> transform(List<Item> items) {
-    List<CassandraInstance> instances = Lists.newArrayList();
+  private static Set<CassandraInstance> transform(List<Item> items) {
+    Set<CassandraInstance> instances = Sets.newHashSet();
     for (Item item : items) {
       instances.add(SdbCassandraInstanceDao.transform(item));
     }
     return instances;
   }
 
-  // Checkstyle ignore: CyclomaticComplexity
   private static void assertReplaceableAttributes(PutAttributesRequest request) {
-    assertEquals(6, request.getAttributes().size());
+    assertEquals(5, request.getAttributes().size());
     for (ReplaceableAttribute attr : request.getAttributes()) {
       if (attr.getName().equals(SdbCassandraInstanceDao.ID_KEY)) {
         assertEquals(String.valueOf(ID), attr.getValue());
         assertEquals(false, attr.getReplace());
-      } else if (attr.getName().equals(SdbCassandraInstanceDao.TOKEN_KEY)) {
-        assertEquals(TOKEN.toString(), attr.getValue());
-        assertEquals(true, attr.getReplace());
       } else if (attr.getName().equals(SdbCassandraInstanceDao.DATACENTER_KEY)) {
         assertEquals(DATACENTER, attr.getValue());
         assertEquals(true, attr.getReplace());
@@ -258,14 +248,11 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
     }
   }
 
-  // Checkstyle ignore: CyclomaticComplexity
   private static void assertAttributes(DeleteAttributesRequest request) {
-    assertEquals(6, request.getAttributes().size());
+    assertEquals(5, request.getAttributes().size());
     for (Attribute attr : request.getAttributes()) {
       if (attr.getName().equals(SdbCassandraInstanceDao.ID_KEY)) {
         assertEquals(String.valueOf(ID), attr.getValue());
-      } else if (attr.getName().equals(SdbCassandraInstanceDao.TOKEN_KEY)) {
-        assertEquals(TOKEN.toString(), attr.getValue());
       } else if (attr.getName().equals(SdbCassandraInstanceDao.DATACENTER_KEY)) {
         assertEquals(DATACENTER, attr.getValue());
       } else if (attr.getName().equals(SdbCassandraInstanceDao.RACK_KEY)) {

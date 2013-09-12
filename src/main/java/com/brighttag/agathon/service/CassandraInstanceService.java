@@ -1,6 +1,6 @@
 package com.brighttag.agathon.service;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 
@@ -15,10 +15,10 @@ import com.brighttag.agathon.model.CassandraInstance;
 public interface CassandraInstanceService {
 
   /**
-   * Return the list of Cassandra instances ordered by position on ring, indicated by token.
-   * @return the list of Cassandra instances
+   * Return the set of Cassandra instances.
+   * @return the set of Cassandra instances
    */
-  List<CassandraInstance> findAll();
+  Set<CassandraInstance> findAll();
 
   /**
    * Return the Cassandra instance with the given {@code id}, or {@code null} if not found.

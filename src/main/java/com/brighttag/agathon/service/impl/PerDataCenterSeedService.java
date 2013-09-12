@@ -1,16 +1,15 @@
 package com.brighttag.agathon.service.impl;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 import javax.annotation.Nullable;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.SortedSetMultimap;
-import com.google.common.collect.TreeMultimap;
+import com.google.common.collect.SetMultimap;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
@@ -23,7 +22,6 @@ import com.brighttag.agathon.service.SeedService;
 
 /**
  * A {@link SeedService} that includes a specified number of seeds per data center.
- * The first {@code numSeeds} instances in each data center are returned as seeds.
  *
  * @author codyaray
  * @since 5/25/12
@@ -53,7 +51,7 @@ public class PerDataCenterSeedService implements SeedService {
   @Override
   public Set<String> getSeeds() {
     ImmutableSet.Builder<String> seedBuilder = ImmutableSet.builder();
-    SortedSetMultimap<String, CassandraInstance> dataCenterToInstanceMap =
+    SetMultimap<String, CassandraInstance> dataCenterToInstanceMap =
         buildDataCenterToInstanceMap(dao.findAll());
 
     for (String dc : dataCenterToInstanceMap.keySet()) {
@@ -80,13 +78,14 @@ public class PerDataCenterSeedService implements SeedService {
     return Iterables.transform(Iterables.limit(instancesInDC, numSeeds), INSTANCE_TO_HOSTNAME);
   }
 
-  private static SortedSetMultimap<String, CassandraInstance> buildDataCenterToInstanceMap(
-      List<CassandraInstance> instances) {
-    SortedSetMultimap<String, CassandraInstance> dataCenterToInstanceMap = TreeMultimap.create();
+  private static SetMultimap<String, CassandraInstance> buildDataCenterToInstanceMap(
+      Set<CassandraInstance> instances) {
+    ImmutableSetMultimap.Builder<String, CassandraInstance> dataCenterToInstanceMap =
+        ImmutableSetMultimap.builder();
     for (CassandraInstance instance : instances) {
       dataCenterToInstanceMap.put(instance.getDataCenter(), instance);
     }
-    return dataCenterToInstanceMap;
+    return dataCenterToInstanceMap.build();
   }
 
 }

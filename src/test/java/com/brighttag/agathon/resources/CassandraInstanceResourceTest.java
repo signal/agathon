@@ -1,11 +1,11 @@
 package com.brighttag.agathon.resources;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.net.HttpHeaders;
 import com.sun.jersey.api.NotFoundException;
 
@@ -47,7 +47,7 @@ public class CassandraInstanceResourceTest extends EasyMockSupport {
   public void findAll() {
     CassandraInstance instance1 = createMock(CassandraInstance.class);
     CassandraInstance instance2 = createMock(CassandraInstance.class);
-    List<CassandraInstance> instances = ImmutableList.of(instance1, instance2);
+    Set<CassandraInstance> instances = ImmutableSet.of(instance1, instance2);
     expect(service.findAll()).andReturn(instances);
     replayAll();
 

@@ -11,7 +11,7 @@ import com.google.inject.Inject;
 import com.brighttag.agathon.service.SeedService;
 
 /**
- * Resource for retrieving seed nodes for the Cassandra coprocess.
+ * Resource for retrieving seed nodes for Cassandra.
  *
  * @author codyaray
  * @since 5/25/2012
@@ -30,8 +30,8 @@ public class SeedResource {
   }
 
   /**
-   * Returns the seeds for the coprocess instance as a comma-separated string.
-   * @return the seeds for the coprocess instance
+   * Returns the seeds for the Cassandra ring as a comma-separated string.
+   * @return the seeds for the Cassandra ring
    */
   @GET
   public String getSeeds() {

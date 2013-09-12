@@ -1,6 +1,6 @@
 package com.brighttag.agathon.service.impl;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 
@@ -26,7 +26,7 @@ public class CassandraInstanceServiceImpl implements CassandraInstanceService {
   }
 
   @Override
-  public List<CassandraInstance> findAll() {
+  public Set<CassandraInstance> findAll() {
     return dao.findAll();
   }
 

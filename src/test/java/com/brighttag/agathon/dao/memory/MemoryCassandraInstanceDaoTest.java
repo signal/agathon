@@ -1,10 +1,9 @@
 package com.brighttag.agathon.dao.memory;
 
-import java.math.BigInteger;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 import org.easymock.EasyMockSupport;
 import org.junit.After;
@@ -42,9 +41,9 @@ public class MemoryCassandraInstanceDaoTest extends EasyMockSupport {
 
   @Test
   public void findAll() {
-    CassandraInstance instance1 = buildInstance("1");
-    CassandraInstance instance2 = buildInstance("2");
-    List<CassandraInstance> expected = ImmutableList.of(instance1, instance2);
+    CassandraInstance instance1 = instance();
+    CassandraInstance instance2 = instance();
+    Set<CassandraInstance> expected = ImmutableSet.of(instance1, instance2);
     expect(instances.values()).andStubReturn(expected);
     replayAll();
 
@@ -88,11 +87,8 @@ public class MemoryCassandraInstanceDaoTest extends EasyMockSupport {
     dao.delete(instance);
   }
 
-  private CassandraInstance buildInstance(String token) {
-    return new CassandraInstance.Builder()
-        .id(1)
-        .token(new BigInteger(token))
-        .build();
+  private CassandraInstance instance() {
+    return new CassandraInstance.Builder().id(1).build();
   }
 
 }

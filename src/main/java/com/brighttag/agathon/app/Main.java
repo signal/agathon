@@ -23,7 +23,7 @@ public class Main {
    * @throws InterruptedException if a problem occurs waiting for the server to shutdown
    */
   public static void main(String[] args) throws IOException, InterruptedException {
-    EmbeddedWebServer server = new EmbeddedWebServer(8080);
+    EmbeddedWebServer server = new EmbeddedWebServer(8094);
     server.start();
     server.waitForShutdown();
   }

@@ -74,7 +74,7 @@ public class SecurityGroupUpdaterServiceTest extends EasyMockSupport {
     securityGroupStartingRules("dc1");
     securityGroupStartingRules("dc2");
     securityGroupStartingRules("dc3");
-    expect(cassandraInstanceService.findAll()).andReturn(ImmutableList.<CassandraInstance>of());
+    expect(cassandraInstanceService.findAll()).andReturn(ImmutableSet.<CassandraInstance>of());
     replayAll();
     service().runOneIteration();
   }
@@ -84,7 +84,7 @@ public class SecurityGroupUpdaterServiceTest extends EasyMockSupport {
     securityGroupStartingRules("dc1");
     securityGroupStartingRules("dc2");
     securityGroupStartingRules("dc3");
-    expect(cassandraInstanceService.findAll()).andReturn(ImmutableList.of(
+    expect(cassandraInstanceService.findAll()).andReturn(ImmutableSet.of(
         new CassandraInstance.Builder().publicIpAddress("1.1.1.1").build(),
         new CassandraInstance.Builder().publicIpAddress("2.2.2.2").build()));
     securityGroupService.authorizeIngressRules("securityGroupName", "dc1",
@@ -102,7 +102,7 @@ public class SecurityGroupUpdaterServiceTest extends EasyMockSupport {
     securityGroupStartingRules("dc1", groupPermission(7000, "2.2.2.2/32"));
     securityGroupStartingRules("dc2", groupPermission(7000, "2.2.2.2/32"));
     securityGroupStartingRules("dc3", groupPermission(7000, "2.2.2.2/32"));
-    expect(cassandraInstanceService.findAll()).andReturn(ImmutableList.of(
+    expect(cassandraInstanceService.findAll()).andReturn(ImmutableSet.of(
         new CassandraInstance.Builder().publicIpAddress("1.1.1.1").build(),
         new CassandraInstance.Builder().publicIpAddress("2.2.2.2").build(),
         new CassandraInstance.Builder().publicIpAddress("3.3.3.3").build()));
@@ -126,7 +126,7 @@ public class SecurityGroupUpdaterServiceTest extends EasyMockSupport {
         groupPermission(7000, "2.2.2.2/32"));
     securityGroupStartingRules("dc3",
         groupPermission(7000, "2.2.2.2/32"));
-    expect(cassandraInstanceService.findAll()).andReturn(ImmutableList.of(
+    expect(cassandraInstanceService.findAll()).andReturn(ImmutableSet.of(
         new CassandraInstance.Builder().publicIpAddress("1.1.1.1").build(),
         new CassandraInstance.Builder().publicIpAddress("2.2.2.2").build()));
     securityGroupService.authorizeIngressRules("securityGroupName", "dc3",
@@ -150,7 +150,7 @@ public class SecurityGroupUpdaterServiceTest extends EasyMockSupport {
         groupPermission(7000, "1.1.1.1/32"),
         groupPermission(7000, "2.2.2.2/32"),
         groupPermission(7000, "3.3.3.3/32"));
-    expect(cassandraInstanceService.findAll()).andReturn(ImmutableList.of(
+    expect(cassandraInstanceService.findAll()).andReturn(ImmutableSet.of(
         new CassandraInstance.Builder().publicIpAddress("1.1.1.1").build(),
         new CassandraInstance.Builder().publicIpAddress("2.2.2.2").build(),
         new CassandraInstance.Builder().publicIpAddress("3.3.3.3").build()));
