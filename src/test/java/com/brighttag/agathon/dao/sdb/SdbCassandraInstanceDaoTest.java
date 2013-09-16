@@ -37,11 +37,13 @@ import static org.junit.Assert.fail;
 public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
 
   private static final int ID = 1;
+  private static final String DOMAIN = "CassandraInstances";
   private static final String DATACENTER = "dc";
   private static final String RACK = "rack";
   private static final String HOSTNAME = "host";
   private static final String PUBLIC_IP_ADDRESS = "publicIpAddress";
   private static final String NEXT_TOKEN = "nextToken";
+  private static final String ALL_QUERY = String.format(SdbCassandraInstanceDao.ALL_QUERY, DOMAIN);
 
   private AmazonSimpleDBClient simpleDbClient;
   private SdbCassandraInstanceDao dao;
@@ -49,7 +51,7 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
   @Before
   public void setUp() {
     simpleDbClient = createMock(AmazonSimpleDBClient.class);
-    dao = new SdbCassandraInstanceDao(simpleDbClient);
+    dao = new SdbCassandraInstanceDao(simpleDbClient, DOMAIN);
   }
 
   @After
@@ -71,7 +73,7 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
     Set<CassandraInstance> expected = transform(items);
     assertEquals(expected, dao.findAll());
 
-    assertEquals(SdbCassandraInstanceDao.ALL_QUERY, requestCapture.getValue().getSelectExpression());
+    assertEquals(ALL_QUERY, requestCapture.getValue().getSelectExpression());
     assertNull(requestCapture.getValue().getNextToken());
   }
 
@@ -97,9 +99,9 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
 
     List<SelectRequest> requests = requestCapture.getValues();
     assertEquals(2, requests.size());
-    assertEquals(SdbCassandraInstanceDao.ALL_QUERY, requests.get(0).getSelectExpression());
+    assertEquals(ALL_QUERY, requests.get(0).getSelectExpression());
     assertNull(requests.get(0).getNextToken());
-    assertEquals(SdbCassandraInstanceDao.ALL_QUERY, requests.get(1).getSelectExpression());
+    assertEquals(ALL_QUERY, requests.get(1).getSelectExpression());
     assertEquals(NEXT_TOKEN, requests.get(1).getNextToken());
   }
 
@@ -116,7 +118,7 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
     Set<CassandraInstance> expected = transform(items);
     assertEquals(expected.iterator().next(), dao.findById(ID));
 
-    assertEquals(String.format(SdbCassandraInstanceDao.INSTANCE_QUERY, ID),
+    assertEquals(String.format(SdbCassandraInstanceDao.INSTANCE_QUERY, DOMAIN, ID),
         requestCapture.getValue().getSelectExpression());
     assertNull(requestCapture.getValue().getNextToken());
   }
@@ -149,7 +151,7 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
     dao.save(instance);
 
     PutAttributesRequest request = requestCapture.getValue();
-    assertEquals(SdbCassandraInstanceDao.DOMAIN, request.getDomainName());
+    assertEquals(DOMAIN, request.getDomainName());
     assertEquals(String.valueOf(ID), request.getItemName());
     assertReplaceableAttributes(request);
   }
@@ -169,7 +171,7 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
     dao.delete(instance);
 
     DeleteAttributesRequest request = requestCapture.getValue();
-    assertEquals(SdbCassandraInstanceDao.DOMAIN, request.getDomainName());
+    assertEquals(DOMAIN, request.getDomainName());
     assertEquals(String.valueOf(ID), request.getItemName());
     assertAttributes(request);
   }

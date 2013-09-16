@@ -17,6 +17,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
 import com.brighttag.agathon.dao.CassandraInstanceDao;
 import com.brighttag.agathon.model.CassandraInstance;
@@ -32,8 +33,6 @@ import com.brighttag.agathon.model.CassandraInstance;
  */
 public class SdbCassandraInstanceDao implements CassandraInstanceDao {
 
-  @VisibleForTesting static final String DOMAIN = "CassandraInstances";
-
   @VisibleForTesting static final String ID_KEY = "id";
   @VisibleForTesting static final String DATACENTER_KEY = "datacenter";
   @VisibleForTesting static final String RACK_KEY = "rack";
@@ -41,15 +40,18 @@ public class SdbCassandraInstanceDao implements CassandraInstanceDao {
   @VisibleForTesting static final String PUBLIC_IP_ADDRESS_KEY = "publicIpAddress";
 
   @VisibleForTesting static final String ALL_QUERY =
-      "SELECT * FROM " + DOMAIN;
+      "SELECT * FROM %s";
   @VisibleForTesting static final String INSTANCE_QUERY =
-      "SELECT * FROM " + DOMAIN + " WHERE " + ID_KEY + " = '%s' LIMIT 1";
+      "SELECT * FROM %s WHERE " + ID_KEY + " = '%s' LIMIT 1";
 
   private final AmazonSimpleDBClient client;
+  private final String domain;
 
   @Inject
-  public SdbCassandraInstanceDao(AmazonSimpleDBClient client) {
+  public SdbCassandraInstanceDao(AmazonSimpleDBClient client,
+      @Named(SdbDaoModule.DOMAIN_PROPERTY) String domain) {
     this.client = client;
+    this.domain = domain;
   }
 
   @Override
@@ -58,7 +60,7 @@ public class SdbCassandraInstanceDao implements CassandraInstanceDao {
     String nextToken = null;
 
     do {
-      SelectRequest request = new SelectRequest(ALL_QUERY).withNextToken(nextToken);
+      SelectRequest request = new SelectRequest(String.format(ALL_QUERY, domain)).withNextToken(nextToken);
       SelectResult result = client.select(request);
 
       for (Item item : result.getItems()) {
@@ -73,7 +75,7 @@ public class SdbCassandraInstanceDao implements CassandraInstanceDao {
 
   @Override
   public @Nullable CassandraInstance findById(int id) {
-    SelectRequest request = new SelectRequest(String.format(INSTANCE_QUERY, id));
+    SelectRequest request = new SelectRequest(String.format(INSTANCE_QUERY, domain, id));
     SelectResult result = client.select(request);
 
     if (result.getItems().size() == 0) {
@@ -86,14 +88,14 @@ public class SdbCassandraInstanceDao implements CassandraInstanceDao {
   @Override
   public void save(CassandraInstance instance) {
     PutAttributesRequest request = new PutAttributesRequest(
-        DOMAIN, String.valueOf(instance.getId()), buildSaveAttributes(instance));
+        domain, String.valueOf(instance.getId()), buildSaveAttributes(instance));
     client.putAttributes(request);
   }
 
   @Override
   public void delete(CassandraInstance instance) {
     DeleteAttributesRequest request = new DeleteAttributesRequest(
-        DOMAIN, String.valueOf(instance.getId()), buildDeleteAttributes(instance));
+        domain, String.valueOf(instance.getId()), buildDeleteAttributes(instance));
     client.deleteAttributes(request);
   }
 
