@@ -24,14 +24,15 @@ public class CassandraInstance {
   private final String publicIpAddress;
 
   private CassandraInstance(
-      @JsonProperty("id") int id, @JsonProperty("datacenter") String datacenter,
-      @JsonProperty("rack") String rack, @JsonProperty("hostname") String hostname,
+      @JsonProperty("id") int id, @JsonProperty("datacenter") String dataCenter,
+      @JsonProperty("rack") String rack, @JsonProperty("hostname") String hostName,
       @JsonProperty("publicIpAddress") String publicIpAddress) {
-    this.id = id;
-    this.datacenter = datacenter;
-    this.rack = rack;
-    this.hostname = hostname;
-    this.publicIpAddress = publicIpAddress;
+    this(new Builder()
+        .id(id)
+        .dataCenter(dataCenter)
+        .rack(rack)
+        .hostName(hostName)
+        .publicIpAddress(publicIpAddress));
   }
 
   private CassandraInstance(Builder builder) {

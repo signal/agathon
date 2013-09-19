@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Ints;
 
 import org.apache.cassandra.config.ConfigurationException;
 import org.apache.cassandra.locator.SeedProvider;
@@ -27,25 +28,29 @@ public class AgathonSeedProvider implements SeedProvider {
   private static final Logger LOG = LoggerFactory.getLogger(AgathonSeedProvider.class);
 
   private final AgathonConnector connector;
+  private final String ringName;
 
   /**
    * Creates a new seed provider with {@code args} populated from {@code cassandra.yaml}.
-   * @param unused unused args
+   * @param params parameters for determining the correct seeds.
+   *        Required: {@code agathon_host} and {@code ring_name}.
+   *        Optional: {@code agathon_port}
    */
-  @SuppressWarnings("PMD.UnusedFormalParameter")
-  public AgathonSeedProvider(Map<String, String> unused) {
-    this(new AgathonConnector());
+  public AgathonSeedProvider(Map<String, String> params) {
+    this(new AgathonConnector(params.get("agathon_host"), Ints.tryParse(params.get("agathon_port"))),
+        params.get("ring_name"));
   }
 
-  @VisibleForTesting AgathonSeedProvider(AgathonConnector connector) {
+  @VisibleForTesting AgathonSeedProvider(AgathonConnector connector, String ringName) {
     LOG.info("Using AgathonSeedProvider!");
     this.connector = connector;
+    this.ringName = ringName;
   }
 
   @Override
   public List<InetAddress> getSeeds() {
     try {
-      return transform(connector.getSeeds());
+      return transform(connector.getSeeds(ringName));
     } catch (ConfigurationException e) {
       throw Throwables.propagate(e);
     }

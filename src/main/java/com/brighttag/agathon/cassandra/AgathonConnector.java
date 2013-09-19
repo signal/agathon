@@ -10,6 +10,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Objects;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharStreams;
@@ -30,8 +31,15 @@ public class AgathonConnector {
 
   private static final Splitter SEED_SPLITTER = Splitter.on(",").trimResults().omitEmptyStrings();
 
-  @VisibleForTesting static final String SEED_URL =
-      System.getProperty("com.brighttag.agathon.seeds_url", "http://localhost:8094/seeds");
+  @VisibleForTesting static final String SEED_URL = "http://%s:%s/rings/%s/seeds";
+
+  private final String host;
+  private final int port;
+
+  public AgathonConnector(String host, @Nullable Integer port) {
+    this.host = host;
+    this.port = Objects.firstNonNull(port, 8094);
+  }
 
   /**
    * Read the list of seeds from Agathon.
@@ -39,8 +47,9 @@ public class AgathonConnector {
    * @return the list of seeds from Agathon
    * @throws ConfigurationException if a problem prevented us from reading the seeds from Agathon
    */
-  public List<String> getSeeds() throws ConfigurationException {
-    return ImmutableList.copyOf(SEED_SPLITTER.split(getDataFromUrl(SEED_URL)));
+  public List<String> getSeeds(String ring) throws ConfigurationException {
+    return ImmutableList.copyOf(SEED_SPLITTER.split(
+        getDataFromUrl(String.format(SEED_URL, host, port, ring))));
   }
 
   @VisibleForTesting @Nullable String getDataFromUrl(String url) throws ConfigurationException {

@@ -5,9 +5,12 @@ module SmokeMonster
   module Riot
     module BrightTag
 
-      def setup_seeds(domain, seed_file)
+      def setup_seeds(domain_namespace, seed_file)
+        domain = "CassandraInstances.#{domain_namespace}.#{seed_file}"
         seedql = YAML.load_file(Pathname(__FILE__).dirname + "#{seed_file}.yaml")
         setup_sdb_seeds(domain, seedql)
+        domain = "CassandraInstances.#{domain_namespace}.IntegrationRing" # created by test
+        AwsSdb::Service.new(:logger => Logger.new('logs/aws_sdb.log')).delete_domain(domain)
         sleep(2) # buy some time for SimpleDB propagation
       end
 
@@ -15,11 +18,11 @@ module SmokeMonster
 
       def setup_sdb_seeds(domain, seedql)
         sdb = AwsSdb::Service.new(:logger => Logger.new('logs/aws_sdb.log'))
-        drop_sdb(sdb, domain)
+        truncate_sdb(sdb, domain)
         seed_sdb(sdb, domain, seedql)
       end
 
-      def drop_sdb(sdb, domain)
+      def truncate_sdb(sdb, domain)
         sdb.delete_domain(domain)
         sdb.create_domain(domain)
       end

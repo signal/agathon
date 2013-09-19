@@ -21,7 +21,7 @@ public class AgathonConnectorTest extends EasyMockSupport {
   @Before
   public void setUp() {
     connector = createMockBuilder(AgathonConnector.class)
-        .withConstructor()
+        .withConstructor("localhost", 8094)
         .addMockedMethod("getDataFromUrl", String.class)
         .createMock();
   }
@@ -33,10 +33,11 @@ public class AgathonConnectorTest extends EasyMockSupport {
 
   @Test
   public void getSeeds() throws Exception {
-    expect(connector.getDataFromUrl(AgathonConnector.SEED_URL)).andReturn("host1,host2,host3");
+    expect(connector.getDataFromUrl(String.format(AgathonConnector.SEED_URL, "localhost", 8094, "myring")))
+        .andReturn("host1,host2,host3");
     replayAll();
 
-    assertEquals(ImmutableList.of("host1", "host2", "host3"), connector.getSeeds());
+    assertEquals(ImmutableList.of("host1", "host2", "host3"), connector.getSeeds("myring"));
   }
 
 }

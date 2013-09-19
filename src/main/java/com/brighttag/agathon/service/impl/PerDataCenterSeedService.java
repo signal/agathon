@@ -1,7 +1,6 @@
 package com.brighttag.agathon.service.impl;
 
 import java.util.Collection;
-import java.util.Set;
 
 import javax.annotation.Nullable;
 
@@ -16,8 +15,8 @@ import com.google.inject.name.Named;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.brighttag.agathon.dao.CassandraInstanceDao;
 import com.brighttag.agathon.model.CassandraInstance;
+import com.brighttag.agathon.model.CassandraRing;
 import com.brighttag.agathon.service.SeedService;
 
 /**
@@ -38,21 +37,18 @@ public class PerDataCenterSeedService implements SeedService {
       }
     };
 
-  private final CassandraInstanceDao dao;
   private final int numSeeds;
 
   @Inject
-  public PerDataCenterSeedService(CassandraInstanceDao dao,
-      @Named(ServiceModule.SEEDS_PER_DATACENTER_PROPERTY) int numSeeds) {
-    this.dao = dao;
+  public PerDataCenterSeedService(@Named(ServiceModule.SEEDS_PER_DATACENTER_PROPERTY) int numSeeds) {
     this.numSeeds = numSeeds;
   }
 
   @Override
-  public Set<String> getSeeds() {
+  public ImmutableSet<String> getSeeds(CassandraRing ring) {
     ImmutableSet.Builder<String> seedBuilder = ImmutableSet.builder();
     SetMultimap<String, CassandraInstance> dataCenterToInstanceMap =
-        buildDataCenterToInstanceMap(dao.findAll());
+        buildDataCenterToInstanceMap(ring.getInstances());
 
     for (String dc : dataCenterToInstanceMap.keySet()) {
       seedBuilder.addAll(getSeeds(dc, dataCenterToInstanceMap.get(dc)));
@@ -79,7 +75,7 @@ public class PerDataCenterSeedService implements SeedService {
   }
 
   private static SetMultimap<String, CassandraInstance> buildDataCenterToInstanceMap(
-      Set<CassandraInstance> instances) {
+      ImmutableSet<CassandraInstance> instances) {
     ImmutableSetMultimap.Builder<String, CassandraInstance> dataCenterToInstanceMap =
         ImmutableSetMultimap.builder();
     for (CassandraInstance instance : instances) {

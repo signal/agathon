@@ -10,8 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.brighttag.agathon.dao.DaoModule;
-import com.brighttag.agathon.resources.CassandraInstanceResource;
-import com.brighttag.agathon.resources.SeedResource;
+import com.brighttag.agathon.resources.CassandraRingResource;
 import com.brighttag.agathon.resources.ValidatingJacksonJsonProvider;
 
 import static org.junit.Assert.assertNotNull;
@@ -26,7 +25,7 @@ public class GuiceServletConfigTest {
 
   @BeforeClass
   public static void setRequiredSystemProperties() {
-    System.setProperty(DaoModule.DATABASE_PROPERTY, "fake"); // Use in-memory DAO for unit tests
+    System.setProperty(DaoModule.DATABASE_PROPERTY, "memory"); // Use in-memory DAO for unit tests
   }
 
   @AfterClass
@@ -48,8 +47,7 @@ public class GuiceServletConfigTest {
   @Test
   public void bindings() {
     assertNotNull(injector.getInstance(ValidatingJacksonJsonProvider.class));
-    assertNotNull(injector.getInstance(CassandraInstanceResource.class));
-    assertNotNull(injector.getInstance(SeedResource.class));
+    assertNotNull(injector.getInstance(CassandraRingResource.class));
   }
 
 }

@@ -15,7 +15,7 @@ context "[agathon:CassandraInstance]" do
 
   context "Get all instances" do
     base_uri BrightTag.agathon_host
-    get "/instances"
+    get "/rings/UserStats/instances"
     asserts_status.equals(200)
     asserts { response.size }.equals(12)
 
@@ -32,26 +32,26 @@ context "[agathon:CassandraInstance]" do
 
   context "Get non-existent instance returns 404" do
     base_uri BrightTag.agathon_host
-    get "/instances/111"
+    get "/rings/UserStats/instances/111"
     asserts_status.equals(404)
   end
 
   context "Create instance, unrecognized Content-Type returns 415" do
     base_uri BrightTag.agathon_host
-    post "/instances", :body => {}.to_json
+    post "/rings/UserStats/instances", :body => {}.to_json
     asserts_status.equals(415)
   end
 
   context "Create instance, unparseable JSON returns 400" do
     base_uri BrightTag.agathon_host
-    post "/instances", :headers => content_type, :body => '{"id": "forgot-to-close-me}'
+    post "/rings/UserStats/instances", :headers => content_type, :body => '{"id": "forgot-to-close-me}'
     asserts_status.equals(400)
   end
 
   context "Create instance" do
     base_uri BrightTag.agathon_host
     instance = { "id" => "222", "datacenter" => "us-east", "rack" => "1a", "hostname" => "cass10ea1", "publicIpAddress" => "1.2.3.4" }
-    post "/instances", :headers => content_type, :body => instance.to_json
+    post "/rings/UserStats/instances", :headers => content_type, :body => instance.to_json
     asserts_status.equals(201)
   end
 

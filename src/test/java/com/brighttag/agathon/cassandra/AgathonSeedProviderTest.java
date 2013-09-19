@@ -20,6 +20,7 @@ import static org.junit.Assert.fail;
  */
 public class AgathonSeedProviderTest extends EasyMockSupport {
 
+  private static final String RING_NAME = "ring";
   private static final String SEED1 = "host1";
   private static final String SEED2 = "host2";
   private static final String SEED3 = "host3";
@@ -31,7 +32,7 @@ public class AgathonSeedProviderTest extends EasyMockSupport {
   public void setUp() {
     connector = createMock(AgathonConnector.class);
     provider = createMockBuilder(AgathonSeedProvider.class)
-        .withConstructor(connector)
+        .withConstructor(connector, RING_NAME)
         .addMockedMethod("getInetAddress", String.class)
         .createMock();
   }
@@ -46,7 +47,7 @@ public class AgathonSeedProviderTest extends EasyMockSupport {
     InetAddress addr1 = createMock(InetAddress.class);
     InetAddress addr2 = createMock(InetAddress.class);
     InetAddress addr3 = createMock(InetAddress.class);
-    expect(connector.getSeeds()).andReturn(ImmutableList.of(SEED1, SEED2, SEED3));
+    expect(connector.getSeeds(RING_NAME)).andReturn(ImmutableList.of(SEED1, SEED2, SEED3));
     expect(provider.getInetAddress(SEED1)).andReturn(addr1);
     expect(provider.getInetAddress(SEED2)).andReturn(addr2);
     expect(provider.getInetAddress(SEED3)).andReturn(addr3);
@@ -58,7 +59,7 @@ public class AgathonSeedProviderTest extends EasyMockSupport {
   @Test
   public void getSeeds_unknownHost() throws Exception {
     InetAddress addr = createMock(InetAddress.class);
-    expect(connector.getSeeds()).andReturn(ImmutableList.of(SEED1, SEED2));
+    expect(connector.getSeeds(RING_NAME)).andReturn(ImmutableList.of(SEED1, SEED2));
     expect(provider.getInetAddress(SEED1)).andReturn(addr);
     expect(provider.getInetAddress(SEED2)).andReturn(null);
     replayAll();
@@ -69,7 +70,7 @@ public class AgathonSeedProviderTest extends EasyMockSupport {
   @Test
   public void getSeeds_configurationException() throws Exception {
     final ConfigurationException exception = new ConfigurationException("misconfigured");
-    expect(connector.getSeeds()).andThrow(exception);
+    expect(connector.getSeeds(RING_NAME)).andThrow(exception);
     replayAll();
 
     try {

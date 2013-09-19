@@ -37,21 +37,25 @@ import static org.junit.Assert.fail;
 public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
 
   private static final int ID = 1;
-  private static final String DOMAIN = "CassandraInstances";
   private static final String DATACENTER = "dc";
   private static final String RACK = "rack";
   private static final String HOSTNAME = "host";
   private static final String PUBLIC_IP_ADDRESS = "publicIpAddress";
   private static final String NEXT_TOKEN = "nextToken";
+  private static final String DOMAIN_NAMESPACE = "Production";
+  private static final String RING_NAME = "ProfileStore";
+  private static final String DOMAIN = "CassandraInstances." + DOMAIN_NAMESPACE + "." + RING_NAME;
   private static final String ALL_QUERY = String.format(SdbCassandraInstanceDao.ALL_QUERY, DOMAIN);
 
   private AmazonSimpleDBClient simpleDbClient;
   private SdbCassandraInstanceDao dao;
+  private CassandraDomainFactory domainFactory;
 
   @Before
   public void setUp() {
     simpleDbClient = createMock(AmazonSimpleDBClient.class);
-    dao = new SdbCassandraInstanceDao(simpleDbClient, DOMAIN);
+    domainFactory = createMock(CassandraDomainFactory.class);
+    dao = new SdbCassandraInstanceDao(simpleDbClient, domainFactory);
   }
 
   @After
@@ -65,13 +69,14 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
     SelectResult result = createMock(SelectResult.class);
     Capture<SelectRequest> requestCapture = new Capture<SelectRequest>();
 
+    expect(domainFactory.createFromRing(RING_NAME)).andReturn(domain(RING_NAME));
     expect(simpleDbClient.select(capture(requestCapture))).andReturn(result);
     expect(result.getItems()).andReturn(items);
     expect(result.getNextToken()).andReturn(null);
     replayAll();
 
     Set<CassandraInstance> expected = transform(items);
-    assertEquals(expected, dao.findAll());
+    assertEquals(expected, dao.findAll(RING_NAME));
 
     assertEquals(ALL_QUERY, requestCapture.getValue().getSelectExpression());
     assertNull(requestCapture.getValue().getNextToken());
@@ -84,6 +89,7 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
     SelectResult result = createMock(SelectResult.class);
     Capture<SelectRequest> requestCapture = new Capture<SelectRequest>(CaptureType.ALL);
 
+    expect(domainFactory.createFromRing(RING_NAME)).andReturn(domain(RING_NAME)).times(2);
     expect(simpleDbClient.select(capture(requestCapture))).andReturn(result);
     expect(result.getItems()).andReturn(items1);
     expect(result.getNextToken()).andReturn(NEXT_TOKEN);
@@ -95,7 +101,7 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
 
     Set<CassandraInstance> expected = Sets.newHashSet(
         Iterables.concat(transform(items1), transform(items2)));
-    assertEquals(expected, dao.findAll());
+    assertEquals(expected, dao.findAll(RING_NAME));
 
     List<SelectRequest> requests = requestCapture.getValues();
     assertEquals(2, requests.size());
@@ -111,12 +117,13 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
     SelectResult result = createMock(SelectResult.class);
     Capture<SelectRequest> requestCapture = new Capture<SelectRequest>();
 
+    expect(domainFactory.createFromRing(RING_NAME)).andReturn(domain(RING_NAME));
     expect(simpleDbClient.select(capture(requestCapture))).andReturn(result);
     expect(result.getItems()).andStubReturn(items);
     replayAll();
 
     Set<CassandraInstance> expected = transform(items);
-    assertEquals(expected.iterator().next(), dao.findById(ID));
+    assertEquals(expected.iterator().next(), dao.findById(RING_NAME, ID));
 
     assertEquals(String.format(SdbCassandraInstanceDao.INSTANCE_QUERY, DOMAIN, ID),
         requestCapture.getValue().getSelectExpression());
@@ -129,17 +136,19 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
     SelectResult result = createMock(SelectResult.class);
     Capture<SelectRequest> requestCapture = new Capture<SelectRequest>();
 
+    expect(domainFactory.createFromRing(RING_NAME)).andReturn(domain(RING_NAME));
     expect(simpleDbClient.select(capture(requestCapture))).andReturn(result);
     expect(result.getItems()).andStubReturn(items);
     replayAll();
 
-    assertNull(dao.findById(ID));
+    assertNull(dao.findById(RING_NAME, ID));
   }
 
   @Test
   public void save() {
     CassandraInstance instance = createMock(CassandraInstance.class);
     Capture<PutAttributesRequest> requestCapture = new Capture<PutAttributesRequest>();
+    expect(domainFactory.createFromRing(RING_NAME)).andReturn(domain(RING_NAME));
     expect(instance.getId()).andReturn(ID).times(2);
     expect(instance.getDataCenter()).andReturn(DATACENTER);
     expect(instance.getRack()).andReturn(RACK);
@@ -148,7 +157,7 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
     simpleDbClient.putAttributes(capture(requestCapture));
     replayAll();
 
-    dao.save(instance);
+    dao.save(RING_NAME, instance);
 
     PutAttributesRequest request = requestCapture.getValue();
     assertEquals(DOMAIN, request.getDomainName());
@@ -160,6 +169,7 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
   public void delete() {
     CassandraInstance instance = createMock(CassandraInstance.class);
     Capture<DeleteAttributesRequest> requestCapture = new Capture<DeleteAttributesRequest>();
+    expect(domainFactory.createFromRing(RING_NAME)).andReturn(domain(RING_NAME));
     expect(instance.getId()).andReturn(ID).times(2);
     expect(instance.getDataCenter()).andReturn(DATACENTER);
     expect(instance.getRack()).andReturn(RACK);
@@ -168,7 +178,7 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
     simpleDbClient.deleteAttributes(capture(requestCapture));
     replayAll();
 
-    dao.delete(instance);
+    dao.delete(RING_NAME, instance);
 
     DeleteAttributesRequest request = requestCapture.getValue();
     assertEquals(DOMAIN, request.getDomainName());
@@ -186,6 +196,10 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
     assertEquals("rack1", instance.getRack());
     assertEquals("host1", instance.getHostName());
     assertEquals("publicIpAddress1", instance.getPublicIpAddress());
+  }
+
+  private CassandraDomain domain(String ring) {
+    return new CassandraDomain(DOMAIN_NAMESPACE, ring);
   }
 
   private List<Item> createItems() {

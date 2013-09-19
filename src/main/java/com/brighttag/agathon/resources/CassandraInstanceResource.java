@@ -16,9 +16,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
 import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import com.sun.jersey.api.NotFoundException;
 
 import com.brighttag.agathon.model.CassandraInstance;
+import com.brighttag.agathon.model.CassandraRing;
 import com.brighttag.agathon.service.CassandraInstanceService;
 
 /**
@@ -27,16 +29,17 @@ import com.brighttag.agathon.service.CassandraInstanceService;
  * @author codyaray
  * @since 5/12/2012
  */
-@Path("/instances")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class CassandraInstanceResource {
 
   private final CassandraInstanceService service;
+  private final CassandraRing ring;
 
   @Inject
-  public CassandraInstanceResource(CassandraInstanceService service) {
+  public CassandraInstanceResource(CassandraInstanceService service, @Assisted CassandraRing ring) {
     this.service = service;
+    this.ring = ring;
   }
 
   /**
@@ -45,7 +48,7 @@ public class CassandraInstanceResource {
    */
   @GET
   public Set<CassandraInstance> findAll() {
-    return service.findAll();
+    return service.findAll(ring.getName());
   }
 
   /**
@@ -56,7 +59,7 @@ public class CassandraInstanceResource {
    */
   @POST
   public Response createInstance(@Valid CassandraInstance instance) {
-    service.save(instance);
+    service.save(ring.getName(), instance);
     URI location = UriBuilder.fromPath("{id}").build(instance.getId());
     return Response.created(location).build();
   }
@@ -66,7 +69,7 @@ public class CassandraInstanceResource {
    *
    * @param id the Cassandra instance ID
    * @return the Cassandra instance
-   * @throws WebApplicationException (404) if instance not found with {@code id}
+   * @throws NotFoundException if instance not found with {@code id}
    */
   @GET
   @Path("{id}")
@@ -79,17 +82,17 @@ public class CassandraInstanceResource {
    *
    * @param id the Cassandra instance ID
    * @return Response (204) if the Cassandra instance was deleted
-   * @throws WebApplicationException (404) if instance not found with {@code id}
+   * @throws NotFoundException if instance not found with {@code id}
    */
   @DELETE
   @Path("{id}")
   public Response deleteInstance(@PathParam("id") int id) {
-    service.delete(getByIdIfFound(id));
+    service.delete(ring.getName(), getByIdIfFound(id));
     return Response.noContent().build();
   }
 
   private CassandraInstance getByIdIfFound(int id) {
-    CassandraInstance instance = service.findById(id);
+    CassandraInstance instance = service.findById(ring.getName(), id);
     if (instance == null) {
       throw new NotFoundException(String.format("No instance found with id: %s", id));
     }

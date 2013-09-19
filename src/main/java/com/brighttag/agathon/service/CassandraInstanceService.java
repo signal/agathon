@@ -1,8 +1,8 @@
 package com.brighttag.agathon.service;
 
-import java.util.Set;
-
 import javax.annotation.Nullable;
+
+import com.google.common.collect.ImmutableSet;
 
 import com.brighttag.agathon.model.CassandraInstance;
 
@@ -15,28 +15,36 @@ import com.brighttag.agathon.model.CassandraInstance;
 public interface CassandraInstanceService {
 
   /**
-   * Return the set of Cassandra instances.
-   * @return the set of Cassandra instances
+   * Returns the set of Cassandra instances in a ring.
+   *
+   * @param ring name of the Cassandra ring
+   * @return set of Cassandra instances in the ring
    */
-  Set<CassandraInstance> findAll();
+  ImmutableSet<CassandraInstance> findAll(String ring);
 
   /**
-   * Return the Cassandra instance with the given {@code id}, or {@code null} if not found.
+   * Returns the Cassandra instance with the given {@code id} or {@code null} if not found.
+   *
+   * @param ring name of the Cassandra ring
    * @param id the Cassandra instance ID
    * @return the Cassandra instance or {@code null} if not found
    */
-  @Nullable CassandraInstance findById(int id);
+  @Nullable CassandraInstance findById(String ring, int id);
 
   /**
-   * Save the given Cassandra {@code instance}.
+   * Saves the Cassandra {@code instance}.
+   *
+   * @param ring name of the Cassandra ring
    * @param instance the Cassandra instance
    */
-  void save(CassandraInstance instance);
+  void save(String ring, CassandraInstance instance);
 
   /**
-   * Delete the given Cassandra {@code instance}.
+   * Deletes the Cassandra {@code instance}.
+   *
+   * @param ring name of the Cassandra ring
    * @param instance the Cassandra instance
    */
-  void delete(CassandraInstance instance);
+  void delete(String ring, CassandraInstance instance);
 
 }

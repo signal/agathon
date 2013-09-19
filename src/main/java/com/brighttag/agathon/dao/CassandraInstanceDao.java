@@ -1,8 +1,8 @@
 package com.brighttag.agathon.dao;
 
-import java.util.Set;
-
 import javax.annotation.Nullable;
+
+import com.google.common.collect.ImmutableSet;
 
 import com.brighttag.agathon.model.CassandraInstance;
 
@@ -10,33 +10,41 @@ import com.brighttag.agathon.model.CassandraInstance;
  * DAO for Cassandra Instances.
  *
  * @author codyaray
- * @since 5/12/12
+ * @since 5/12/2012
  */
 public interface CassandraInstanceDao {
 
   /**
-   * Returns the set of Cassandra instances.
-   * @return a list of Cassandra instances
+   * Returns the set of Cassandra instances in a ring.
+   *
+   * @param ring name of the Cassandra ring
+   * @return set of Cassandra instances in the ring
    */
-  Set<CassandraInstance> findAll();
+  ImmutableSet<CassandraInstance> findAll(String ring);
 
   /**
-   * Finds the Cassandra instance by ID, otherwise returns {@code null}.
+   * Returns the Cassandra instance with the given {@code id} or {@code null} if not found.
+   *
+   * @param ring name of the Cassandra ring
    * @param id the Cassandra instance ID
-   * @return the entity or {@code null} if it could not be found
+   * @return the Cassandra instance or {@code null} if not found
    */
-  @Nullable CassandraInstance findById(int id);
+  @Nullable CassandraInstance findById(String ring, int id);
 
   /**
-   * Saves the Cassandra instance.
+   * Saves the Cassandra {@code instance}.
+   *
+   * @param ring name of the Cassandra ring
    * @param instance the Cassandra instance
    */
-  void save(CassandraInstance instance);
+  void save(String ring, CassandraInstance instance);
 
   /**
-   * Deletes the Cassandra instance from persistent storage.
+   * Deletes the Cassandra {@code instance}.
+   *
+   * @param ring name of the Cassandra ring
    * @param instance the Cassandra instance
    */
-  void delete(CassandraInstance instance);
+  void delete(String ring, CassandraInstance instance);
 
 }

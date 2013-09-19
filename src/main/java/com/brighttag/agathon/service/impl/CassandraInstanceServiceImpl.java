@@ -1,9 +1,8 @@
 package com.brighttag.agathon.service.impl;
 
-import java.util.Set;
-
 import javax.annotation.Nullable;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 
 import com.brighttag.agathon.dao.CassandraInstanceDao;
@@ -14,7 +13,7 @@ import com.brighttag.agathon.service.CassandraInstanceService;
  * DAO-based proxy implementation of {@link CassandraInstanceService}.
  *
  * @author codyaray
- * @since 5/12/12
+ * @since 5/12/2012
  */
 public class CassandraInstanceServiceImpl implements CassandraInstanceService {
 
@@ -26,23 +25,23 @@ public class CassandraInstanceServiceImpl implements CassandraInstanceService {
   }
 
   @Override
-  public Set<CassandraInstance> findAll() {
-    return dao.findAll();
+  public ImmutableSet<CassandraInstance> findAll(String ring) {
+    return dao.findAll(ring);
   }
 
   @Override
-  public @Nullable CassandraInstance findById(int id) {
-    return dao.findById(id);
+  public @Nullable CassandraInstance findById(String ring, int id) {
+    return dao.findById(ring, id);
   }
 
   @Override
-  public void save(CassandraInstance instance) {
-    dao.save(instance);
+  public void save(String ring, CassandraInstance instance) {
+    dao.save(ring, instance);
   }
 
   @Override
-  public void delete(CassandraInstance instance) {
-    dao.delete(instance);
+  public void delete(String ring, CassandraInstance instance) {
+    dao.delete(ring, instance);
   }
 
 }

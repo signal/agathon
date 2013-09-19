@@ -1,8 +1,9 @@
 package com.brighttag.agathon.dao.memory;
 
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 import org.easymock.EasyMockSupport;
@@ -12,6 +13,8 @@ import org.junit.Test;
 
 import com.brighttag.agathon.model.CassandraInstance;
 
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -23,15 +26,16 @@ import static org.junit.Assert.assertNull;
 public class MemoryCassandraInstanceDaoTest extends EasyMockSupport {
 
   private static final int CASSANDRA_ID = 1;
+  private static final String RING_NAME = "myring";
 
-  private Map<Integer, CassandraInstance> instances;
+  private ConcurrentMap<String, Map<Integer, CassandraInstance>> rings;
   private MemoryCassandraInstanceDao dao;
 
   @SuppressWarnings("unchecked")
   @Before
   public void setUp() {
-    instances = createMock(Map.class);
-    dao = new MemoryCassandraInstanceDao(instances);
+    rings = createMock(ConcurrentMap.class);
+    dao = new MemoryCassandraInstanceDao(rings);
   }
 
   @After
@@ -43,52 +47,86 @@ public class MemoryCassandraInstanceDaoTest extends EasyMockSupport {
   public void findAll() {
     CassandraInstance instance1 = instance();
     CassandraInstance instance2 = instance();
-    Set<CassandraInstance> expected = ImmutableSet.of(instance1, instance2);
-    expect(instances.values()).andStubReturn(expected);
+    expect(rings.containsKey(RING_NAME)).andStubReturn(true);
+    expect(rings.get(RING_NAME)).andStubReturn(ImmutableMap.of(1, instance1, 2, instance2));
     replayAll();
 
-    assertEquals(expected, dao.findAll());
+    assertEquals(ImmutableSet.of(instance1, instance2), dao.findAll(RING_NAME));
   }
 
   @Test
   public void findById() {
     CassandraInstance instance = createMock(CassandraInstance.class);
-    expect(instances.get(CASSANDRA_ID)).andStubReturn(instance);
+    expect(rings.containsKey(RING_NAME)).andStubReturn(true);
+    expect(rings.get(RING_NAME)).andStubReturn(ImmutableMap.of(CASSANDRA_ID, instance));
     replayAll();
 
-    assertEquals(instance, dao.findById(CASSANDRA_ID));
+    assertEquals(instance, dao.findById(RING_NAME, CASSANDRA_ID));
   }
 
   @Test
-  public void findById_notFound() {
-    expect(instances.get(CASSANDRA_ID)).andStubReturn(null);
+  public void findById_ringNotFound() {
+    expect(rings.containsKey(RING_NAME)).andStubReturn(false);
+    expect(rings.get(RING_NAME)).andStubReturn(null);
     replayAll();
 
-    assertNull(dao.findById(CASSANDRA_ID));
+    assertNull(dao.findById(RING_NAME, CASSANDRA_ID));
   }
 
   @Test
-  public void save() {
+  public void findById_instanceNotFound() {
+    expect(rings.containsKey(RING_NAME)).andStubReturn(true);
+    expect(rings.get(RING_NAME)).andStubReturn(ImmutableMap.<Integer, CassandraInstance>of());
+    replayAll();
+
+    assertNull(dao.findById(RING_NAME, CASSANDRA_ID));
+  }
+
+  @Test
+  public void save_existingRing() {
+    CassandraInstance instance = createMock(CassandraInstance.class);
+    @SuppressWarnings("unchecked")
+    Map<Integer, CassandraInstance> instanceMap = createMock(Map.class);
+    expect(instance.getId()).andStubReturn(CASSANDRA_ID);
+    expect(rings.containsKey(RING_NAME)).andStubReturn(true);
+    expect(rings.get(RING_NAME)).andStubReturn(instanceMap);
+    expect(instanceMap.put(CASSANDRA_ID, instance)).andStubReturn(null);
+    replayAll();
+
+    dao.save(RING_NAME, instance);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void save_newRing() {
     CassandraInstance instance = createMock(CassandraInstance.class);
     expect(instance.getId()).andReturn(CASSANDRA_ID);
-    expect(instances.put(CASSANDRA_ID, instance)).andReturn(null);
+    expect(rings.containsKey(RING_NAME)).andReturn(false);
+    Map<Integer, CassandraInstance> instanceMap = createMock(Map.class);
+    expect(rings.get(RING_NAME)).andReturn(instanceMap);
+    expect(rings.put(eq(RING_NAME), anyObject(Map.class))).andReturn(null);
+    expect(instanceMap.put(CASSANDRA_ID, instance)).andReturn(null);
     replayAll();
 
-    dao.save(instance);
+    dao.save(RING_NAME, instance);
   }
 
   @Test
   public void delete() {
     CassandraInstance instance = createMock(CassandraInstance.class);
-    expect(instance.getId()).andReturn(CASSANDRA_ID);
-    expect(instances.remove(CASSANDRA_ID)).andReturn(null);
+    @SuppressWarnings("unchecked")
+    Map<Integer, CassandraInstance> instanceMap = createMock(Map.class);
+    expect(instance.getId()).andStubReturn(CASSANDRA_ID);
+    expect(rings.containsKey(RING_NAME)).andStubReturn(true);
+    expect(rings.get(RING_NAME)).andStubReturn(instanceMap);
+    expect(instanceMap.remove(CASSANDRA_ID)).andStubReturn(null);
     replayAll();
 
-    dao.delete(instance);
+    dao.delete(RING_NAME, instance);
   }
 
   private CassandraInstance instance() {
-    return new CassandraInstance.Builder().id(1).build();
+    return new CassandraInstance.Builder().id(CASSANDRA_ID).build();
   }
 
 }

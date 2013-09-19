@@ -26,6 +26,8 @@ import static org.junit.Assert.assertNull;
  */
 public class ZergCassandraInstanceDaoTest extends EasyMockSupport {
 
+  private static final String RING_NAME = "myring";
+
   private AsyncHttpClient client;
   private ZergCassandraInstanceDao dao;
 
@@ -40,7 +42,7 @@ public class ZergCassandraInstanceDaoTest extends EasyMockSupport {
     expectZergResponse(MANIFEST);
     replayAll();
 
-    assertEquals(INSTANCES, dao.findAll());
+    assertEquals(INSTANCES, dao.findAll(RING_NAME));
   }
 
   @Test
@@ -48,7 +50,7 @@ public class ZergCassandraInstanceDaoTest extends EasyMockSupport {
     expectZergResponse(BAD_MANIFEST);
     replayAll();
 
-    assertEquals(ImmutableSet.of(), dao.findAll());
+    assertEquals(ImmutableSet.of(), dao.findAll(RING_NAME));
   }
 
   @Test
@@ -58,7 +60,7 @@ public class ZergCassandraInstanceDaoTest extends EasyMockSupport {
 
     Iterator<CassandraInstance> iterator = INSTANCES.iterator();
     iterator.next();
-    assertEquals(iterator.next(), dao.findById(1026494710));
+    assertEquals(iterator.next(), dao.findById(RING_NAME, 1026494710));
   }
 
   @Test
@@ -66,7 +68,7 @@ public class ZergCassandraInstanceDaoTest extends EasyMockSupport {
     expectZergResponse(MANIFEST);
     replayAll();
 
-    assertNull(dao.findById(99));
+    assertNull(dao.findById(RING_NAME, 99));
   }
 
   @Test
@@ -74,17 +76,17 @@ public class ZergCassandraInstanceDaoTest extends EasyMockSupport {
     expectZergResponse(BAD_MANIFEST);
     replayAll();
 
-    assertNull(dao.findById(99));
+    assertNull(dao.findById(RING_NAME, 99));
   }
 
   @Test(expected = UnsupportedOperationException.class)
   public void save() {
-    dao.save(INSTANCES.iterator().next());
+    dao.save(RING_NAME, INSTANCES.iterator().next());
   }
 
   @Test(expected = UnsupportedOperationException.class)
   public void delete() {
-    dao.delete(INSTANCES.iterator().next());
+    dao.delete(RING_NAME, INSTANCES.iterator().next());
   }
 
   @SuppressWarnings("unchecked")
@@ -130,20 +132,20 @@ public class ZergCassandraInstanceDaoTest extends EasyMockSupport {
       "      \"private ip\": \"10.1.1.1\"," +
       "      \"roles\": [" +
       "        \"cassandra\"," +
-      "        \"priam\"" +
+      "        \"cassandra_myring\"" +
       "      ]," +
       "      \"public ip\": \"54.1.1.1\"," +
       "      \"id\": \"def2\"," +
       "      \"zone\": \"us-west-2a\"" +
       "    }" +
       "  }," +
-      // Region with mixed server groups and multiple Cassandra instances
+      // Region with mixed server groups and multiple Cassandra rings
       "  \"us-east-1\": {" +
-      "    \"batchfire01ea1\": {" +
+      "    \"stats01ea1\": {" +
       "      \"private ip\": \"10.2.1.1\"," +
       "      \"roles\": [" +
-      "        \"batchfire\"," +
-      "        \"redis\"" +
+      "        \"cassandra\"," +
+      "        \"cassandra_stats\"" +
       "      ]," +
       "      \"public ip\": \"54.2.1.1\"," +
       "      \"id\": \"ghi3\"," +
@@ -153,7 +155,7 @@ public class ZergCassandraInstanceDaoTest extends EasyMockSupport {
       "      \"private ip\": \"10.2.1.2\"," +
       "      \"roles\": [" +
       "        \"cassandra\"," +
-      "        \"priam\"" +
+      "        \"cassandra_myring\"" +
       "      ]," +
       "      \"public ip\": \"54.2.1.2\"," +
       "      \"id\": \"jkl4\"," +
@@ -163,7 +165,7 @@ public class ZergCassandraInstanceDaoTest extends EasyMockSupport {
       "      \"private ip\": \"10.2.1.3\"," +
       "      \"roles\": [" +
       "        \"cassandra\"," +
-      "        \"priam\"" +
+      "        \"cassandra_myring\"" +
       "      ]," +
       "      \"public ip\": \"54.2.1.3\"," +
       "      \"id\": \"mno5\"," +

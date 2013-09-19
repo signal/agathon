@@ -1,7 +1,7 @@
 package com.brighttag.agathon.dao.memory;
 
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.Nullable;
 
@@ -25,38 +25,52 @@ class MemoryCassandraInstanceDao implements CassandraInstanceDao {
 
   private static final Logger LOG = LoggerFactory.getLogger(MemoryCassandraInstanceDao.class);
 
-  private final Map<Integer, CassandraInstance> instances;
+  private final ConcurrentMap<String, Map<Integer, CassandraInstance>> rings;
 
   public MemoryCassandraInstanceDao() {
-    this(Maps.<Integer, CassandraInstance>newHashMap());
+    this(Maps.<String, Map<Integer, CassandraInstance>>newConcurrentMap());
   }
 
-  @VisibleForTesting MemoryCassandraInstanceDao(Map<Integer, CassandraInstance> instances) {
-    this.instances = instances;
-  }
-
-  @Override
-  public Set<CassandraInstance> findAll() {
-    LOG.info("Returning instances: {}", instances.values());
-    return ImmutableSet.copyOf(instances.values());
+  @VisibleForTesting MemoryCassandraInstanceDao(
+      ConcurrentMap<String, Map<Integer, CassandraInstance>> rings) {
+    this.rings = rings;
   }
 
   @Override
-  public @Nullable CassandraInstance findById(int id) {
-    LOG.info("Returning instance: {}", instances.get(id));
-    return instances.get(id);
+  public ImmutableSet<CassandraInstance> findAll(String ring) {
+    ImmutableSet<CassandraInstance> instances = ImmutableSet.of();
+    if (rings.containsKey(ring)) {
+      instances = ImmutableSet.copyOf(rings.get(ring).values());
+    }
+    LOG.info("Returning instances: {}", instances);
+    return instances;
   }
 
   @Override
-  public void save(CassandraInstance instance) {
+  public @Nullable CassandraInstance findById(String ring, int id) {
+    CassandraInstance instance = null;
+    if (rings.containsKey(ring)) {
+      instance = rings.get(ring).get(id);
+    }
+    LOG.info("Returning instance: {}", instance);
+    return instance;
+  }
+
+  @Override
+  public void save(String ringName, CassandraInstance instance) {
     LOG.info("Saving instance: {}", instance);
-    instances.put(instance.getId(), instance);
+    if (!rings.containsKey(ringName)) {
+      rings.put(ringName, Maps.<Integer, CassandraInstance>newHashMap());
+    }
+    rings.get(ringName).put(instance.getId(), instance);
   }
 
   @Override
-  public void delete(CassandraInstance instance) {
+  public void delete(String ringName, CassandraInstance instance) {
     LOG.info("Deleting instance: {}", instance);
-    instances.remove(instance.getId());
+    if (rings.containsKey(ringName)) {
+      rings.get(ringName).remove(instance.getId());
+    }
   }
 
 }

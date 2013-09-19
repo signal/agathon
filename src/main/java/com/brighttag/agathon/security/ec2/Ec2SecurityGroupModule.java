@@ -1,6 +1,5 @@
 package com.brighttag.agathon.security.ec2;
 
-import java.util.Collection;
 import java.util.Map;
 
 import com.amazonaws.auth.AWSCredentials;
@@ -9,7 +8,6 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Exposed;
 import com.google.inject.PrivateModule;
@@ -21,7 +19,6 @@ import com.brighttag.agathon.aws.AwsModule;
 import com.brighttag.agathon.model.CassandraInstance;
 import com.brighttag.agathon.security.SecurityGroupModule;
 import com.brighttag.agathon.security.SecurityGroupService;
-import com.brighttag.agathon.service.CassandraInstanceService;
 
 /**
  * Guice module to wire up security group management for Amazon EC2.
@@ -48,29 +45,26 @@ public class Ec2SecurityGroupModule extends PrivateModule {
   }
 
   @Provides @Singleton @Named(SecurityGroupModule.SECURITY_GROUP_DATACENTERS_PROPERTY)
-  Map<String, Region> provideRegions(
-      @Named(SecurityGroupModule.SECURITY_GROUP_DATACENTERS_PROPERTY) Collection<String> regions) {
+  Map<String, Region> provideRegions() {
     ImmutableMap.Builder<String, Region> regionMap = ImmutableMap.builder();
-    for (String region : regions) {
+    for (Regions region : Regions.values()) {
       // On first call, this makes a network request to fetch the metadata for all regions
-      regionMap.put(region, Region.getRegion(Regions.fromName(region)));
+      regionMap.put(region.getName(), Region.getRegion(region));
     }
     return regionMap.build();
   }
 
   @Provides @Exposed @Singleton @Named(SecurityGroupModule.SECURITY_GROUP_DATACENTERS_PROPERTY)
-  Collection<String> provideDataCentersInCassandraRing(CassandraInstanceService service) {
-    return FluentIterable.from(service.findAll())
-        .transform(new Function<CassandraInstance, String>() {
-          @Override
-          public String apply(CassandraInstance instance) {
-            // Transform from Cassandra DataCenter/Rack to AWS Region
-            // Assumes the {@link Ec2Snitch} or {@link Ec2MultiRegionSnitch}
-            // For example, DC: "us-east", Rack: "1a" => Region: "us-east-1"
-            return instance.getDataCenter() + "-" + instance.getRack().substring(0, 1);
-          }
-        })
-        .toSet();
+  Function<CassandraInstance, String> provideDataCenterTransform() {
+    return new Function<CassandraInstance, String>() {
+      @Override
+      public String apply(CassandraInstance instance) {
+        // Transform from Cassandra DataCenter/Rack to AWS Region
+        // Assumes the {@link Ec2Snitch} or {@link Ec2MultiRegionSnitch}
+        // For example, DC: "us-east", Rack: "1a" => Region: "us-east-1"
+        return instance.getDataCenter() + "-" + instance.getRack().substring(0, 1);
+      }
+    };
   }
 
 }

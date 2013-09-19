@@ -5,6 +5,7 @@ import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceServletContextListener;
 
 import com.brighttag.agathon.dao.DaoModule;
+import com.brighttag.agathon.resources.ResourcesModule;
 import com.brighttag.agathon.security.SecurityGroupModule;
 import com.brighttag.agathon.service.impl.ServiceModule;
 
@@ -20,6 +21,7 @@ public class GuiceServletConfig extends GuiceServletContextListener {
   protected Injector getInjector() {
     return Guice.createInjector(
         new ServletModule(),
+        new ResourcesModule(),
         new ServiceModule(),
         new SecurityGroupModule(),
         new DaoModule());

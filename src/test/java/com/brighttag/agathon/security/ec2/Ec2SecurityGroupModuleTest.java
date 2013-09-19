@@ -1,7 +1,6 @@
 package com.brighttag.agathon.security.ec2;
 
-import java.util.Collection;
-
+import com.google.common.base.Function;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
@@ -9,6 +8,7 @@ import com.google.inject.name.Names;
 import org.easymock.EasyMockSupport;
 import org.junit.Test;
 
+import com.brighttag.agathon.model.CassandraInstance;
 import com.brighttag.agathon.security.SecurityGroupModule;
 import com.brighttag.agathon.security.SecurityGroupService;
 import com.brighttag.agathon.service.CassandraInstanceService;
@@ -25,7 +25,7 @@ public class Ec2SecurityGroupModuleTest extends EasyMockSupport {
     new ModuleTester(new Ec2SecurityGroupModule())
         .dependsOn(CassandraInstanceService.class, createMock(CassandraInstanceService.class))
         .exposes(SecurityGroupService.class)
-        .exposes(Key.get(new TypeLiteral<Collection<String>>() { },
+        .exposes(Key.get(new TypeLiteral<Function<CassandraInstance, String>>() { },
             Names.named(SecurityGroupModule.SECURITY_GROUP_DATACENTERS_PROPERTY)))
         .exposesNothingElse()
         .verify();

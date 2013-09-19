@@ -14,7 +14,7 @@ end
 
 module SmokeMonster::Riot::BrightTag
   def agathon_setup
-    setup_seeds(ENV["AGATHON_SDB_DOMAIN"], "agathon")
+    setup_seeds(ENV["AGATHON_SDB_DOMAIN_NAMESPACE"], "UserStats")
   end
 end
 

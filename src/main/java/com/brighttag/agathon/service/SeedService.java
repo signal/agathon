@@ -1,9 +1,11 @@
 package com.brighttag.agathon.service;
 
-import java.util.Set;
+import com.google.common.collect.ImmutableSet;
+
+import com.brighttag.agathon.model.CassandraRing;
 
 /**
- * Provides the set of hostnames used to seed the Cassandra cluster. Alternative
+ * Provides the set of hostnames used to seed the Cassandra ring. Alternative
  * implementations may provide support for different network and ring topologies.
  *
  * @author codyaray
@@ -12,9 +14,11 @@ import java.util.Set;
 public interface SeedService {
 
   /**
-   * Returns the seeds for the Cassandra cluster.
-   * @return the seeds for the Cassandra cluster
+   * Returns the seeds for a Cassandra ring.
+   *
+   * @param ring the Cassandra ring
+   * @return the seeds for the Cassandra ring
    */
-  Set<String> getSeeds();
+  ImmutableSet<String> getSeeds(CassandraRing ring);
 
 }

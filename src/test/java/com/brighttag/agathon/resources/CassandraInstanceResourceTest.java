@@ -1,7 +1,5 @@
 package com.brighttag.agathon.resources;
 
-import java.util.Set;
-
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
@@ -15,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.brighttag.agathon.model.CassandraInstance;
+import com.brighttag.agathon.model.CassandraRing;
 import com.brighttag.agathon.service.CassandraInstanceService;
 
 import static org.easymock.EasyMock.expect;
@@ -27,15 +26,19 @@ import static org.junit.Assert.fail;
  */
 public class CassandraInstanceResourceTest extends EasyMockSupport {
 
+  private static final String RING_NAME = "myring";
   private static final int CASSANDRA_ID = 1;
 
   private CassandraInstanceResource resource;
   private CassandraInstanceService service;
+  private CassandraRing ring;
 
   @Before
   public void setUp() {
     service = createMock(CassandraInstanceService.class);
-    resource = new CassandraInstanceResource(service);
+    ring = createMock(CassandraRing.class);
+    resource = new CassandraInstanceResource(service, ring);
+    expect(ring.getName()).andReturn(RING_NAME).atLeastOnce();
   }
 
   @After
@@ -47,8 +50,8 @@ public class CassandraInstanceResourceTest extends EasyMockSupport {
   public void findAll() {
     CassandraInstance instance1 = createMock(CassandraInstance.class);
     CassandraInstance instance2 = createMock(CassandraInstance.class);
-    Set<CassandraInstance> instances = ImmutableSet.of(instance1, instance2);
-    expect(service.findAll()).andReturn(instances);
+    ImmutableSet<CassandraInstance> instances = ImmutableSet.of(instance1, instance2);
+    expect(service.findAll(RING_NAME)).andReturn(instances);
     replayAll();
 
     assertEquals(instances, resource.findAll());
@@ -57,7 +60,7 @@ public class CassandraInstanceResourceTest extends EasyMockSupport {
   @Test
   public void createInstance() {
     CassandraInstance instance = createMock(CassandraInstance.class);
-    service.save(instance);
+    service.save(RING_NAME, instance);
     expect(instance.getId()).andReturn(CASSANDRA_ID);
     replayAll();
 
@@ -70,7 +73,7 @@ public class CassandraInstanceResourceTest extends EasyMockSupport {
   @Test
   public void findById() {
     CassandraInstance instance = createMock(CassandraInstance.class);
-    expect(service.findById(CASSANDRA_ID)).andReturn(instance);
+    expect(service.findById(RING_NAME, CASSANDRA_ID)).andReturn(instance);
     replayAll();
 
     assertEquals(instance, resource.findById(CASSANDRA_ID));
@@ -78,7 +81,7 @@ public class CassandraInstanceResourceTest extends EasyMockSupport {
 
   @Test
   public void findById_notFound() {
-    expect(service.findById(CASSANDRA_ID)).andReturn(null);
+    expect(service.findById(RING_NAME, CASSANDRA_ID)).andReturn(null);
     replayAll();
 
     try {
@@ -93,8 +96,8 @@ public class CassandraInstanceResourceTest extends EasyMockSupport {
   @Test
   public void deleteInstance() {
     CassandraInstance instance = createMock(CassandraInstance.class);
-    expect(service.findById(CASSANDRA_ID)).andReturn(instance);
-    service.delete(instance);
+    expect(service.findById(RING_NAME, CASSANDRA_ID)).andReturn(instance);
+    service.delete(RING_NAME, instance);
     replayAll();
 
     Response response = resource.deleteInstance(CASSANDRA_ID);
@@ -103,7 +106,7 @@ public class CassandraInstanceResourceTest extends EasyMockSupport {
 
   @Test
   public void deleteInstance_notFound() {
-    expect(service.findById(CASSANDRA_ID)).andReturn(null);
+    expect(service.findById(RING_NAME, CASSANDRA_ID)).andReturn(null);
     replayAll();
 
     try {

@@ -1,7 +1,6 @@
 package com.brighttag.agathon.dao.sdb;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.Nullable;
 
@@ -17,7 +16,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 
 import com.brighttag.agathon.dao.CassandraInstanceDao;
 import com.brighttag.agathon.model.CassandraInstance;
@@ -40,27 +38,27 @@ public class SdbCassandraInstanceDao implements CassandraInstanceDao {
   @VisibleForTesting static final String PUBLIC_IP_ADDRESS_KEY = "publicIpAddress";
 
   @VisibleForTesting static final String ALL_QUERY =
-      "SELECT * FROM %s";
+      "SELECT * FROM `%s`";
   @VisibleForTesting static final String INSTANCE_QUERY =
-      "SELECT * FROM %s WHERE " + ID_KEY + " = '%s' LIMIT 1";
+      "SELECT * FROM `%s` WHERE " + ID_KEY + " = '%s' LIMIT 1";
 
   private final AmazonSimpleDBClient client;
-  private final String domain;
+  private final CassandraDomainFactory domainFactory;
 
   @Inject
-  public SdbCassandraInstanceDao(AmazonSimpleDBClient client,
-      @Named(SdbDaoModule.DOMAIN_PROPERTY) String domain) {
+  public SdbCassandraInstanceDao(AmazonSimpleDBClient client, CassandraDomainFactory domainFactory) {
     this.client = client;
-    this.domain = domain;
+    this.domainFactory = domainFactory;
   }
 
   @Override
-  public Set<CassandraInstance> findAll() {
+  public ImmutableSet<CassandraInstance> findAll(String ring) {
     List<CassandraInstance> instances = Lists.newArrayList();
     String nextToken = null;
 
     do {
-      SelectRequest request = new SelectRequest(String.format(ALL_QUERY, domain)).withNextToken(nextToken);
+      SelectRequest request = new SelectRequest(String.format(ALL_QUERY, domain(ring)))
+          .withNextToken(nextToken);
       SelectResult result = client.select(request);
 
       for (Item item : result.getItems()) {
@@ -74,8 +72,8 @@ public class SdbCassandraInstanceDao implements CassandraInstanceDao {
   }
 
   @Override
-  public @Nullable CassandraInstance findById(int id) {
-    SelectRequest request = new SelectRequest(String.format(INSTANCE_QUERY, domain, id));
+  public @Nullable CassandraInstance findById(String ring, int id) {
+    SelectRequest request = new SelectRequest(String.format(INSTANCE_QUERY, domain(ring), id));
     SelectResult result = client.select(request);
 
     if (result.getItems().size() == 0) {
@@ -86,17 +84,21 @@ public class SdbCassandraInstanceDao implements CassandraInstanceDao {
   }
 
   @Override
-  public void save(CassandraInstance instance) {
+  public void save(String ring, CassandraInstance instance) {
     PutAttributesRequest request = new PutAttributesRequest(
-        domain, String.valueOf(instance.getId()), buildSaveAttributes(instance));
+        domain(ring), String.valueOf(instance.getId()), buildSaveAttributes(instance));
     client.putAttributes(request);
   }
 
   @Override
-  public void delete(CassandraInstance instance) {
+  public void delete(String ring, CassandraInstance instance) {
     DeleteAttributesRequest request = new DeleteAttributesRequest(
-        domain, String.valueOf(instance.getId()), buildDeleteAttributes(instance));
+        domain(ring), String.valueOf(instance.getId()), buildDeleteAttributes(instance));
     client.deleteAttributes(request);
+  }
+
+  private String domain(String ringName) {
+    return domainFactory.createFromRing(ringName).toString();
   }
 
   @VisibleForTesting static CassandraInstance transform(Item item) {

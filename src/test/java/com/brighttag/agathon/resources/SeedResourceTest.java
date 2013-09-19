@@ -7,6 +7,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.brighttag.agathon.model.CassandraRing;
 import com.brighttag.agathon.service.SeedService;
 
 import static org.easymock.EasyMock.expect;
@@ -20,11 +21,13 @@ public class SeedResourceTest extends EasyMockSupport {
 
   private SeedService service;
   private SeedResource resource;
+  private CassandraRing ring;
 
   @Before
   public void setUp() {
     service = createMock(SeedService.class);
-    resource = new SeedResource(service);
+    ring = createMock(CassandraRing.class);
+    resource = new SeedResource(service, ring);
   }
 
   @After
@@ -34,7 +37,7 @@ public class SeedResourceTest extends EasyMockSupport {
 
   @Test
   public void getSeeds() {
-    expect(service.getSeeds()).andReturn(ImmutableSet.of("host1", "host2", "host3"));
+    expect(service.getSeeds(ring)).andReturn(ImmutableSet.of("host1", "host2", "host3"));
     replayAll();
 
     assertEquals("host1,host2,host3", resource.getSeeds());

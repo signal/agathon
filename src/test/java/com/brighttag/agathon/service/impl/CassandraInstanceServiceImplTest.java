@@ -1,7 +1,5 @@
 package com.brighttag.agathon.service.impl;
 
-import java.util.Set;
-
 import com.google.common.collect.ImmutableSet;
 
 import org.easymock.EasyMockSupport;
@@ -20,6 +18,8 @@ import static org.junit.Assert.assertEquals;
  * @since 5/12/12
  */
 public class CassandraInstanceServiceImplTest extends EasyMockSupport {
+
+  private static final String RING_NAME = "myring";
 
   private static final int CASSANDRA_ID = 1;
 
@@ -42,38 +42,38 @@ public class CassandraInstanceServiceImplTest extends EasyMockSupport {
     CassandraInstance instance1 = createMock(CassandraInstance.class);
     CassandraInstance instance2 = createMock(CassandraInstance.class);
     CassandraInstance instance3 = createMock(CassandraInstance.class);
-    Set<CassandraInstance> instances = ImmutableSet.of(instance1, instance2, instance3);
-    expect(dao.findAll()).andReturn(instances);
+    ImmutableSet<CassandraInstance> instances = ImmutableSet.of(instance1, instance2, instance3);
+    expect(dao.findAll(RING_NAME)).andReturn(instances);
     replayAll();
 
-    assertEquals(instances, service.findAll());
+    assertEquals(instances, service.findAll(RING_NAME));
   }
 
   @Test
   public void findById() {
     CassandraInstance instance = createMock(CassandraInstance.class);
-    expect(dao.findById(CASSANDRA_ID)).andReturn(instance);
+    expect(dao.findById(RING_NAME, CASSANDRA_ID)).andReturn(instance);
     replayAll();
 
-    assertEquals(instance, service.findById(CASSANDRA_ID));
+    assertEquals(instance, service.findById(RING_NAME, CASSANDRA_ID));
   }
 
   @Test
   public void save() {
     CassandraInstance instance = createMock(CassandraInstance.class);
-    dao.save(instance);
+    dao.save(RING_NAME, instance);
     replayAll();
 
-    service.save(instance);
+    service.save(RING_NAME, instance);
   }
 
   @Test
   public void delete() {
     CassandraInstance instance = createMock(CassandraInstance.class);
-    dao.delete(instance);
+    dao.delete(RING_NAME, instance);
     replayAll();
 
-    service.delete(instance);
+    service.delete(RING_NAME, instance);
   }
 
 }

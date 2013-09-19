@@ -24,10 +24,11 @@ public class DaoModule extends AbstractModule {
 
   @Override
   protected void configure() {
-    if ("fake".equals(System.getProperty(DATABASE_PROPERTY, "sdb"))) {
+    String database = System.getProperty(DATABASE_PROPERTY, "sdb");
+    if ("memory".equals(database)) {
       LOG.info("Using in-memory instance database");
       install(new MemoryDaoModule());
-    } else if ("zerg".equals(System.getProperty(DATABASE_PROPERTY, "sdb"))) {
+    } else if ("zerg".equals(database)) {
       LOG.info("Using Zerg as instance database");
       install(new ZergDaoModule());
     } else {

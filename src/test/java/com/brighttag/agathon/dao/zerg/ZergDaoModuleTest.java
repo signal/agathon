@@ -3,6 +3,7 @@ package com.brighttag.agathon.dao.zerg;
 import org.junit.Test;
 
 import com.brighttag.agathon.dao.CassandraInstanceDao;
+import com.brighttag.agathon.dao.CassandraRingDao;
 import com.brighttag.testing.ModuleTester;
 
 /**
@@ -14,6 +15,7 @@ public class ZergDaoModuleTest {
   @Test
   public void bindings() throws Exception {
     new ModuleTester(new ZergDaoModule())
+        .exposes(CassandraRingDao.class)
         .exposes(CassandraInstanceDao.class)
         .exposesNothingElse()
         .verify();

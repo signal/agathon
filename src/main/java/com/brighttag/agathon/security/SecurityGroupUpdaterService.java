@@ -5,6 +5,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.Sets;
@@ -16,10 +18,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.brighttag.agathon.model.CassandraInstance;
-import com.brighttag.agathon.service.CassandraInstanceService;
+import com.brighttag.agathon.model.CassandraRing;
+import com.brighttag.agathon.service.CassandraRingService;
 
 /**
  * Periodically updates the security group associated with the Cassandra ring.
+ *
+ * By convention, security groups are created with the name "cassandra_<ringname>".
  *
  * @author Greg Opaczewski
  * @author codyaray
@@ -29,57 +34,45 @@ public class SecurityGroupUpdaterService extends AbstractScheduledService {
 
   private static final Logger LOG = LoggerFactory.getLogger(SecurityGroupUpdaterService.class);
 
-  private final CassandraInstanceService cassandraInstanceService;
+  private final CassandraRingService cassandraRingService;
   private final SecurityGroupService securityGroupService;
-  private final String securityGroupName;
   private final int listenPort;
   private final int updatePeriod;
 
-  private final Iterable<String> dataCenters;
+  private final Function<CassandraInstance, String> dataCenterTransformFunction;
 
   @Inject
   public SecurityGroupUpdaterService(
-      CassandraInstanceService cassandraInstanceService,
+      CassandraRingService cassandraRingService,
       SecurityGroupService securityGroupService,
-      @Named(SecurityGroupModule.SECURITY_GROUP_DATACENTERS_PROPERTY) Collection<String> dataCenters,
-      @Named(SecurityGroupModule.SECURITY_GROUP_NAME_PROPERTY) String securityGroupName,
+      @Named(SecurityGroupModule.SECURITY_GROUP_DATACENTERS_PROPERTY)
+          Function<CassandraInstance, String> dataCenterTransformFunction,
       @Named(SecurityGroupModule.CASSANDRA_GOSSIP_PORT_PROPERTY) int listenPort,
       @Named(SecurityGroupModule.SECURITY_GROUP_UPDATE_PERIOD_PROPERTY) int updatePeriod) {
-    this.cassandraInstanceService = cassandraInstanceService;
+    this.cassandraRingService = cassandraRingService;
     this.securityGroupService = securityGroupService;
-    this.dataCenters = dataCenters;
-    this.securityGroupName = securityGroupName;
+    this.dataCenterTransformFunction = dataCenterTransformFunction;
     this.listenPort = listenPort;
     this.updatePeriod = updatePeriod;
   }
 
   @Override
   public void startUp() {
-    for (String dataCenter : dataCenters) {
-      if (!securityGroupService.exists(securityGroupName, dataCenter)) {
-        LOG.info("Creating security group {} in data center {}", securityGroupName, dataCenter);
-        securityGroupService.create(securityGroupName, dataCenter);
+    for (CassandraRing ring : cassandraRingService.findAll()) {
+      for (String dataCenter : findDataCenters(ring)) {
+        String securityGroupName = securityGroupForRing(ring);
+        ensureSecurityGroupExists(securityGroupName, dataCenter);
       }
     }
   }
 
   @Override
   public void runOneIteration() {
-    Set<CassandraInstance> instances = cassandraInstanceService.findAll();
-    for (String dataCenter : dataCenters) {
-      Set<Netmask> currentGroupRules = listGroupRules(dataCenter);
-      Set<Netmask> requiredGroupRules = requiredRulesFor(instances);
-      Set<Netmask> rulesToAdd = Sets.difference(requiredGroupRules, currentGroupRules);
-      Set<Netmask> rulesToRemove = Sets.difference(currentGroupRules, requiredGroupRules);
-      if (!rulesToAdd.isEmpty()) {
-        LOG.info("Adding rules to data center {}: {}", dataCenter, rulesToAdd);
-        securityGroupService.authorizeIngressRules(securityGroupName, dataCenter,
-            toSecurityGroupPermission(rulesToAdd));
-      }
-      if (!rulesToRemove.isEmpty()) {
-        LOG.info("Removing rules from data center {}: {}", dataCenter, rulesToRemove);
-        securityGroupService.revokeIngressRules(securityGroupName, dataCenter,
-            toSecurityGroupPermission(rulesToRemove));
+    for (CassandraRing ring : cassandraRingService.findAll()) {
+      for (String dataCenter : findDataCenters(ring)) {
+        String securityGroupName = securityGroupForRing(ring);
+        ensureSecurityGroupExists(securityGroupName, dataCenter);
+        updateSecurityGroupRules(securityGroupName, dataCenter, ring.getInstances());
       }
     }
   }
@@ -104,7 +97,7 @@ public class SecurityGroupUpdaterService extends AbstractScheduledService {
    *
    * @return set of ip ranges in CIDR notation associated with the security group
    */
-  @VisibleForTesting Set<Netmask> listGroupRules(String dataCenter) {
+  @VisibleForTesting Set<Netmask> listGroupRules(String securityGroupName, String dataCenter) {
     ImmutableSet.Builder<Netmask> rules = ImmutableSet.builder();
     Set<SecurityGroupPermission> permissions = securityGroupService.getPermissions(
         securityGroupName, dataCenter);
@@ -128,6 +121,41 @@ public class SecurityGroupUpdaterService extends AbstractScheduledService {
       permissions.add(Netmask.fromCIDR(instance.getPublicIpAddress() + "/32"));
     }
     return permissions.build();
+  }
+
+  private void ensureSecurityGroupExists(String securityGroupName, String dataCenter) {
+    if (!securityGroupService.exists(securityGroupName, dataCenter)) {
+      LOG.info("Creating security group {} in data center {}", securityGroupName, dataCenter);
+      securityGroupService.create(securityGroupName, dataCenter);
+    }
+  }
+
+  private void updateSecurityGroupRules(String securityGroupName, String dataCenter,
+      Set<CassandraInstance> instances) {
+    Set<Netmask> currentGroupRules = listGroupRules(securityGroupName, dataCenter);
+    Set<Netmask> requiredGroupRules = requiredRulesFor(instances);
+    Set<Netmask> rulesToAdd = Sets.difference(requiredGroupRules, currentGroupRules);
+    Set<Netmask> rulesToRemove = Sets.difference(currentGroupRules, requiredGroupRules);
+    if (!rulesToAdd.isEmpty()) {
+      LOG.info("Adding rules to group {} in {}: {}", securityGroupName, dataCenter, rulesToAdd);
+      securityGroupService.authorizeIngressRules(securityGroupName, dataCenter,
+          toSecurityGroupPermission(rulesToAdd));
+    }
+    if (!rulesToRemove.isEmpty()) {
+      LOG.info("Removing rules from group {} in {}: {}", securityGroupName, dataCenter, rulesToRemove);
+      securityGroupService.revokeIngressRules(securityGroupName, dataCenter,
+          toSecurityGroupPermission(rulesToRemove));
+    }
+  }
+
+  private Set<String> findDataCenters(CassandraRing ring) {
+    return FluentIterable.from(ring.getInstances())
+        .transform(dataCenterTransformFunction)
+        .toSet();
+  }
+
+  private String securityGroupForRing(CassandraRing ring) {
+    return "cassandra_" + ring.getName();
   }
 
 }

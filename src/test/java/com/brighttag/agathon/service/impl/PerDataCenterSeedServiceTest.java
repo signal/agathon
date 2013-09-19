@@ -1,7 +1,5 @@
 package com.brighttag.agathon.service.impl;
 
-import java.util.Set;
-
 import com.google.common.collect.ImmutableSet;
 
 import org.easymock.EasyMockSupport;
@@ -9,8 +7,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.brighttag.agathon.dao.CassandraInstanceDao;
 import com.brighttag.agathon.model.CassandraInstance;
+import com.brighttag.agathon.model.CassandraRing;
 
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
@@ -29,13 +27,13 @@ public class PerDataCenterSeedServiceTest extends EasyMockSupport {
   private static final String HOSTNAME3 = "host3";
   private static final String HOSTNAME4 = "host4";
 
-  private CassandraInstanceDao dao;
+  private CassandraRing ring;
   private PerDataCenterSeedService seedProvider;
 
   @Before
   public void setUp() {
-    dao = createMock(CassandraInstanceDao.class);
-    seedProvider = new PerDataCenterSeedService(dao, 2);
+    ring = createMock(CassandraRing.class);
+    seedProvider = new PerDataCenterSeedService(2);
   }
 
   @After
@@ -49,11 +47,11 @@ public class PerDataCenterSeedServiceTest extends EasyMockSupport {
     CassandraInstance instance2 = buildInstance(DATACENTER1, HOSTNAME2);
     CassandraInstance instance3 = buildInstance(DATACENTER2, HOSTNAME3);
     CassandraInstance instance4 = buildInstance(DATACENTER2, HOSTNAME4);
-    Set<CassandraInstance> instances = ImmutableSet.of(instance1, instance2, instance3, instance4);
-    expect(dao.findAll()).andReturn(instances);
+    ImmutableSet<CassandraInstance> instances = ImmutableSet.of(instance1, instance2, instance3, instance4);
+    expect(ring.getInstances()).andReturn(instances);
     replayAll();
 
-    assertEquals(ImmutableSet.of(HOSTNAME1, HOSTNAME2, HOSTNAME3, HOSTNAME4), seedProvider.getSeeds());
+    assertEquals(ImmutableSet.of(HOSTNAME1, HOSTNAME2, HOSTNAME3, HOSTNAME4), seedProvider.getSeeds(ring));
   }
 
   @Test
@@ -61,11 +59,11 @@ public class PerDataCenterSeedServiceTest extends EasyMockSupport {
     CassandraInstance instance1 = buildInstance(DATACENTER1, HOSTNAME1);
     CassandraInstance instance2 = buildInstance(DATACENTER2, HOSTNAME2);
     CassandraInstance instance3 = buildInstance(DATACENTER2, HOSTNAME3);
-    Set<CassandraInstance> instances = ImmutableSet.of(instance1, instance2, instance3);
-    expect(dao.findAll()).andReturn(instances);
+    ImmutableSet<CassandraInstance> instances = ImmutableSet.of(instance1, instance2, instance3);
+    expect(ring.getInstances()).andReturn(instances);
     replayAll();
 
-    assertEquals(ImmutableSet.of(HOSTNAME1, HOSTNAME2, HOSTNAME3), seedProvider.getSeeds());
+    assertEquals(ImmutableSet.of(HOSTNAME1, HOSTNAME2, HOSTNAME3), seedProvider.getSeeds(ring));
   }
 
   private CassandraInstance buildInstance(String dataCenter, String hostName) {

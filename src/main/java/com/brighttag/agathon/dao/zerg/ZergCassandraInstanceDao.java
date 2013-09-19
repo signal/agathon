@@ -28,6 +28,16 @@ import com.brighttag.agathon.model.CassandraInstance;
 /**
  * Zerg implementation of {@link CassandraInstanceDAO}.
  *
+ * By convention, a Zerg host is considered to be part of a Cassandra ring if it contains
+ * a role named "cassandra_<ringname>".
+ *
+ * Because Zerg uniquely identifies instances by hostname (which remain stable even if rebuilt),
+ * this DAO uses the {@link String#hashCode() hashCode} of the hostname as the Cassandra instance ID.
+ *
+ * Finally, the Zerg DAO assumes you're running Cassandra on EC2 with the {@link Ec2MultiRegionSnitch}.
+ * Therefore it translates the EC2 region ("us-east-1") and availability zone ("a") into the Cassandra
+ * data center ("us-east") and rack ("1a"), as expected by this particular snitch.
+ *
  * @author codyaray
  * @since 5/15/12
  */
@@ -48,13 +58,13 @@ public class ZergCassandraInstanceDao implements CassandraInstanceDao {
   }
 
   @Override
-  public Set<CassandraInstance> findAll() {
+  public ImmutableSet<CassandraInstance> findAll(String ring) {
     Set<CassandraInstance> instances = Sets.newHashSet();
     for (Map.Entry<String, Map<String, Host>> regionEntry : getRegions().entrySet()) {
       Map<String, Host> region = regionEntry.getValue();
       for (Map.Entry<String, Host> hostEntry : region.entrySet()) {
         Host host = hostEntry.getValue();
-        if (host.roles.contains("cassandra")) {
+        if (host.roles.contains(role(ring))) {
           instances.add(instance(hostEntry.getKey(), host));
         }
       }
@@ -63,13 +73,13 @@ public class ZergCassandraInstanceDao implements CassandraInstanceDao {
   }
 
   @Override
-  public @Nullable CassandraInstance findById(int id) {
+  public @Nullable CassandraInstance findById(String ring, int id) {
     for (Map.Entry<String, Map<String, Host>> regionEntry : getRegions().entrySet()) {
       Map<String, Host> region = regionEntry.getValue();
       for (Map.Entry<String, Host> hostEntry : region.entrySet()) {
         String hostname = hostEntry.getKey();
         Host host = hostEntry.getValue();
-        if (host.roles.contains("cassandra")) {
+        if (host.roles.contains(role(ring))) {
           int hostId = hostId(hostname);
           if (hostId == id) {
             return instance(hostname, host);
@@ -81,17 +91,30 @@ public class ZergCassandraInstanceDao implements CassandraInstanceDao {
   }
 
   @Override
-  public void save(CassandraInstance instance) {
-    throw new UnsupportedOperationException("Save is not supported for ZergCassandraInstanceDao");
+  public void save(String ring, CassandraInstance instance) {
+    throw new UnsupportedOperationException("Save is not supported for " + getClass().getSimpleName());
   }
 
   @Override
-  public void delete(CassandraInstance instance) {
-    throw new UnsupportedOperationException("Delete is not supported for ZergCassandraInstanceDao");
+  public void delete(String ring, CassandraInstance instance) {
+    throw new UnsupportedOperationException("Delete is not supported for " + getClass().getSimpleName());
+  }
+
+  Map<String, Map<String, Host>> getRegions() {
+    try {
+      return gson.fromJson(execute(manifestUrl), MAP_OF_REGIONS.getType());
+    } catch (JsonSyntaxException e) {
+      LOG.warn("Received bad JSON from Zerg {}: {}", manifestUrl, e);
+    }
+    return ImmutableMap.of();
   }
 
   private int hostId(String hostname) {
     return hostname.hashCode();
+  }
+
+  private String role(String ring) {
+    return "cassandra_" + ring;
   }
 
   private CassandraInstance instance(String hostname, Host host) {
@@ -110,15 +133,6 @@ public class ZergCassandraInstanceDao implements CassandraInstanceDao {
   private static final TypeLiteral<Map<String, Map<String, Host>>> MAP_OF_REGIONS =
       new TypeLiteral<Map<String, Map<String, Host>>>() { };
 
-  private Map<String, Map<String, Host>> getRegions() {
-    try {
-      return gson.fromJson(execute(manifestUrl), MAP_OF_REGIONS.getType());
-    } catch (JsonSyntaxException e) {
-      LOG.warn("Received bad JSON from Zerg {}: {}", manifestUrl, e);
-    }
-    return ImmutableMap.of();
-  }
-
   private @Nullable String execute(String url) {
     try {
       return client.prepareGet(url).execute().get().getResponseBody();
@@ -136,7 +150,7 @@ public class ZergCassandraInstanceDao implements CassandraInstanceDao {
   /**
    * Helper class to deserialize Host JSON.
    */
-  private static class Host {
+  static class Host {
     @SerializedName("public ip") String publicIp;
     List<String> roles;
     String zone;
