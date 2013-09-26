@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutionException;
 
 import javax.annotation.Nullable;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -102,7 +103,8 @@ public class ZergCassandraInstanceDao implements CassandraInstanceDao {
 
   Map<String, Map<String, Host>> getRegions() {
     try {
-      return gson.fromJson(execute(manifestUrl), MAP_OF_REGIONS.getType());
+      Map<String, Map<String, Host>> regions = gson.fromJson(execute(manifestUrl), MAP_OF_REGIONS.getType());
+      return Objects.firstNonNull(regions, ImmutableMap.<String, Map<String, Host>>of());
     } catch (JsonSyntaxException e) {
       LOG.warn("Received bad JSON from Zerg {}: {}", manifestUrl, e);
     }
