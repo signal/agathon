@@ -8,7 +8,6 @@ import com.google.inject.name.Names;
 
 import org.easymock.EasyMockSupport;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import com.brighttag.agathon.model.CassandraInstance;
@@ -21,14 +20,8 @@ import com.brighttag.testing.ModuleTester;
  */
 public class SecurityGroupModuleTest extends EasyMockSupport {
 
-  @Before
-  public void setUp() {
-    System.setProperty(SecurityGroupModule.SECURITY_GROUP_NAME_PROPERTY, "securityGroup");
-  }
-
   @After
   public void tearDown() {
-    System.clearProperty(SecurityGroupModule.SECURITY_GROUP_NAME_PROPERTY);
     System.clearProperty(SecurityGroupModule.SECURITY_GROUP_MANAGEMENT_ENABLED_PROPERTY);
   }
 
@@ -37,8 +30,6 @@ public class SecurityGroupModuleTest extends EasyMockSupport {
     System.setProperty(SecurityGroupModule.SECURITY_GROUP_MANAGEMENT_ENABLED_PROPERTY, "true");
     new ModuleTester(new SecurityGroupModule())
         .dependsOn(CassandraRingService.class, createMock(CassandraRingService.class))
-        .exposes(Key.get(String.class,
-            Names.named(SecurityGroupModule.SECURITY_GROUP_NAME_PROPERTY)))
         .exposes(Key.get(Integer.class,
             Names.named(SecurityGroupModule.SECURITY_GROUP_UPDATE_PERIOD_PROPERTY)))
         .exposes(Key.get(Integer.class,

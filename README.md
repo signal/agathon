@@ -28,7 +28,6 @@ Configuration is currently done through system properties.
 * `com.brighttag.agathon.aws.access_key`: your Amazon Web Service Access Key. Required for AWS support (e.g., for SimpleDB or EC2 Security Group Management).
 * `com.brighttag.agathon.aws.secret_key`: your Amazon Web Service Secret Key. Required for AWS support (e.g., for SimpleDB or EC2 Security Group Management).
 * `com.brighttag.agathon.security.group_management_enabled`: set to `true` to enable task that updates a security group with current ring members.
-* `com.brighttag.agathon.security.group_name`: name of Agathon/Cassandra security group. Required for Security Group Management.
 * `com.brighttag.agathon.security.group_update_frequency_seconds`: frequency at which security group updates are applied.
 * `com.brighttag.agathon.cassandra.gossip_port`: Cassandra gossip port, used to create ingress rules for security group updates.
 
