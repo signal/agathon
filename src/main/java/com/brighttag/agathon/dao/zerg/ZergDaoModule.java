@@ -60,8 +60,9 @@ public class ZergDaoModule extends PrivateModule {
   AsyncHttpClientConfig provideAsyncHttpClientConfig() {
     return new AsyncHttpClientConfig.Builder()
         .setAllowPoolingConnection(true)
-        .setConnectionTimeoutInMs(5000)
-        .setRequestTimeoutInMs(5000)
+        // Yes, Zerg is THIS SLOW in AWS.
+        .setConnectionTimeoutInMs(10000)
+        .setRequestTimeoutInMs(10000)
         .setFollowRedirects(true)
         .setMaximumNumberOfRedirects(3)
         .setMaxRequestRetry(1)
