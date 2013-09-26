@@ -91,7 +91,7 @@ public class CassandraInstance {
         .toString();
   }
 
-  private Object[] significantAttributes() {
+  Object[] significantAttributes() {
     return new Object[] { id, datacenter, rack, hostname, publicIpAddress };
   }
 

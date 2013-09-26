@@ -68,7 +68,7 @@ public class CassandraRing {
         .toString();
   }
 
-  private Object[] significantAttributes() {
+  Object[] significantAttributes() {
     return new Object[] { name, instances };
   }
 

@@ -94,7 +94,7 @@ public class Netmask {
     return Arrays.equals(significantAttributes(), getClass().cast(obj).significantAttributes());
   }
 
-  private Object[] significantAttributes() {
+  Object[] significantAttributes() {
     return new Object[] { networkAddress, routingPrefixLength };
   }
 

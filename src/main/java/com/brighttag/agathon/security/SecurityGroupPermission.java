@@ -63,7 +63,7 @@ public class SecurityGroupPermission {
         .toString();
   }
 
-  private Object[] significantAttributes() {
+  Object[] significantAttributes() {
     return new Object[] { netmasks, portRange };
   }
 
