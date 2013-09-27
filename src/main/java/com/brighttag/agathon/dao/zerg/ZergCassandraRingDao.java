@@ -2,10 +2,10 @@ package com.brighttag.agathon.dao.zerg;
 
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.name.Named;
 
 import com.brighttag.agathon.dao.CassandraRingDao;
 import com.brighttag.agathon.model.CassandraRing;
@@ -17,31 +17,30 @@ import com.brighttag.agathon.model.CassandraRing;
  */
 public class ZergCassandraRingDao implements CassandraRingDao {
 
-  private final ZergCassandraInstanceDao instanceDao;
-  private final Provider<Set<String>> ringsProvider;
+  private final ZergConnector zergConnector;
 
   @Inject
-  public ZergCassandraRingDao(ZergCassandraInstanceDao instanceDao,
-      @Named(ZergDaoModule.RINGS_PROPERTY) Provider<Set<String>> ringsProvider) {
-    this.instanceDao = instanceDao;
-    this.ringsProvider = ringsProvider;
+  public ZergCassandraRingDao(ZergConnector zergConnector) {
+    this.zergConnector = zergConnector;
   }
 
   @Override
   public ImmutableSet<CassandraRing> findAll() {
     ImmutableSet.Builder<CassandraRing> ringBuilder = ImmutableSet.builder();
-    for (String ring : ringsProvider.get()) {
-      ringBuilder.add(getByName(ring));
+    ImmutableSet<ZergHost> hosts = zergConnector.getHosts();
+    for (String ring : ZergHosts.from(hosts).rings()) {
+      ringBuilder.add(getByName(ring, hosts));
     }
     return ringBuilder.build();
   }
 
   @Override
-  public CassandraRing findByName(String name) {
-    if (!ringsProvider.get().contains(name)) {
+  public @Nullable CassandraRing findByName(String name) {
+    ImmutableSet<ZergHost> hosts = zergConnector.getHosts();
+    if (!ZergHosts.from(hosts).rings().contains(name)) {
       return null;
     }
-    return getByName(name);
+    return getByName(name, hosts);
   }
 
   @Override
@@ -54,8 +53,11 @@ public class ZergCassandraRingDao implements CassandraRingDao {
     throw new UnsupportedOperationException("Delete is not supported for " + getClass().getSimpleName());
   }
 
-  private CassandraRing getByName(String ring) {
-    return new CassandraRing.Builder().name(ring).instances(instanceDao.findAll(ring)).build();
+  private CassandraRing getByName(String ring, Set<ZergHost> hosts) {
+    return new CassandraRing.Builder()
+        .name(ring)
+        .instances(ZergHosts.from(hosts).filter(ring).toCassandraInstances())
+        .build();
   }
 
 }

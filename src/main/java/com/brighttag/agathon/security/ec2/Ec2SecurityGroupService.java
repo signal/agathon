@@ -83,6 +83,7 @@ public class Ec2SecurityGroupService implements SecurityGroupService {
 
   private Optional<SecurityGroup> getSecurityGroup(String groupName, String dataCenter) {
     DescribeSecurityGroupsResult result = client(dataCenter).describeSecurityGroups();
+    // Specifying non-existent group in the request throws exception. Request all and filter instead.
     return Iterables.tryFind(result.getSecurityGroups(), withGroupName(groupName));
   }
 
@@ -103,7 +104,7 @@ public class Ec2SecurityGroupService implements SecurityGroupService {
         .transform(new Function<IpPermission, SecurityGroupPermission>() {
           @Override
           public SecurityGroupPermission apply(IpPermission permission) {
-            return new SecurityGroupPermission(Netmask.fromCIDR(permission.getIpRanges()),
+            return new SecurityGroupPermission(Netmask.fromCidr(permission.getIpRanges()),
                 Range.closed(permission.getFromPort(), permission.getToPort()));
           }
         })

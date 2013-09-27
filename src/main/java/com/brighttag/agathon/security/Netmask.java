@@ -5,10 +5,13 @@ import java.util.Collection;
 
 import javax.annotation.Nullable;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
+import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.net.InetAddresses;
 import com.google.common.primitives.Ints;
 
 /**
@@ -19,31 +22,17 @@ import com.google.common.primitives.Ints;
  */
 public class Netmask {
 
-  private static final Function<Netmask, String> TO_CIDR = new Function<Netmask, String>() {
-    @Override
-    public String apply(Netmask netmask) {
-      return netmask.toCIDR();
-    }
-  };
-
-  private static final Function<String, Netmask> FROM_CIDR = new Function<String, Netmask>() {
-    @Override
-    public Netmask apply(String cidr) {
-      return fromCIDR(cidr);
-    }
-  };
-
   private final String networkAddress;
   private final int routingPrefixLength;
 
-  private Netmask(String networkAddress, int routingPrefixLength) {
+  @VisibleForTesting Netmask(String networkAddress, int routingPrefixLength) {
     this.networkAddress = networkAddress;
     this.routingPrefixLength = routingPrefixLength;
   }
 
-  public static @Nullable Netmask fromCIDR(String cidr) {
+  public static @Nullable Netmask fromCidr(String cidr) {
     String[] parts = cidr.split("/");
-    if (parts.length == 2) {
+    if (parts.length == 2 && InetAddresses.isInetAddress(parts[0])) {
       Integer prefixLength = Ints.tryParse(parts[1]);
       if (prefixLength != null) {
         return new Netmask(parts[0], prefixLength);
@@ -52,15 +41,15 @@ public class Netmask {
     return null;
   }
 
-  public static ImmutableSet<Netmask> fromCIDR(Collection<String> cidrs) {
-    return FluentIterable.from(cidrs).transform(FROM_CIDR).toSet();
+  public static ImmutableSet<Netmask> fromCidr(Collection<String> cidrs) {
+    return FluentIterable.from(cidrs).transform(FROM_CIDR).filter(VALID_NETMASKS).toSet();
   }
 
   public static ImmutableSet<String> toCidr(Collection<Netmask> netmasks) {
     return FluentIterable.from(netmasks).transform(TO_CIDR).toSet();
   }
 
-  public String toCIDR() {
+  public String toCidr() {
     return networkAddress + "/" + routingPrefixLength;
   }
 
@@ -74,7 +63,7 @@ public class Netmask {
 
   @Override
   public String toString() {
-    return toCIDR();
+    return toCidr();
   }
 
   @Override
@@ -97,5 +86,28 @@ public class Netmask {
   Object[] significantAttributes() {
     return new Object[] { networkAddress, routingPrefixLength };
   }
+
+  private static final Netmask INVALID_NETMASK = new Netmask("null", 0);
+
+  private static final Function<Netmask, String> TO_CIDR = new Function<Netmask, String>() {
+    @Override
+    public String apply(Netmask netmask) {
+      return netmask.toCidr();
+    }
+  };
+
+  private static final Function<String, Netmask> FROM_CIDR = new Function<String, Netmask>() {
+    @Override
+    public Netmask apply(String cidr) {
+      return Objects.firstNonNull(fromCidr(cidr), INVALID_NETMASK);
+    }
+  };
+
+  private static final Predicate<Netmask> VALID_NETMASKS = new Predicate<Netmask>() {
+    @Override
+    public boolean apply(Netmask netmask) {
+      return !INVALID_NETMASK.equals(netmask);
+    }
+  };
 
 }

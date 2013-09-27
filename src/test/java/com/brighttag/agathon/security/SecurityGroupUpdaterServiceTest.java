@@ -52,7 +52,7 @@ public class SecurityGroupUpdaterServiceTest extends EasyMockSupport {
     securityGroupStartingRules("dc1", groupPermission(8888, "111.0.0.0/8"),
         groupPermission(7000, "222.0.0.0/8"), groupPermission(7000, "1.1.1.1/32"));
     replayAll();
-    assertEquals(Netmask.fromCIDR(Arrays.asList("222.0.0.0/8", "1.1.1.1/32")),
+    assertEquals(Netmask.fromCidr(Arrays.asList("222.0.0.0/8", "1.1.1.1/32")),
         service().listGroupRules("cassandra_ringName", "dc1"));
   }
 
@@ -66,7 +66,7 @@ public class SecurityGroupUpdaterServiceTest extends EasyMockSupport {
   @Test
   public void requiredRulesFor() {
     replayAll();
-    assertEquals(Netmask.fromCIDR(Arrays.asList("1.1.1.1/32", "2.2.2.2/32")), service().requiredRulesFor(
+    assertEquals(Netmask.fromCidr(Arrays.asList("1.1.1.1/32", "2.2.2.2/32")), service().requiredRulesFor(
         ImmutableList.of(instance("1.1.1.1", null), instance("2.2.2.2", null))));
   }
 
@@ -223,7 +223,7 @@ public class SecurityGroupUpdaterServiceTest extends EasyMockSupport {
   }
 
   private static SecurityGroupPermission groupPermission(int port, String... ipRules) {
-    return new SecurityGroupPermission(Netmask.fromCIDR(Arrays.asList(ipRules)), Range.singleton(port));
+    return new SecurityGroupPermission(Netmask.fromCidr(Arrays.asList(ipRules)), Range.singleton(port));
   }
 
 }

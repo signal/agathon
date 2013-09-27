@@ -23,8 +23,8 @@ import com.brighttag.agathon.security.SecurityGroupService;
 /**
  * Guice module to wire up security group management for Amazon EC2.
  *
- * @author Greg Opaczewski
- * @since 1/11/2013
+ * @author codyaray
+ * @since 9/02/2013
  */
 public class Ec2SecurityGroupModule extends PrivateModule {
 

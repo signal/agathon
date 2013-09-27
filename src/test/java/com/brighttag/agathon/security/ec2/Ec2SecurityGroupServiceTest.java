@@ -133,7 +133,7 @@ public class Ec2SecurityGroupServiceTest extends EasyMockSupport {
   }
 
   private static SecurityGroupPermission groupPermission(int port, String... ipRules) {
-    return new SecurityGroupPermission(Netmask.fromCIDR(Arrays.asList(ipRules)), Range.singleton(port));
+    return new SecurityGroupPermission(Netmask.fromCidr(Arrays.asList(ipRules)), Range.singleton(port));
   }
 
   @Override

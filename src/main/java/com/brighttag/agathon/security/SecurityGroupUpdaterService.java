@@ -118,7 +118,7 @@ public class SecurityGroupUpdaterService extends AbstractScheduledService {
   @VisibleForTesting Set<Netmask> requiredRulesFor(Collection<CassandraInstance> instances) {
     ImmutableSet.Builder<Netmask> permissions = ImmutableSet.builder();
     for (CassandraInstance instance : instances) {
-      permissions.add(Netmask.fromCIDR(instance.getPublicIpAddress() + "/32"));
+      permissions.add(Netmask.fromCidr(instance.getPublicIpAddress() + "/32"));
     }
     return permissions.build();
   }

@@ -25,7 +25,7 @@ public class SecurityGroupPermissionTest extends EasyMockSupport {
   }
 
   private SecurityGroupPermission groupPermission(int port, String... ipRanges) {
-    return new SecurityGroupPermission(Netmask.fromCIDR(Arrays.asList(ipRanges)), Range.singleton(port));
+    return new SecurityGroupPermission(Netmask.fromCidr(Arrays.asList(ipRanges)), Range.singleton(port));
   }
 
 }
