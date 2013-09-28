@@ -48,6 +48,7 @@ public class CassandraRingResource {
   /**
    * Return the set of Cassandra rings.
    * @return the set of Cassandra rings
+   * @throws ServiceUnavailableException if a required downstream service is unavailable
    */
   @GET
   public Set<CassandraRing> findAll() {
@@ -73,6 +74,7 @@ public class CassandraRingResource {
    * @param name the Cassandra ring name
    * @return the Cassandra ring
    * @throws NotFoundException if ring not found with {@code name}
+   * @throws ServiceUnavailableException if a required downstream service is unavailable
    */
   @GET
   @Path("{name}")
@@ -86,6 +88,7 @@ public class CassandraRingResource {
    * @param ring the Cassandra ring name
    * @return Response (204) if the Cassandra ring was deleted
    * @throws NotFoundException if ring not found with {@code name}
+   * @throws ServiceUnavailableException if a required downstream service is unavailable
    */
   @DELETE
   @Path("{name}")
@@ -100,6 +103,7 @@ public class CassandraRingResource {
    * @param name the Cassandra ring name
    * @return the Cassandra instance resource
    * @throws NotFoundException if ring not found with {@code name}
+   * @throws ServiceUnavailableException if a required downstream service is unavailable
    */
   @Path("{name}/instances")
   public CassandraInstanceResource getCassandraInstanceResource(@PathParam("name") String name) {
@@ -112,6 +116,7 @@ public class CassandraRingResource {
    * @param name the Cassandra ring name
    * @return the Cassandra seed resource
    * @throws NotFoundException if ring not found with {@code name}
+   * @throws ServiceUnavailableException if a required downstream service is unavailable
    */
   @Path("{name}/seeds")
   public SeedResource getSeedResource(@PathParam("name") String name) {

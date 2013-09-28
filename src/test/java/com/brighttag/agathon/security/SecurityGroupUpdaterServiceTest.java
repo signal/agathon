@@ -15,6 +15,7 @@ import org.junit.Test;
 import com.brighttag.agathon.model.CassandraInstance;
 import com.brighttag.agathon.model.CassandraRing;
 import com.brighttag.agathon.service.CassandraRingService;
+import com.brighttag.agathon.service.ServiceUnavailableException;
 
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
@@ -71,14 +72,14 @@ public class SecurityGroupUpdaterServiceTest extends EasyMockSupport {
   }
 
   @Test
-  public void runOneIteration_noRings() {
+  public void runOneIteration_noRings() throws Exception {
     expect(cassandraRingService.findAll()).andReturn(ImmutableSet.<CassandraRing>of());
     replayAll();
     service().runOneIteration();
   }
 
   @Test
-  public void runOneIteration_noExistingGroupsOrRules() {
+  public void runOneIteration_noExistingGroupsOrRules() throws Exception {
     securityGroupStartingRules("dc1");
     securityGroupStartingRules("dc2");
     expect(securityGroupService.exists("cassandra_ringName", "dc1")).andReturn(false);
@@ -96,7 +97,7 @@ public class SecurityGroupUpdaterServiceTest extends EasyMockSupport {
   }
 
   @Test
-  public void runOneIteration_missingNecessaryRulesInAllRegions() {
+  public void runOneIteration_missingNecessaryRulesInAllRegions() throws Exception {
     securityGroupStartingRules("dc1", groupPermission(7000, "2.2.2.2/32"));
     securityGroupStartingRules("dc2", groupPermission(7000, "2.2.2.2/32"));
     securityGroupStartingRules("dc3", groupPermission(7000, "2.2.2.2/32"));
@@ -116,7 +117,7 @@ public class SecurityGroupUpdaterServiceTest extends EasyMockSupport {
   }
 
   @Test
-  public void runOneIteration_missingNecessaryRulesInOnlyOneRegion() {
+  public void runOneIteration_missingNecessaryRulesInOnlyOneRegion() throws Exception {
     securityGroupStartingRules("dc1",
         groupPermission(7000, "1.1.1.1/32"),
         groupPermission(7000, "2.2.2.2/32"));
@@ -133,7 +134,7 @@ public class SecurityGroupUpdaterServiceTest extends EasyMockSupport {
   }
 
   @Test
-  public void runOneIteration_addAndRemoveFromMultipleRings() {
+  public void runOneIteration_addAndRemoveFromMultipleRings() throws Exception {
     expect(securityGroupService.exists("cassandra_ringName", "dc1")).andReturn(true);
     expect(securityGroupService.exists("cassandra_ringName", "dc2")).andReturn(true);
     expect(securityGroupService.exists("cassandra_ringName", "dc3")).andReturn(true);
@@ -187,6 +188,13 @@ public class SecurityGroupUpdaterServiceTest extends EasyMockSupport {
     service().runOneIteration();
   }
 
+  @Test
+  public void runOneIteration_serviceUnavailableException() throws Exception {
+    expect(cassandraRingService.findAll()).andThrow(new ServiceUnavailableException());
+    replayAll();
+    service().runOneIteration();
+  }
+
   private static final Function<CassandraInstance, String> ASSIGNED_DATA_CENTER =
       new Function<CassandraInstance, String>() {
         @Override
@@ -197,7 +205,7 @@ public class SecurityGroupUpdaterServiceTest extends EasyMockSupport {
 
   private SecurityGroupUpdaterService service() {
     return new SecurityGroupUpdaterService(cassandraRingService, securityGroupService,
-        ASSIGNED_DATA_CENTER, 7000, 60);
+        ASSIGNED_DATA_CENTER, 7000, 60, "cassandra_");
   }
 
   private CassandraRing ringWithInstances(CassandraInstance... instances) {

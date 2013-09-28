@@ -46,7 +46,7 @@ public class CassandraRingResourceTest extends EasyMockSupport {
   }
 
   @Test
-  public void findAll() {
+  public void findAll() throws Exception {
     CassandraRing ring1 = createMock(CassandraRing.class);
     CassandraRing ring2 = createMock(CassandraRing.class);
     ImmutableSet<CassandraRing> rings = ImmutableSet.of(ring1, ring2);
@@ -69,7 +69,7 @@ public class CassandraRingResourceTest extends EasyMockSupport {
   }
 
   @Test
-  public void findByName() {
+  public void findByName() throws Exception {
     CassandraRing ring = createMock(CassandraRing.class);
     expect(service.findByName(RING_NAME)).andReturn(ring);
     replayAll();
@@ -78,7 +78,7 @@ public class CassandraRingResourceTest extends EasyMockSupport {
   }
 
   @Test
-  public void findByName_notFound() {
+  public void findByName_notFound() throws Exception {
     expect(service.findByName(RING_NAME)).andReturn(null);
     replayAll();
 
@@ -92,7 +92,7 @@ public class CassandraRingResourceTest extends EasyMockSupport {
   }
 
   @Test
-  public void deleteRing() {
+  public void deleteRing() throws Exception {
     CassandraRing ring = createMock(CassandraRing.class);
     expect(service.findByName(RING_NAME)).andReturn(ring);
     service.delete(ring);
@@ -103,7 +103,7 @@ public class CassandraRingResourceTest extends EasyMockSupport {
   }
 
   @Test
-  public void deleteRing_notFound() {
+  public void deleteRing_notFound() throws Exception {
     expect(service.findByName(RING_NAME)).andReturn(null);
     replayAll();
 

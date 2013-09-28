@@ -45,6 +45,7 @@ public class CassandraInstanceResource {
   /**
    * Return the set of Cassandra instances.
    * @return the set of Cassandra instances
+   * @throws ServiceUnavailableException if a required downstream service is unavailable
    */
   @GET
   public Set<CassandraInstance> findAll() {
@@ -70,6 +71,7 @@ public class CassandraInstanceResource {
    * @param id the Cassandra instance ID
    * @return the Cassandra instance
    * @throws NotFoundException if instance not found with {@code id}
+   * @throws ServiceUnavailableException if a required downstream service is unavailable
    */
   @GET
   @Path("{id}")
@@ -83,6 +85,7 @@ public class CassandraInstanceResource {
    * @param id the Cassandra instance ID
    * @return Response (204) if the Cassandra instance was deleted
    * @throws NotFoundException if instance not found with {@code id}
+   * @throws ServiceUnavailableException if a required downstream service is unavailable
    */
   @DELETE
   @Path("{id}")

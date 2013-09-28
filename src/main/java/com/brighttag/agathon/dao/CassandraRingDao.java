@@ -18,16 +18,18 @@ public interface CassandraRingDao {
    * Returns the set of Cassandra rings.
    *
    * @return set of Cassandra rings
+   * @throws BackingStoreException if there was a problem communicating with the backing store.
    */
-  ImmutableSet<CassandraRing> findAll();
+  ImmutableSet<CassandraRing> findAll() throws BackingStoreException;
 
   /**
    * Returns the Cassandra ring with the given {@code name} or {@code null} if not found.
    *
    * @param name the Cassandra ring name
    * @return the Cassandra ring or {@code null} if not found
+   * @throws BackingStoreException if there was a problem communicating with the backing store.
    */
-  @Nullable CassandraRing findByName(String name);
+  @Nullable CassandraRing findByName(String name) throws BackingStoreException;
 
   /**
    * Saves the Cassandra {@code ring}.

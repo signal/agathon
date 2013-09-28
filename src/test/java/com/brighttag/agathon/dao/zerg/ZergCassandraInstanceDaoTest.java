@@ -10,6 +10,7 @@ import org.easymock.EasyMockSupport;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.brighttag.agathon.dao.BackingStoreException;
 import com.brighttag.agathon.model.CassandraInstance;
 
 import static org.easymock.EasyMock.expect;
@@ -42,11 +43,19 @@ public class ZergCassandraInstanceDaoTest extends EasyMockSupport {
   }
 
   @Test
-  public void findAll_badManifest() throws Exception {
+  public void findAll_emptyManifest() throws Exception {
     expect(zergConnector.getHosts()).andReturn(ImmutableSet.<ZergHost>of());
     replayAll();
 
     assertEquals(ImmutableSet.of(), dao.findAll(RING_NAME));
+  }
+
+  @Test(expected = BackingStoreException.class)
+  public void findAll_backingStoreException() throws Exception {
+    expect(zergConnector.getHosts()).andThrow(new BackingStoreException());
+    replayAll();
+
+    dao.findAll(RING_NAME);
   }
 
   @Test
@@ -68,11 +77,19 @@ public class ZergCassandraInstanceDaoTest extends EasyMockSupport {
   }
 
   @Test
-  public void findById_badManifest() throws Exception {
+  public void findById_emptyManifest() throws Exception {
     expect(zergConnector.getHosts()).andReturn(ImmutableSet.<ZergHost>of());
     replayAll();
 
     assertNull(dao.findById(RING_NAME, 99));
+  }
+
+  @Test(expected = BackingStoreException.class)
+  public void findById_backingStoreException() throws Exception {
+    expect(zergConnector.getHosts()).andThrow(new BackingStoreException());
+    replayAll();
+
+    dao.findById(RING_NAME, 99);
   }
 
   @Test(expected = UnsupportedOperationException.class)

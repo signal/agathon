@@ -46,8 +46,8 @@ public class ZergDaoModule extends PrivateModule {
     return new AsyncHttpClientConfig.Builder()
         .setAllowPoolingConnection(true)
         // Yes, Zerg is THIS SLOW when the manifest isn't cached, especially in AWS.
-        .setConnectionTimeoutInMs(10000)
-        .setRequestTimeoutInMs(10000)
+        .setConnectionTimeoutInMs(20000)
+        .setRequestTimeoutInMs(20000)
         .setFollowRedirects(true)
         .setMaximumNumberOfRedirects(3)
         .setMaxRequestRetry(1)

@@ -20,11 +20,10 @@ import org.slf4j.LoggerFactory;
 import com.brighttag.agathon.model.CassandraInstance;
 import com.brighttag.agathon.model.CassandraRing;
 import com.brighttag.agathon.service.CassandraRingService;
+import com.brighttag.agathon.service.ServiceUnavailableException;
 
 /**
  * Periodically updates the security group associated with the Cassandra ring.
- *
- * By convention, security groups are created with the name "cassandra_<ringname>".
  *
  * @author Greg Opaczewski
  * @author codyaray
@@ -36,10 +35,10 @@ public class SecurityGroupUpdaterService extends AbstractScheduledService {
 
   private final CassandraRingService cassandraRingService;
   private final SecurityGroupService securityGroupService;
+  private final Function<CassandraInstance, String> dataCenterTransformFunction;
   private final int listenPort;
   private final int updatePeriod;
-
-  private final Function<CassandraInstance, String> dataCenterTransformFunction;
+  private final String securityGroupNamePrefix;
 
   @Inject
   public SecurityGroupUpdaterService(
@@ -48,38 +47,34 @@ public class SecurityGroupUpdaterService extends AbstractScheduledService {
       @Named(SecurityGroupModule.SECURITY_GROUP_DATACENTERS_PROPERTY)
           Function<CassandraInstance, String> dataCenterTransformFunction,
       @Named(SecurityGroupModule.CASSANDRA_GOSSIP_PORT_PROPERTY) int listenPort,
-      @Named(SecurityGroupModule.SECURITY_GROUP_UPDATE_PERIOD_PROPERTY) int updatePeriod) {
+      @Named(SecurityGroupModule.SECURITY_GROUP_UPDATE_PERIOD_PROPERTY) int updatePeriod,
+      @Named(SecurityGroupModule.SECURITY_GROUP_NAME_PREFIX_PROPERTY) String securityGroupNamePrefix) {
     this.cassandraRingService = cassandraRingService;
     this.securityGroupService = securityGroupService;
     this.dataCenterTransformFunction = dataCenterTransformFunction;
     this.listenPort = listenPort;
     this.updatePeriod = updatePeriod;
-  }
-
-  @Override
-  public void startUp() {
-    for (CassandraRing ring : cassandraRingService.findAll()) {
-      for (String dataCenter : findDataCenters(ring)) {
-        String securityGroupName = securityGroupForRing(ring);
-        ensureSecurityGroupExists(securityGroupName, dataCenter);
-      }
-    }
+    this.securityGroupNamePrefix = securityGroupNamePrefix;
   }
 
   @Override
   public void runOneIteration() {
-    for (CassandraRing ring : cassandraRingService.findAll()) {
-      for (String dataCenter : findDataCenters(ring)) {
-        String securityGroupName = securityGroupForRing(ring);
-        ensureSecurityGroupExists(securityGroupName, dataCenter);
-        updateSecurityGroupRules(securityGroupName, dataCenter, ring.getInstances());
+    try {
+      for (CassandraRing ring : cassandraRingService.findAll()) {
+        for (String dataCenter : findDataCenters(ring)) {
+          String securityGroupName = securityGroupForRing(ring);
+          ensureSecurityGroupExists(securityGroupName, dataCenter);
+          updateSecurityGroupRules(securityGroupName, dataCenter, ring.getInstances());
+        }
       }
+    } catch (ServiceUnavailableException e) {
+      LOG.warn("Unable to update the Cassandra security groups", e);
     }
   }
 
   @Override
   protected Scheduler scheduler() {
-    return Scheduler.newFixedRateSchedule(updatePeriod, updatePeriod, TimeUnit.SECONDS);
+    return Scheduler.newFixedRateSchedule(0, updatePeriod, TimeUnit.SECONDS);
   }
 
   /**
@@ -155,7 +150,7 @@ public class SecurityGroupUpdaterService extends AbstractScheduledService {
   }
 
   private String securityGroupForRing(CassandraRing ring) {
-    return "cassandra_" + ring.getName();
+    return securityGroupNamePrefix + ring.getName();
   }
 
 }

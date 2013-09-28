@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 
+import com.brighttag.agathon.dao.BackingStoreException;
 import com.brighttag.agathon.dao.CassandraRingDao;
 import com.brighttag.agathon.model.CassandraRing;
 
@@ -25,7 +26,7 @@ public class ZergCassandraRingDao implements CassandraRingDao {
   }
 
   @Override
-  public ImmutableSet<CassandraRing> findAll() {
+  public ImmutableSet<CassandraRing> findAll() throws BackingStoreException {
     ImmutableSet.Builder<CassandraRing> ringBuilder = ImmutableSet.builder();
     ImmutableSet<ZergHost> hosts = zergConnector.getHosts();
     for (String ring : ZergHosts.from(hosts).rings()) {
@@ -35,7 +36,7 @@ public class ZergCassandraRingDao implements CassandraRingDao {
   }
 
   @Override
-  public @Nullable CassandraRing findByName(String name) {
+  public @Nullable CassandraRing findByName(String name) throws BackingStoreException {
     ImmutableSet<ZergHost> hosts = zergConnector.getHosts();
     if (!ZergHosts.from(hosts).rings().contains(name)) {
       return null;

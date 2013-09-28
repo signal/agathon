@@ -4,10 +4,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import javax.annotation.Nullable;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -18,6 +14,8 @@ import com.ning.http.client.AsyncHttpClient;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.brighttag.agathon.dao.BackingStoreException;
 
 /**
  * @author codyaray
@@ -40,7 +38,7 @@ class ZergConnectorImpl implements ZergConnector {
   }
 
   @Override
-  public ImmutableSet<ZergHost> getHosts() {
+  public ImmutableSet<ZergHost> getHosts() throws BackingStoreException {
     ImmutableSet.Builder<ZergHost> hosts = ImmutableSet.builder();
     for (Map.Entry<String, Map<String, ZergHost>> regionEntry : getRegions().entrySet()) {
       Map<String, ZergHost> region = regionEntry.getValue();
@@ -53,32 +51,32 @@ class ZergConnectorImpl implements ZergConnector {
     return hosts.build();
   }
 
-  private Map<String, Map<String, ZergHost>> getRegions() {
+  private Map<String, Map<String, ZergHost>> getRegions() throws BackingStoreException {
     try {
-      Map<String, Map<String, ZergHost>> regions = gson.fromJson(
-          execute(manifestUrl), MAP_OF_REGIONS.getType());
-      return Objects.firstNonNull(regions, ImmutableMap.<String, Map<String, ZergHost>>of());
+      return gson.fromJson(execute(manifestUrl), MAP_OF_REGIONS.getType());
     } catch (JsonSyntaxException e) {
       LOG.warn("Received bad JSON from Zerg {}: {}", manifestUrl, e);
+      throw new BackingStoreException(e);
     }
-    return ImmutableMap.of();
   }
 
   private static final TypeLiteral<Map<String, Map<String, ZergHost>>> MAP_OF_REGIONS =
       new TypeLiteral<Map<String, Map<String, ZergHost>>>() { };
 
-  private @Nullable String execute(String url) {
+  private String execute(String url) throws BackingStoreException {
     try {
       return client.prepareGet(url).execute().get().getResponseBody();
     } catch (IOException e) {
       LOG.warn("Unable to fetch manifest from zerg url: {}", url, e);
+      throw new BackingStoreException(e);
     } catch (InterruptedException e) {
       LOG.warn("Interrupted while fetching manifest from zerg", e);
       Thread.currentThread().interrupt();
+      throw new BackingStoreException(e);
     } catch (ExecutionException e) {
       LOG.warn("Caught exception fetching manifest from zerg {}", url, e);
+      throw new BackingStoreException(e.getCause());
     }
-    return null;
   }
 
 }

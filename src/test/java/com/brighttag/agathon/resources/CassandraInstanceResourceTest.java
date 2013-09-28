@@ -47,7 +47,7 @@ public class CassandraInstanceResourceTest extends EasyMockSupport {
   }
 
   @Test
-  public void findAll() {
+  public void findAll() throws Exception {
     CassandraInstance instance1 = createMock(CassandraInstance.class);
     CassandraInstance instance2 = createMock(CassandraInstance.class);
     ImmutableSet<CassandraInstance> instances = ImmutableSet.of(instance1, instance2);
@@ -71,7 +71,7 @@ public class CassandraInstanceResourceTest extends EasyMockSupport {
   }
 
   @Test
-  public void findById() {
+  public void findById() throws Exception {
     CassandraInstance instance = createMock(CassandraInstance.class);
     expect(service.findById(RING_NAME, CASSANDRA_ID)).andReturn(instance);
     replayAll();
@@ -80,7 +80,7 @@ public class CassandraInstanceResourceTest extends EasyMockSupport {
   }
 
   @Test
-  public void findById_notFound() {
+  public void findById_notFound() throws Exception {
     expect(service.findById(RING_NAME, CASSANDRA_ID)).andReturn(null);
     replayAll();
 
@@ -94,7 +94,7 @@ public class CassandraInstanceResourceTest extends EasyMockSupport {
   }
 
   @Test
-  public void deleteInstance() {
+  public void deleteInstance() throws Exception {
     CassandraInstance instance = createMock(CassandraInstance.class);
     expect(service.findById(RING_NAME, CASSANDRA_ID)).andReturn(instance);
     service.delete(RING_NAME, instance);
@@ -105,7 +105,7 @@ public class CassandraInstanceResourceTest extends EasyMockSupport {
   }
 
   @Test
-  public void deleteInstance_notFound() {
+  public void deleteInstance_notFound() throws Exception {
     expect(service.findById(RING_NAME, CASSANDRA_ID)).andReturn(null);
     replayAll();
 

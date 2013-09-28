@@ -5,9 +5,11 @@ import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 
+import com.brighttag.agathon.dao.BackingStoreException;
 import com.brighttag.agathon.dao.CassandraInstanceDao;
 import com.brighttag.agathon.model.CassandraInstance;
 import com.brighttag.agathon.service.CassandraInstanceService;
+import com.brighttag.agathon.service.ServiceUnavailableException;
 
 /**
  * DAO-based proxy implementation of {@link CassandraInstanceService}.
@@ -26,12 +28,20 @@ public class CassandraInstanceServiceImpl implements CassandraInstanceService {
 
   @Override
   public ImmutableSet<CassandraInstance> findAll(String ring) {
-    return dao.findAll(ring);
+    try {
+      return dao.findAll(ring);
+    } catch (BackingStoreException e) {
+      throw new ServiceUnavailableException(e);
+    }
   }
 
   @Override
   public @Nullable CassandraInstance findById(String ring, int id) {
-    return dao.findById(ring, id);
+    try {
+      return dao.findById(ring, id);
+    } catch (BackingStoreException e) {
+      throw new ServiceUnavailableException(e);
+    }
   }
 
   @Override

@@ -1,6 +1,9 @@
 package com.brighttag.agathon.dao.zerg;
 
+import java.io.IOException;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -13,6 +16,8 @@ import com.ning.http.client.Response;
 import org.easymock.EasyMockSupport;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.brighttag.agathon.dao.BackingStoreException;
 
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
@@ -34,29 +39,80 @@ public class ZergConnectorImplTest extends EasyMockSupport {
 
   @Test
   public void getHosts() throws Exception {
-    expectZergResponse(MANIFEST);
+    expectZergResponseBody(MANIFEST);
     replayAll();
 
     assertEquals(HOSTS, connector.getHosts());
   }
 
   @Test
-  public void getHosts_badManifest() throws Exception {
-    expectZergResponse(BAD_MANIFEST);
+  public void getHosts_emptyManifest() throws Exception {
+    expectZergResponseBody(EMPTY_MANIFEST);
     replayAll();
 
     assertEquals(ImmutableSet.of(), connector.getHosts());
   }
+  @Test(expected = BackingStoreException.class)
+  public void getHosts_badManifest() throws Exception {
+    expectZergResponseBody(BAD_MANIFEST);
+    replayAll();
+
+    connector.getHosts();
+  }
+
+  @Test(expected = BackingStoreException.class)
+  public void getHosts_timeout() throws Exception {
+    expectBackingStoreException(new ExecutionException(new TimeoutException()));
+    replayAll();
+
+    connector.getHosts();
+  }
+
+  @Test(expected = BackingStoreException.class)
+  public void getHosts_interrupted() throws Exception {
+    expectBackingStoreException(new InterruptedException());
+    replayAll();
+
+    connector.getHosts();
+  }
+
+  @Test(expected = BackingStoreException.class)
+  public void getHosts_ioException() throws Exception {
+    expectZergResponseException(new IOException());
+    replayAll();
+
+    connector.getHosts();
+  }
+
+  private void expectZergResponseBody(String json) throws Exception {
+    Response response = expectZergResponse();
+    expect(response.getResponseBody()).andReturn(json);
+  }
+
+  private void expectZergResponseException(Exception exception) throws Exception {
+    Response response = expectZergResponse();
+    expect(response.getResponseBody()).andThrow(exception);
+  }
+
+  private Response expectZergResponse() throws Exception {
+    ListenableFuture<Response> future = expectZergCall();
+    Response response = createMock(Response.class);
+    expect(future.get()).andReturn(response);
+    return response;
+  }
+
+  private void expectBackingStoreException(Exception exception) throws Exception {
+    ListenableFuture<Response> future = expectZergCall();
+    expect(future.get()).andThrow(exception);
+  }
 
   @SuppressWarnings("unchecked")
-  private void expectZergResponse(String json) throws Exception {
+  private ListenableFuture<Response> expectZergCall() throws Exception {
     BoundRequestBuilder requestBuilder = createMock(BoundRequestBuilder.class);
     ListenableFuture<Response> future = createMock(ListenableFuture.class);
-    Response response = createMock(Response.class);
     expect(client.prepareGet("/path")).andReturn(requestBuilder);
     expect(requestBuilder.execute()).andReturn(future);
-    expect(future.get()).andReturn(response);
-    expect(response.getResponseBody()).andReturn(json);
+    return future;
   }
 
   private static final Set<ZergHost> HOSTS = ImmutableSet.of(
@@ -65,6 +121,8 @@ public class ZergConnectorImplTest extends EasyMockSupport {
       new ZergHost("stats01ea1", ImmutableList.of("cassandra", "cassandra_stats"), "us-east-1c", "54.2.1.1"),
       new ZergHost("cass01ea1", ImmutableList.of("cassandra", "cassandra_myring"), "us-east-1a", "54.2.1.2"),
       new ZergHost("cass02ea1", ImmutableList.of("cassandra", "cassandra_myring"), "us-east-1b", "54.2.1.3"));
+
+  private static final String EMPTY_MANIFEST = "{}";
 
   private static final String BAD_MANIFEST = "{]";
 

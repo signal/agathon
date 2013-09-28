@@ -18,6 +18,7 @@ public interface CassandraRingService {
    * Returns the set of Cassandra rings.
    *
    * @return set of Cassandra rings
+   * @throws ServiceUnavailableException if there was a problem communicating with the backing store.
    */
   ImmutableSet<CassandraRing> findAll();
 
@@ -26,6 +27,7 @@ public interface CassandraRingService {
    *
    * @param name the Cassandra ring name
    * @return the Cassandra ring or {@code null} if not found
+   * @throws ServiceUnavailableException if there was a problem communicating with the backing store.
    */
   @Nullable CassandraRing findByName(String name);
 

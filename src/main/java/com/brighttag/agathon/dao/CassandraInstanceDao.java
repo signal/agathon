@@ -19,8 +19,9 @@ public interface CassandraInstanceDao {
    *
    * @param ring name of the Cassandra ring
    * @return set of Cassandra instances in the ring
+   * @throws BackingStoreException if there was a problem communicating with the backing store.
    */
-  ImmutableSet<CassandraInstance> findAll(String ring);
+  ImmutableSet<CassandraInstance> findAll(String ring) throws BackingStoreException;
 
   /**
    * Returns the Cassandra instance with the given {@code id} or {@code null} if not found.
@@ -28,8 +29,9 @@ public interface CassandraInstanceDao {
    * @param ring name of the Cassandra ring
    * @param id the Cassandra instance ID
    * @return the Cassandra instance or {@code null} if not found
+   * @throws BackingStoreException if there was a problem communicating with the backing store.
    */
-  @Nullable CassandraInstance findById(String ring, int id);
+  @Nullable CassandraInstance findById(String ring, int id) throws BackingStoreException;
 
   /**
    * Saves the Cassandra {@code instance}.

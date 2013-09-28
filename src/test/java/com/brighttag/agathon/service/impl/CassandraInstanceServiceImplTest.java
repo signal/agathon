@@ -7,8 +7,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.brighttag.agathon.dao.BackingStoreException;
 import com.brighttag.agathon.dao.CassandraInstanceDao;
 import com.brighttag.agathon.model.CassandraInstance;
+import com.brighttag.agathon.service.ServiceUnavailableException;
 
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
@@ -38,7 +40,7 @@ public class CassandraInstanceServiceImplTest extends EasyMockSupport {
   }
 
   @Test
-  public void findAll() {
+  public void findAll() throws Exception {
     CassandraInstance instance1 = createMock(CassandraInstance.class);
     CassandraInstance instance2 = createMock(CassandraInstance.class);
     CassandraInstance instance3 = createMock(CassandraInstance.class);
@@ -49,13 +51,29 @@ public class CassandraInstanceServiceImplTest extends EasyMockSupport {
     assertEquals(instances, service.findAll(RING_NAME));
   }
 
+  @Test(expected = ServiceUnavailableException.class)
+  public void findAll_backingStoreException() throws Exception {
+    expect(dao.findAll(RING_NAME)).andThrow(new BackingStoreException());
+    replayAll();
+
+    service.findAll(RING_NAME);
+  }
+
   @Test
-  public void findById() {
+  public void findById() throws Exception {
     CassandraInstance instance = createMock(CassandraInstance.class);
     expect(dao.findById(RING_NAME, CASSANDRA_ID)).andReturn(instance);
     replayAll();
 
     assertEquals(instance, service.findById(RING_NAME, CASSANDRA_ID));
+  }
+
+  @Test(expected = ServiceUnavailableException.class)
+  public void findById_backingStoreException() throws Exception {
+    expect(dao.findById(RING_NAME, CASSANDRA_ID)).andThrow(new BackingStoreException());
+    replayAll();
+
+    service.findById(RING_NAME, CASSANDRA_ID);
   }
 
   @Test

@@ -7,8 +7,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.brighttag.agathon.dao.BackingStoreException;
 import com.brighttag.agathon.dao.CassandraRingDao;
 import com.brighttag.agathon.model.CassandraRing;
+import com.brighttag.agathon.service.ServiceUnavailableException;
 
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
@@ -18,6 +20,8 @@ import static org.junit.Assert.assertEquals;
  * @since 5/12/12
  */
 public class CassandraRingServiceImplTest extends EasyMockSupport {
+
+  private static final String RING_NAME = "myring";
 
   private CassandraRingDao dao;
   private CassandraRingServiceImpl service;
@@ -34,7 +38,7 @@ public class CassandraRingServiceImplTest extends EasyMockSupport {
   }
 
   @Test
-  public void findAll() {
+  public void findAll() throws Exception {
     CassandraRing ring1 = createMock(CassandraRing.class);
     CassandraRing ring2 = createMock(CassandraRing.class);
     CassandraRing ring3 = createMock(CassandraRing.class);
@@ -45,15 +49,30 @@ public class CassandraRingServiceImplTest extends EasyMockSupport {
     assertEquals(rings, service.findAll());
   }
 
-  @Test
-  public void findByName() {
-    CassandraRing ring = createMock(CassandraRing.class);
-    expect(dao.findByName("myring")).andReturn(ring);
+  @Test(expected = ServiceUnavailableException.class)
+  public void findAll_backingStoreException() throws Exception {
+    expect(dao.findAll()).andThrow(new BackingStoreException());
     replayAll();
 
-    assertEquals(ring, service.findByName("myring"));
+    service.findAll();
   }
 
+  @Test
+  public void findByName() throws Exception {
+    CassandraRing ring = createMock(CassandraRing.class);
+    expect(dao.findByName(RING_NAME)).andReturn(ring);
+    replayAll();
+
+    assertEquals(ring, service.findByName(RING_NAME));
+  }
+
+  @Test(expected = ServiceUnavailableException.class)
+  public void findByName_backingStoreException() throws Exception {
+    expect(dao.findByName(RING_NAME)).andThrow(new BackingStoreException());
+    replayAll();
+
+    service.findByName(RING_NAME);
+  }
   @Test
   public void save() {
     CassandraRing ring = createMock(CassandraRing.class);

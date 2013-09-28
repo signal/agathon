@@ -1,7 +1,6 @@
 package com.brighttag.agathon.dao.zerg;
 
 import java.util.Collection;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,7 +12,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 
 import com.brighttag.agathon.model.CassandraInstance;
 
@@ -60,10 +58,12 @@ class ZergHosts {
    * @return the Cassandra instance
    */
   public static @Nullable CassandraInstance toCassandraInstance(ZergHost host) {
-    // Transform from Zerg zone to Cassandra DataCenter/Rack.
-    // Zerg's zone is a combination of AWS region and availability zone.
-    // Assumes the {@link Ec2Snitch} or {@link Ec2MultiRegionSnitch}
-    // For example, Zone: "us-east-1a" => DC: "us-east", Rack: "1a"
+    /*
+     * Transform from Zerg zone to Cassandra DataCenter/Rack.
+     * Zerg's zone is a combination of AWS region and availability zone.
+     * Assumes the {@link Ec2Snitch} or {@link Ec2MultiRegionSnitch}
+     * For example, Zone: "us-east-1a" => DC: "us-east", Rack: "1a"
+     */
     Matcher m = ZONE_PATTERN.matcher(host.getZone());
     if (m.find()) {
       return new CassandraInstance.Builder()
@@ -97,14 +97,14 @@ class ZergHosts {
    *
    * @param ring the desired ring
    */
-  public ZergHosts filter(String ring) {
-    Set<ZergHost> instances = Sets.newHashSet();
-    for (ZergHost host : hosts) {
-      if (host.getRoles().contains(role(ring))) {
-        instances.add(host);
+  public ZergHosts filter(final String ring) {
+    return from(FluentIterable.from(hosts).filter(new Predicate<ZergHost>() {
+      @Override
+      public boolean apply(ZergHost host) {
+        return host.getRoles().contains(role(ring));
       }
-    }
-    return from(instances);
+    })
+    .toSet());
   }
 
   /**

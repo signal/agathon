@@ -5,6 +5,7 @@ import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 
+import com.brighttag.agathon.dao.BackingStoreException;
 import com.brighttag.agathon.dao.CassandraInstanceDao;
 import com.brighttag.agathon.model.CassandraInstance;
 
@@ -34,12 +35,12 @@ public class ZergCassandraInstanceDao implements CassandraInstanceDao {
   }
 
   @Override
-  public ImmutableSet<CassandraInstance> findAll(String ring) {
+  public ImmutableSet<CassandraInstance> findAll(String ring) throws BackingStoreException {
     return ZergHosts.from(zergConnector.getHosts()).filter(ring).toCassandraInstances();
   }
 
   @Override
-  public @Nullable CassandraInstance findById(String ring, int id) {
+  public @Nullable CassandraInstance findById(String ring, int id) throws BackingStoreException {
     for (ZergHost host : ZergHosts.from(zergConnector.getHosts()).filter(ring).toSet()) {
       if (id == host.getId()) {
         return ZergHosts.toCassandraInstance(host);
