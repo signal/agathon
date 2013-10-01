@@ -15,6 +15,7 @@ import com.ning.http.client.Response;
 
 import org.easymock.EasyMockSupport;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.brighttag.agathon.dao.BackingStoreException;
@@ -68,7 +69,8 @@ public class ZergConnectorImplTest extends EasyMockSupport {
     connector.getHosts();
   }
 
-  @Test(expected = BackingStoreException.class)
+  // Causes sporadic failures elsewhere
+  @Ignore @Test(expected = BackingStoreException.class)
   public void getHosts_interrupted() throws Exception {
     expectBackingStoreException(new InterruptedException());
     replayAll();

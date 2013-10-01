@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.brighttag.agathon</groupId>
+    <artifactId>agathon-cassandra</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>Agathon Cassandra Plugin</name>
+    <description>Use Agathon for Cassandra seed management</description>
+    <url>http://github.com/BrightTag/Agathon</url>
+
+    <parent>
+        <groupId>com.brighttag</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>1</version>
+        <relativePath>../brighttag</relativePath>
+    </parent>
+
+    <scm>
+        <connection>scm:git:git@github.com/BrightTag/Agathon.git</connection>
+        <developerConnection>scm:git:git@github.com:BrightTag/Agathon.git</developerConnection>
+        <url>http://github.com/BrightTag/Agathon</url>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>codyaray</id>
+            <name>Cody A. Ray</name>
+            <email>cray@brighttag.com</email>
+        </developer>
+    </developers>
+
+    <dependencies>
+        <!-- Cassandra dependencies and exclusions -->
+
+        <dependency>
+            <groupId>org.apache.cassandra</groupId>
+            <artifactId>cassandra-all</artifactId>
+            <!-- Dependencies below "provided" by Cassandra. We specify dependency versions
+                 based on Cassandra 1.0.0 to make sure we don't use newer features.
+                 Assumes these features will still be supported with newer versions. -->
+            <version>1.0.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Data types and collections -->
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>r08</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Defect Detection (JSR-305) -->
+
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>1.3.9</version>
+            <!-- Not really, but not needed at runtime -->
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Logging -->
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.6.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Unit Testing -->
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.10</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <version>3.0</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <!-- Newer versions require Maven3. -->
+                <version>1.7.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <minimizeJar>true</minimizeJar>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

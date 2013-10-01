@@ -10,7 +10,6 @@ import javax.annotation.Nullable;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
-import com.google.common.primitives.Ints;
 
 import org.apache.cassandra.config.ConfigurationException;
 import org.apache.cassandra.locator.SeedProvider;
@@ -37,7 +36,7 @@ public class AgathonSeedProvider implements SeedProvider {
    *        Optional: {@code agathon_port}
    */
   public AgathonSeedProvider(Map<String, String> params) {
-    this(new AgathonConnector(params.get("agathon_host"), Ints.tryParse(params.get("agathon_port"))),
+    this(new AgathonConnector(params.get("agathon_host"), tryParse(params.get("agathon_port"))),
         params.get("ring_name"));
   }
 
@@ -53,6 +52,15 @@ public class AgathonSeedProvider implements SeedProvider {
       return transform(connector.getSeeds(ringName));
     } catch (ConfigurationException e) {
       throw Throwables.propagate(e);
+    }
+  }
+
+  // We'd use Ints.tryParse if we had Guava 11.0+
+  private static @Nullable Integer tryParse(String number) {
+    try {
+      return Integer.parseInt(number);
+    } catch (NumberFormatException e) {
+      return null;
     }
   }
 

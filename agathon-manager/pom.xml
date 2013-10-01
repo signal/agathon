@@ -14,29 +14,16 @@
     <url>http://github.com/BrightTag/Agathon</url>
 
     <parent>
-        <groupId>org.sonatype.oss</groupId>
+        <groupId>com.brighttag</groupId>
         <artifactId>oss-parent</artifactId>
-        <version>7</version>
+        <version>1</version>
     </parent>
-
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
 
     <scm>
         <connection>scm:git:git@github.com/BrightTag/Agathon.git</connection>
         <developerConnection>scm:git:git@github.com:BrightTag/Agathon.git</developerConnection>
         <url>http://github.com/BrightTag/Agathon</url>
     </scm>
-
-    <organization>
-        <name>BrightTag</name>
-        <url>http://brighttag.com</url>
-    </organization>
 
     <developers>
         <developer>
