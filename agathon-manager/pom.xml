@@ -17,6 +17,7 @@
         <groupId>com.brighttag</groupId>
         <artifactId>oss-parent</artifactId>
         <version>1</version>
+        <relativePath>../brighttag</relativePath>
     </parent>
 
     <scm>
