@@ -5,12 +5,12 @@
   <jmxConfigurator />
 
   <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>logs/agathon.0.log</file>
+    <file>logs/agathon-manager.0.log</file>
 
     <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
       <minIndex>1</minIndex>
       <maxIndex>9</maxIndex>
-      <fileNamePattern>logs/agathon.%i.log</fileNamePattern>
+      <fileNamePattern>logs/agathon-manager.%i.log</fileNamePattern>
     </rollingPolicy>
 
     <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy"/>
