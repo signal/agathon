@@ -1,7 +1,5 @@
 package com.brighttag.agathon.dao.zerg;
 
-import java.util.Set;
-
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableSet;
@@ -28,8 +26,8 @@ public class ZergCassandraRingDao implements CassandraRingDao {
   @Override
   public ImmutableSet<CassandraRing> findAll() throws BackingStoreException {
     ImmutableSet.Builder<CassandraRing> ringBuilder = ImmutableSet.builder();
-    ImmutableSet<ZergHost> hosts = zergConnector.getHosts();
-    for (String ring : ZergHosts.from(hosts).rings()) {
+    ZergHosts hosts = ZergHosts.from(zergConnector.getHosts());
+    for (String ring : hosts.rings()) {
       ringBuilder.add(getByName(ring, hosts));
     }
     return ringBuilder.build();
@@ -37,8 +35,8 @@ public class ZergCassandraRingDao implements CassandraRingDao {
 
   @Override
   public @Nullable CassandraRing findByName(String name) throws BackingStoreException {
-    ImmutableSet<ZergHost> hosts = zergConnector.getHosts();
-    if (!ZergHosts.from(hosts).rings().contains(name)) {
+    ZergHosts hosts = ZergHosts.from(zergConnector.getHosts());
+    if (!hosts.rings().contains(name)) {
       return null;
     }
     return getByName(name, hosts);
@@ -54,10 +52,10 @@ public class ZergCassandraRingDao implements CassandraRingDao {
     throw new UnsupportedOperationException("Delete is not supported for " + getClass().getSimpleName());
   }
 
-  private CassandraRing getByName(String ring, Set<ZergHost> hosts) {
+  private static CassandraRing getByName(String ring, ZergHosts hosts) {
     return new CassandraRing.Builder()
         .name(ring)
-        .instances(ZergHosts.from(hosts).filter(ring).toCassandraInstances())
+        .instances(hosts.filter(ring).toCassandraInstances())
         .build();
   }
 
