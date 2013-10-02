@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import com.brighttag.agathon.model.CassandraRing;
 
 /**
- * Provides the set of hostnames used to seed the Cassandra ring. Alternative
+ * Provides the set of public IP addresses used to seed the Cassandra ring. Alternative
  * implementations may provide support for different network and ring topologies.
  *
  * @author codyaray
