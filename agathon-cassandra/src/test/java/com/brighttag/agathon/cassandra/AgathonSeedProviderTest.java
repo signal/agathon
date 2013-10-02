@@ -4,7 +4,6 @@ import java.net.InetAddress;
 
 import com.google.common.collect.ImmutableList;
 
-import org.apache.cassandra.config.ConfigurationException;
 import org.easymock.EasyMockSupport;
 import org.junit.After;
 import org.junit.Before;
@@ -78,7 +77,7 @@ public class AgathonSeedProviderTest extends EasyMockSupport {
       fail("Expected a RuntimeException");
     } catch (RuntimeException e) {
       // Ok to catch RuntimeException here
-      assertEquals(exception, e.getCause());
+      assertEquals(exception, e);
     }
   }
 
