@@ -22,10 +22,10 @@ public class PerDataCenterSeedServiceTest extends EasyMockSupport {
   private static final String DATACENTER1 = "dc1";
   private static final String DATACENTER2 = "dc2";
 
-  private static final String HOSTNAME1 = "host1";
-  private static final String HOSTNAME2 = "host2";
-  private static final String HOSTNAME3 = "host3";
-  private static final String HOSTNAME4 = "host4";
+  private static final String IP_ADDRESS_1 = "1.1.1.1";
+  private static final String IP_ADDRESS_2 = "2.2.2.2";
+  private static final String IP_ADDRESS_3 = "3.3.3.3";
+  private static final String IP_ADDRESS_4 = "4.4.4.4";
 
   private CassandraRing ring;
   private PerDataCenterSeedService seedProvider;
@@ -43,34 +43,35 @@ public class PerDataCenterSeedServiceTest extends EasyMockSupport {
 
   @Test
   public void getSeeds() {
-    CassandraInstance instance1 = buildInstance(DATACENTER1, HOSTNAME1);
-    CassandraInstance instance2 = buildInstance(DATACENTER1, HOSTNAME2);
-    CassandraInstance instance3 = buildInstance(DATACENTER2, HOSTNAME3);
-    CassandraInstance instance4 = buildInstance(DATACENTER2, HOSTNAME4);
+    CassandraInstance instance1 = buildInstance(DATACENTER1, IP_ADDRESS_1);
+    CassandraInstance instance2 = buildInstance(DATACENTER1, IP_ADDRESS_2);
+    CassandraInstance instance3 = buildInstance(DATACENTER2, IP_ADDRESS_3);
+    CassandraInstance instance4 = buildInstance(DATACENTER2, IP_ADDRESS_4);
     ImmutableSet<CassandraInstance> instances = ImmutableSet.of(instance1, instance2, instance3, instance4);
     expect(ring.getInstances()).andReturn(instances);
     replayAll();
 
-    assertEquals(ImmutableSet.of(HOSTNAME1, HOSTNAME2, HOSTNAME3, HOSTNAME4), seedProvider.getSeeds(ring));
+    assertEquals(ImmutableSet.of(IP_ADDRESS_1, IP_ADDRESS_2, IP_ADDRESS_3, IP_ADDRESS_4),
+        seedProvider.getSeeds(ring));
   }
 
   @Test
   public void getSeeds_insufficientInstancesInDataCenter() {
-    CassandraInstance instance1 = buildInstance(DATACENTER1, HOSTNAME1);
-    CassandraInstance instance2 = buildInstance(DATACENTER2, HOSTNAME2);
-    CassandraInstance instance3 = buildInstance(DATACENTER2, HOSTNAME3);
+    CassandraInstance instance1 = buildInstance(DATACENTER1, IP_ADDRESS_1);
+    CassandraInstance instance2 = buildInstance(DATACENTER2, IP_ADDRESS_2);
+    CassandraInstance instance3 = buildInstance(DATACENTER2, IP_ADDRESS_3);
     ImmutableSet<CassandraInstance> instances = ImmutableSet.of(instance1, instance2, instance3);
     expect(ring.getInstances()).andReturn(instances);
     replayAll();
 
-    assertEquals(ImmutableSet.of(HOSTNAME1, HOSTNAME2, HOSTNAME3), seedProvider.getSeeds(ring));
+    assertEquals(ImmutableSet.of(IP_ADDRESS_1, IP_ADDRESS_2, IP_ADDRESS_3), seedProvider.getSeeds(ring));
   }
 
-  private CassandraInstance buildInstance(String dataCenter, String hostName) {
+  private CassandraInstance buildInstance(String dataCenter, String publicIpAddress) {
     return new CassandraInstance.Builder()
         .id(1)
         .dataCenter(dataCenter)
-        .hostName(hostName)
+        .publicIpAddress(publicIpAddress)
         .build();
   }
 
