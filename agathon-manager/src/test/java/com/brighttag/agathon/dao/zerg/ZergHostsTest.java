@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -23,28 +25,28 @@ public class ZergHostsTest {
 
   @Test
   public void toCassandraInstance() {
-    assertEquals(instance("host1", "us-east", "1a", "1.1.1.1"),
-        ZergHosts.toCassandraInstance(host("host1", "us-east-1a", "1.1.1.1")));
+    assertEquals(instance("host1", "us-east", "1a", "1.1.1.1", "domain1"),
+        ZergHosts.toCassandraInstance(host("host1", "us-east-1a", "1.1.1.1", "domain1")));
   }
 
   @Test
   public void toCassandraInstance_noAvailabilityZone() {
-    assertNull(ZergHosts.toCassandraInstance(host("host1", "us-east", "1.1.1.1")));
+    assertNull(ZergHosts.toCassandraInstance(host("host1", "us-east", "1.1.1.1", "domain1")));
   }
 
   @Test
   public void toCassandraInstance_emptyAvailabilityZone() {
-    assertEquals(null, ZergHosts.toCassandraInstance(host("host1", "us-east-", "1.1.1.1")));
+    assertEquals(null, ZergHosts.toCassandraInstance(host("host1", "us-east-", "1.1.1.1", "domain1")));
   }
 
   @Test
   public void toCassandraInstance_invalidRegion() {
-    assertNull(ZergHosts.toCassandraInstance(host("host1", "us", "1.1.1.1")));
+    assertNull(ZergHosts.toCassandraInstance(host("host1", "us", "1.1.1.1", "domain1")));
   }
 
   @Test
   public void toCassandraInstance_emptyRegion() {
-    assertNull(ZergHosts.toCassandraInstance(host("host1", "-1a", "1.1.1.1")));
+    assertNull(ZergHosts.toCassandraInstance(host("host1", "-1a", "1.1.1.1", "domain1")));
   }
 
   @Test
@@ -86,8 +88,8 @@ public class ZergHostsTest {
 
   @Test
   public void toCassandraInstances_skipsInvalidHost() {
-    Set<ZergHost> hosts = ImmutableSet.of(host("host1", "us-east-1a", "1.1.1.1"),
-        host("host2", "invalid", "2.2.2.2"), host("host3", "eu-west-3c", "3.3.3.3"));
+    Set<ZergHost> hosts = ImmutableSet.of(host("host1", "us-east-1a", "1.1.1.1", "domain1"),
+        host("host2", "invalid", "2.2.2.2", "domain2"), host("host3", "eu-west-3c", "3.3.3.3", "domain3"));
     assertEquals(ImmutableSet.of(INSTANCE1, INSTANCE3), ZergHosts.from(hosts).toCassandraInstances());
   }
 
@@ -103,30 +105,33 @@ public class ZergHostsTest {
     assertEquals(HOSTS, ZergHosts.from(hosts).toSet());
   }
 
-  private static final ZergHost HOST1 = host("host1", "us-east-1a", "1.1.1.1", "cassandra_ring1");
-  private static final ZergHost HOST2 = host("host2", "us-west-2b", "2.2.2.2", "cassandra_ring2");
-  private static final ZergHost HOST3 = host("host3", "eu-west-3c", "3.3.3.3",
+  private static final ZergHost HOST1 = host("host1", "us-east-1a", "1.1.1.1", "domain1", "cassandra_ring1");
+  private static final ZergHost HOST2 = host("host2", "us-west-2b", "2.2.2.2", "domain2", "cassandra_ring2");
+  private static final ZergHost HOST3 = host("host3", "eu-west-3c", "3.3.3.3", "domain3",
       "cassandra_ring1", "cassandra_ring2", "cassandra_ring3");
-  private static final ZergHost HOST4 = host("host4", "ap-northeast-4d", "4.4.4.4",
+  private static final ZergHost HOST4 = host("host4", "ap-northeast-4d", "4.4.4.4", "domain4",
       "cassandra_ring1", "not_cassandra_ring", "other_ring");
   private static final Collection<ZergHost> HOSTS = ImmutableSet.of(HOST1, HOST2, HOST3);
 
-  private static final CassandraInstance INSTANCE1 = instance("host1", "us-east", "1a", "1.1.1.1");
-  private static final CassandraInstance INSTANCE2 = instance("host2", "us-west", "2b", "2.2.2.2");
-  private static final CassandraInstance INSTANCE3 = instance("host3", "eu-west", "3c", "3.3.3.3");
+  private static final CassandraInstance INSTANCE1 = instance("host1", "us-east", "1a", "1.1.1.1", "domain1");
+  private static final CassandraInstance INSTANCE2 = instance("host2", "us-west", "2b", "2.2.2.2", "domain2");
+  private static final CassandraInstance INSTANCE3 = instance("host3", "eu-west", "3c", "3.3.3.3", "domain3");
   private static final Set<CassandraInstance> INSTANCES = ImmutableSet.of(INSTANCE1, INSTANCE2, INSTANCE3);
 
-  private static ZergHost host(String hostName, String zone, String publicIp, String... roles) {
-    return new ZergHost(hostName, ImmutableList.copyOf(roles), zone, publicIp);
+  private static ZergHost host(String hostName, String zone, String publicIp,
+      String domainName, String... roles) {
+    return new ZergHost(hostName, ImmutableList.copyOf(roles), zone, publicIp, domainName);
   }
 
-  private static CassandraInstance instance(String name, String dataCenter, String rack, String publicIp) {
+  private static CassandraInstance instance(String name, String dataCenter, String rack,
+      String publicIp, @Nullable String fqdn) {
     return new CassandraInstance.Builder()
         .id(name.hashCode())
         .hostName(name)
         .dataCenter(dataCenter)
         .rack(rack)
         .publicIpAddress(publicIp)
+        .fullyQualifiedDomainName(fqdn)
         .build();
   }
 

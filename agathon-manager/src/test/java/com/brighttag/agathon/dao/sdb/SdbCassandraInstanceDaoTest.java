@@ -41,6 +41,7 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
   private static final String RACK = "rack";
   private static final String HOSTNAME = "host";
   private static final String PUBLIC_IP_ADDRESS = "publicIpAddress";
+  private static final String FULLY_QUALIFIED_DOMAIN_NAME = "fullyQualifiedDomainName";
   private static final String NEXT_TOKEN = "nextToken";
   private static final String DOMAIN_NAMESPACE = "Production";
   private static final String RING_NAME = "ProfileStore";
@@ -154,6 +155,7 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
     expect(instance.getRack()).andReturn(RACK);
     expect(instance.getHostName()).andReturn(HOSTNAME);
     expect(instance.getPublicIpAddress()).andReturn(PUBLIC_IP_ADDRESS);
+    expect(instance.getFullyQualifiedDomainName()).andReturn(FULLY_QUALIFIED_DOMAIN_NAME);
     simpleDbClient.putAttributes(capture(requestCapture));
     replayAll();
 
@@ -175,6 +177,7 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
     expect(instance.getRack()).andReturn(RACK);
     expect(instance.getHostName()).andReturn(HOSTNAME);
     expect(instance.getPublicIpAddress()).andReturn(PUBLIC_IP_ADDRESS);
+    expect(instance.getFullyQualifiedDomainName()).andReturn(FULLY_QUALIFIED_DOMAIN_NAME);
     simpleDbClient.deleteAttributes(capture(requestCapture));
     replayAll();
 
@@ -240,8 +243,9 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
     return instances;
   }
 
+  // Checkstyle ignore: CyclomaticComplexity
   private static void assertReplaceableAttributes(PutAttributesRequest request) {
-    assertEquals(5, request.getAttributes().size());
+    assertEquals(6, request.getAttributes().size());
     for (ReplaceableAttribute attr : request.getAttributes()) {
       if (attr.getName().equals(SdbCassandraInstanceDao.ID_KEY)) {
         assertEquals(String.valueOf(ID), attr.getValue());
@@ -258,14 +262,18 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
       } else if (attr.getName().endsWith(SdbCassandraInstanceDao.PUBLIC_IP_ADDRESS_KEY)) {
         assertEquals(PUBLIC_IP_ADDRESS, attr.getValue());
         assertEquals(true, attr.getReplace());
+      } else if (attr.getName().endsWith(SdbCassandraInstanceDao.FULLY_QUALIFIED_DOMAIN_NAME_KEY)) {
+        assertEquals(FULLY_QUALIFIED_DOMAIN_NAME, attr.getValue());
+        assertEquals(true, attr.getReplace());
       } else {
         assertDuplicateAttribute(attr.getName(), attr.getValue());
       }
     }
   }
 
+  // Checkstyle ignore: CyclomaticComplexity
   private static void assertAttributes(DeleteAttributesRequest request) {
-    assertEquals(5, request.getAttributes().size());
+    assertEquals(6, request.getAttributes().size());
     for (Attribute attr : request.getAttributes()) {
       if (attr.getName().equals(SdbCassandraInstanceDao.ID_KEY)) {
         assertEquals(String.valueOf(ID), attr.getValue());
@@ -277,6 +285,8 @@ public class SdbCassandraInstanceDaoTest extends EasyMockSupport {
         assertEquals(HOSTNAME, attr.getValue());
       } else if (attr.getName().endsWith(SdbCassandraInstanceDao.PUBLIC_IP_ADDRESS_KEY)) {
         assertEquals(PUBLIC_IP_ADDRESS, attr.getValue());
+      } else if (attr.getName().endsWith(SdbCassandraInstanceDao.FULLY_QUALIFIED_DOMAIN_NAME_KEY)) {
+        assertEquals(FULLY_QUALIFIED_DOMAIN_NAME, attr.getValue());
       } else {
         assertDuplicateAttribute(attr.getName(), attr.getValue());
       }

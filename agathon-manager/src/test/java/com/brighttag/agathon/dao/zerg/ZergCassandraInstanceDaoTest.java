@@ -103,18 +103,22 @@ public class ZergCassandraInstanceDaoTest extends EasyMockSupport {
   }
 
   private static final ImmutableSet<ZergHost> HOSTS = ImmutableSet.of(
-      new ZergHost("tagserve01ap1", ImmutableList.of("tagserve"), "us-northeast-1a", "54.0.1.1"),
-      new ZergHost("cass01we2", ImmutableList.of("cassandra", "cassandra_myring"), "us-west-2a", "54.1.1.1"),
-      new ZergHost("stats01ea1", ImmutableList.of("cassandra", "cassandra_stats"), "us-east-1c", "54.2.1.1"),
-      new ZergHost("cass01ea1", ImmutableList.of("cassandra", "cassandra_myring"), "us-east-1a", "54.2.1.2"),
-      new ZergHost("cass02ea1", ImmutableList.of("cassandra", "cassandra_myring"), "us-east-1b", "54.2.1.3"));
+      host("tagserve01ap1", "us-northeast-1a", "54.0.1.1", "tagserve"),
+      host("cass01we2",  "us-west-2a", "54.1.1.1", "cassandra", "cassandra_myring"),
+      host("stats01ea1", "us-east-1c", "54.2.1.1", "cassandra", "cassandra_stats"),
+      host("cass01ea1",  "us-east-1a", "54.2.1.2", "cassandra", "cassandra_myring"),
+      host("cass02ea1",  "us-east-1b", "54.2.1.3", "cassandra", "cassandra_myring"));
 
   private static final Set<CassandraInstance> INSTANCES = ImmutableSet.of(
       new CassandraInstance.Builder().id(1026512133).hostName("cass01we2").publicIpAddress("54.1.1.1")
-          .dataCenter("us-west").rack("2a").build(),
+          .dataCenter("us-west").rack("2a").fullyQualifiedDomainName("54.1.1.1-bt.com").build(),
       new CassandraInstance.Builder().id(1026494710).hostName("cass01ea1").publicIpAddress("54.2.1.2")
-          .dataCenter("us-east").rack("1a").build(),
+          .dataCenter("us-east").rack("1a").fullyQualifiedDomainName("54.2.1.2-bt.com").build(),
       new CassandraInstance.Builder().id(1026524501).hostName("cass02ea1").publicIpAddress("54.2.1.3")
-          .dataCenter("us-east").rack("1b").build());
+          .dataCenter("us-east").rack("1b").fullyQualifiedDomainName("54.2.1.3-bt.com").build());
+
+  private static ZergHost host(String hostName, String zone, String publicIp, String... roles) {
+    return new ZergHost(hostName, ImmutableList.copyOf(roles), zone, publicIp, publicIp + "-bt.com");
+  }
 
 }

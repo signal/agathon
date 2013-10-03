@@ -36,6 +36,7 @@ public class SdbCassandraInstanceDao implements CassandraInstanceDao {
   @VisibleForTesting static final String RACK_KEY = "rack";
   @VisibleForTesting static final String HOSTNAME_KEY = "hostname";
   @VisibleForTesting static final String PUBLIC_IP_ADDRESS_KEY = "publicIpAddress";
+  @VisibleForTesting static final String FULLY_QUALIFIED_DOMAIN_NAME_KEY = "fullyQualifiedDomainName";
 
   @VisibleForTesting static final String ALL_QUERY =
       "SELECT * FROM `%s`";
@@ -101,6 +102,7 @@ public class SdbCassandraInstanceDao implements CassandraInstanceDao {
     return domainFactory.createFromRing(ringName).toString();
   }
 
+  // Checkstyle ignore: CyclomaticComplexity
   @VisibleForTesting static CassandraInstance transform(Item item) {
     CassandraInstance.Builder instanceBuilder = new CassandraInstance.Builder();
     for (Attribute attr : item.getAttributes()) {
@@ -114,6 +116,8 @@ public class SdbCassandraInstanceDao implements CassandraInstanceDao {
         instanceBuilder.hostName(attr.getValue());
       } else if (attr.getName().equals(PUBLIC_IP_ADDRESS_KEY)) {
         instanceBuilder.publicIpAddress(attr.getValue());
+      } else if (attr.getName().equals(FULLY_QUALIFIED_DOMAIN_NAME_KEY)) {
+        instanceBuilder.fullyQualifiedDomainName(attr.getValue());
       }
     }
     return instanceBuilder.build();
@@ -126,6 +130,7 @@ public class SdbCassandraInstanceDao implements CassandraInstanceDao {
     attrs.add(attribute(RACK_KEY, instance.getRack(), true));
     attrs.add(attribute(HOSTNAME_KEY, instance.getHostName(), true));
     attrs.add(attribute(PUBLIC_IP_ADDRESS_KEY, instance.getPublicIpAddress(), true));
+    attrs.add(attribute(FULLY_QUALIFIED_DOMAIN_NAME_KEY, instance.getFullyQualifiedDomainName(), true));
     return attrs;
   }
 
@@ -136,6 +141,7 @@ public class SdbCassandraInstanceDao implements CassandraInstanceDao {
     attrs.add(attribute(RACK_KEY, instance.getRack()));
     attrs.add(attribute(HOSTNAME_KEY, instance.getHostName()));
     attrs.add(attribute(PUBLIC_IP_ADDRESS_KEY, instance.getPublicIpAddress()));
+    attrs.add(attribute(FULLY_QUALIFIED_DOMAIN_NAME_KEY, instance.getFullyQualifiedDomainName()));
     return attrs;
   }
 

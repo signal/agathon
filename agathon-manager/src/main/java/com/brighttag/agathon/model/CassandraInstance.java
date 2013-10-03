@@ -2,6 +2,7 @@ package com.brighttag.agathon.model;
 
 import java.util.Arrays;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.Min;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -22,17 +23,20 @@ public class CassandraInstance {
   private final String rack;
   private final String hostname;
   private final String publicIpAddress;
+  private final @Nullable String fullyQualifiedDomainName;
 
   private CassandraInstance(
       @JsonProperty("id") int id, @JsonProperty("datacenter") String dataCenter,
       @JsonProperty("rack") String rack, @JsonProperty("hostname") String hostName,
-      @JsonProperty("publicIpAddress") String publicIpAddress) {
+      @JsonProperty("publicIpAddress") String publicIpAddress,
+      @JsonProperty("fullyQualifiedDomainName") String fullyQualifiedDomainName) {
     this(new Builder()
         .id(id)
         .dataCenter(dataCenter)
         .rack(rack)
         .hostName(hostName)
-        .publicIpAddress(publicIpAddress));
+        .publicIpAddress(publicIpAddress)
+        .fullyQualifiedDomainName(fullyQualifiedDomainName));
   }
 
   private CassandraInstance(Builder builder) {
@@ -41,6 +45,7 @@ public class CassandraInstance {
     this.rack = builder.rack;
     this.hostname = builder.hostname;
     this.publicIpAddress = builder.publicIpAddress;
+    this.fullyQualifiedDomainName = builder.fullyQualifiedDomainName;
   }
 
   public @Min(1) int getId() {
@@ -61,6 +66,10 @@ public class CassandraInstance {
 
   public @NotEmpty String getPublicIpAddress() {
     return publicIpAddress;
+  }
+
+  public @Nullable String getFullyQualifiedDomainName() {
+    return fullyQualifiedDomainName;
   }
 
   @Override
@@ -88,11 +97,12 @@ public class CassandraInstance {
         .add("rack", rack)
         .add("hostname", hostname)
         .add("publicIpAddress", publicIpAddress)
+        .add("fullyQualifiedDomainName", fullyQualifiedDomainName)
         .toString();
   }
 
   Object[] significantAttributes() {
-    return new Object[] { id, datacenter, rack, hostname, publicIpAddress };
+    return new Object[] { id, datacenter, rack, hostname, publicIpAddress, fullyQualifiedDomainName };
   }
 
   /**
@@ -108,6 +118,7 @@ public class CassandraInstance {
     private String rack;
     private String hostname;
     private String publicIpAddress;
+    private @Nullable String fullyQualifiedDomainName;
 
     public Builder id(int id) {
       this.id = id;
@@ -131,6 +142,11 @@ public class CassandraInstance {
 
     public Builder publicIpAddress(String publicIpAddress) {
       this.publicIpAddress = publicIpAddress;
+      return this;
+    }
+
+    public Builder fullyQualifiedDomainName(@Nullable String fullyQualifiedDomainName) {
+      this.fullyQualifiedDomainName = fullyQualifiedDomainName;
       return this;
     }
 

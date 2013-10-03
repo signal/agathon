@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.gson.annotations.SerializedName;
@@ -19,15 +21,18 @@ class ZergHost {
   private String name;
   private List<String> roles;
   private String zone;
-  private @SerializedName("public ip") String publicIp;
+  private @SerializedName("public ip") String publicIpAddress;
+  private @SerializedName("fqdn") @Nullable String fullyQualifiedDomainName;
 
   ZergHost() { /* For Gson */ }
 
-  @VisibleForTesting ZergHost(String name, List<String> roles, String zone, String publicIp) {
+  @VisibleForTesting ZergHost(String name, List<String> roles, String zone,
+      String publicIpAddress, @Nullable String fullyQualifiedDomainName) {
     this.name = name;
     this.roles = roles;
     this.zone = zone;
-    this.publicIp = publicIp;
+    this.publicIpAddress = publicIpAddress;
+    this.fullyQualifiedDomainName = fullyQualifiedDomainName;
   }
 
   /**
@@ -73,8 +78,15 @@ class ZergHost {
   /**
    * Returns the host's public IP address.
    */
-  public String getPublicIp() {
-    return publicIp;
+  public String getPublicIpAddress() {
+    return publicIpAddress;
+  }
+
+  /**
+   * Returns the host's fully qualified domain name.
+   */
+  public @Nullable String getFullyQualifiedDomainName() {
+    return fullyQualifiedDomainName;
   }
 
   @Override
@@ -83,7 +95,8 @@ class ZergHost {
         .add("name", name)
         .add("roles", roles)
         .add("zone", zone)
-        .add("publicIp", publicIp)
+        .add("publicIpAddress", publicIpAddress)
+        .add("fullyQualifiedDomainName", fullyQualifiedDomainName)
         .toString();
   }
 
@@ -105,7 +118,7 @@ class ZergHost {
   }
 
   Object[] significantAttributes() {
-    return new Object[] { name, roles, zone, publicIp };
+    return new Object[] { name, roles, zone, publicIpAddress, fullyQualifiedDomainName };
   }
 
 }

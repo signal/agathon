@@ -1,5 +1,7 @@
 package com.brighttag.agathon.service.impl;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.ImmutableSet;
 
 import org.easymock.EasyMockSupport;
@@ -26,6 +28,8 @@ public class PerDataCenterSeedServiceTest extends EasyMockSupport {
   private static final String IP_ADDRESS_2 = "2.2.2.2";
   private static final String IP_ADDRESS_3 = "3.3.3.3";
   private static final String IP_ADDRESS_4 = "4.4.4.4";
+
+  private static final String DOMAIN_NAME_1 = "domain1.com";
 
   private CassandraRing ring;
   private PerDataCenterSeedService seedProvider;
@@ -56,6 +60,17 @@ public class PerDataCenterSeedServiceTest extends EasyMockSupport {
   }
 
   @Test
+  public void getSeeds_returnsFullyQualifiedDomainNameIfAvailable() {
+    CassandraInstance instance1 = buildInstance(DATACENTER1, IP_ADDRESS_1, DOMAIN_NAME_1);
+    CassandraInstance instance2 = buildInstance(DATACENTER1, IP_ADDRESS_2);
+    ImmutableSet<CassandraInstance> instances = ImmutableSet.of(instance1, instance2);
+    expect(ring.getInstances()).andReturn(instances);
+    replayAll();
+
+    assertEquals(ImmutableSet.of(DOMAIN_NAME_1, IP_ADDRESS_2), seedProvider.getSeeds(ring));
+  }
+
+  @Test
   public void getSeeds_insufficientInstancesInDataCenter() {
     CassandraInstance instance1 = buildInstance(DATACENTER1, IP_ADDRESS_1);
     CassandraInstance instance2 = buildInstance(DATACENTER2, IP_ADDRESS_2);
@@ -68,10 +83,15 @@ public class PerDataCenterSeedServiceTest extends EasyMockSupport {
   }
 
   private CassandraInstance buildInstance(String dataCenter, String publicIpAddress) {
+    return buildInstance(dataCenter, publicIpAddress, null);
+  }
+
+  private CassandraInstance buildInstance(String dataCenter, String publicIp, @Nullable String fqdn) {
     return new CassandraInstance.Builder()
         .id(1)
         .dataCenter(dataCenter)
-        .publicIpAddress(publicIpAddress)
+        .publicIpAddress(publicIp)
+        .fullyQualifiedDomainName(fqdn)
         .build();
   }
 

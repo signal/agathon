@@ -15,13 +15,18 @@ public class ZergHostTest extends EasyMockSupport {
   @Test
   public void equals() {
     new EqualsTester()
-      .addEqualityGroup(new ZergHost("1.1.1.1", ImmutableList.of("myrole"), "us-east-1a", "1.2.3.4"),
-          new ZergHost("1.1.1.1", ImmutableList.of("myrole"), "us-east-1a", "1.2.3.4"))
-      .addEqualityGroup(new ZergHost("2.2.2.2", ImmutableList.of("myrole"), "us-east-1a", "1.2.3.4"))
-      .addEqualityGroup(new ZergHost("1.1.1.1", ImmutableList.of("jellyr"), "us-east-1a", "1.2.3.4"))
-      .addEqualityGroup(new ZergHost("1.1.1.1", ImmutableList.of("myrole"), "eu-west-2c", "1.2.3.4"))
-      .addEqualityGroup(new ZergHost("1.1.1.1", ImmutableList.of("myrole"), "us-east-1a", "9.9.9.9"))
+      .addEqualityGroup(host("1.1.1.1", "us-east-1a", "1.2.3.4", "domain1", "myrole"),
+          host("1.1.1.1", "us-east-1a", "1.2.3.4", "domain1", "myrole"))
+      .addEqualityGroup(host("2.2.2.2", "us-east-1a", "1.2.3.4", "domain1", "myrole"))
+      .addEqualityGroup(host("1.1.1.1", "eu-west-2c", "1.2.3.4", "domain1", "myrole"))
+      .addEqualityGroup(host("1.1.1.1", "us-east-1a", "9.9.9.9", "domain1", "myrole"))
+      .addEqualityGroup(host("1.1.1.1", "us-east-1a", "1.2.3.4", "domain2", "myrole"))
+      .addEqualityGroup(host("1.1.1.1", "us-east-1a", "1.2.3.4", "domain1", "jellyr"))
       .testEquals();
+  }
+
+  private static ZergHost host(String host, String zone, String publicIp, String domain, String... roles) {
+    return new ZergHost(host, ImmutableList.copyOf(roles), zone, publicIp, domain);
   }
 
 }

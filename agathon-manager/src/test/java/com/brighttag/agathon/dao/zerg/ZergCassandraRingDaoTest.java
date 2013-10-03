@@ -104,25 +104,28 @@ public class ZergCassandraRingDaoTest extends EasyMockSupport {
 
   private static final ImmutableSet<ZergHost> HOSTS = ImmutableSet.of(
       host("tagserve01ap1", "us-northeast-1a", "54.0.1.1", "tagserve"),
-      host("cass01we2", "us-west-2a", "54.1.1.1", "cassandra", "cassandra_myring"),
-      host("cass02we2", "us-west-2b", "54.1.1.2", "cassandra", "cassandra_myring"),
-      host("cass01ea1", "us-east-1a", "54.2.1.3", "cassandra", "cassandra_myring"),
-      host("cass02ea1", "us-east-1b", "54.2.1.4", "cassandra", "cassandra_myring"),
-      host("stats01we2", "us-west-2a", "108.2.1.1", "cassandra", "cassandra_stats"),
-      host("stats01ea1", "us-east-1a", "108.2.1.2", "cassandra", "cassandra_stats"),
-      host("stats02ea1", "us-east-1b", "108.2.1.3", "cassandra", "cassandra_stats"));
+      host("cass01we2", "us-west-2a",   "54.1.1.1", "domain1", "cassandra", "cassandra_myring"),
+      host("cass02we2", "us-west-2b",   "54.1.1.2", "domain2", "cassandra", "cassandra_myring"),
+      host("cass01ea1", "us-east-1a",   "54.2.1.3", "domain3", "cassandra", "cassandra_myring"),
+      host("cass02ea1", "us-east-1b",   "54.2.1.4", "domain4", "cassandra", "cassandra_myring"),
+      host("stats01we2", "us-west-2a", "108.2.1.1", "domain5", "cassandra", "cassandra_stats"),
+      host("stats01ea1", "us-east-1a", "108.2.1.2", "domain6", "cassandra", "cassandra_stats"),
+      host("stats02ea1", "us-east-1b", "108.2.1.3", "domain7", "cassandra", "cassandra_stats"));
 
-  private static ZergHost host(String hostName, String zone, String publicIp, String... roles) {
-    return new ZergHost(hostName, ImmutableList.copyOf(roles), zone, publicIp);
+  private static ZergHost host(String hostName, String zone, String publicIp,
+      String domainName, String... roles) {
+    return new ZergHost(hostName, ImmutableList.copyOf(roles), zone, publicIp,  domainName);
   }
 
-  private static CassandraInstance instance(String name, String dataCenter, String rack, String publicIp) {
+  private static CassandraInstance instance(String name, String dataCenter, String rack,
+      String publicIp, String domainName) {
     return new CassandraInstance.Builder()
         .id(name.hashCode())
         .hostName(name)
         .dataCenter(dataCenter)
         .rack(rack)
         .publicIpAddress(publicIp)
+        .fullyQualifiedDomainName(domainName)
         .build();
   }
 
@@ -130,17 +133,17 @@ public class ZergCassandraRingDaoTest extends EasyMockSupport {
       new CassandraRing.Builder()
           .name(RING_NAME)
           .instances(ImmutableSet.of(
-              instance("cass01we2", "us-west", "2a", "54.1.1.1"),
-              instance("cass02we2", "us-west", "2b", "54.1.1.2"),
-              instance("cass01ea1", "us-east", "1a", "54.2.1.3"),
-              instance("cass02ea1", "us-east", "1b", "54.2.1.4")))
+              instance("cass01we2", "us-west", "2a", "54.1.1.1", "domain1"),
+              instance("cass02we2", "us-west", "2b", "54.1.1.2", "domain2"),
+              instance("cass01ea1", "us-east", "1a", "54.2.1.3", "domain3"),
+              instance("cass02ea1", "us-east", "1b", "54.2.1.4", "domain4")))
           .build(),
       new CassandraRing.Builder()
           .name("stats")
           .instances(ImmutableSet.of(
-              instance("stats01we2", "us-west", "2a", "108.2.1.1"),
-              instance("stats01ea1", "us-east", "1a", "108.2.1.2"),
-              instance("stats02ea1", "us-east", "1b", "108.2.1.3")))
+              instance("stats01we2", "us-west", "2a", "108.2.1.1", "domain5"),
+              instance("stats01ea1", "us-east", "1a", "108.2.1.2", "domain6"),
+              instance("stats02ea1", "us-east", "1b", "108.2.1.3", "domain7")))
           .build());
 
 }

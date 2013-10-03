@@ -5,6 +5,8 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
@@ -118,12 +120,20 @@ public class ZergConnectorImplTest extends EasyMockSupport {
   }
 
   private static final Set<ZergHost> HOSTS = ImmutableSet.of(
-      new ZergHost("tagserve01ap1", ImmutableList.of("tagserve"), "us-northeast-1a", "54.0.1.1"),
-      new ZergHost("cass01we2", ImmutableList.of("cassandra", "cassandra_myring"), "us-west-2a", "54.1.1.1"),
-      new ZergHost("stats01ea1", ImmutableList.of("cassandra", "cassandra_stats"), "us-east-1c", "54.2.1.1"),
-      new ZergHost("cass01ea1", ImmutableList.of("cassandra", "cassandra_myring"), "us-east-1a", "54.2.1.2"),
-      new ZergHost("cass02ea1", ImmutableList.of("cassandra", "cassandra_myring"), "us-east-1b", "54.2.1.3"));
+      hostWithDomain("tagserve01ap1", "us-northeast-1a", "54.0.1.1", null, "tagserve"),
+      host("cass01we2",  "us-west-2a", "54.1.1.1", "cassandra", "cassandra_myring"),
+      host("stats01ea1", "us-east-1c", "54.2.1.1", "cassandra", "cassandra_stats"),
+      host("cass01ea1",  "us-east-1a", "54.2.1.2", "cassandra", "cassandra_myring"),
+      host("cass02ea1",  "us-east-1b", "54.2.1.3", "cassandra", "cassandra_myring"));
 
+  private static ZergHost host(String host, String zone, String publicIp, String... roles) {
+    return hostWithDomain(host, zone, publicIp,  "ip-" + publicIp + "-i.bt.com", roles);
+  }
+
+  private static ZergHost hostWithDomain(String host, String zone, String publicIp,
+      @Nullable String domain, String... roles) {
+    return new ZergHost(host, ImmutableList.copyOf(roles), zone, publicIp,  domain);
+  }
   private static final String EMPTY_MANIFEST = "{}";
 
   private static final String BAD_MANIFEST = "{]";
@@ -140,6 +150,7 @@ public class ZergConnectorImplTest extends EasyMockSupport {
       "        \"tagserve\"" +
       "      ]," +
       "      \"public ip\": \"54.0.1.1\"," +
+      // No public domain on tagserve01ap1 (like a non-AWS different libcloud driver)
       "      \"id\": \"abc1\"," +
       "      \"zone\": \"us-northeast-1a\"" +
       "    }" +
@@ -153,6 +164,7 @@ public class ZergConnectorImplTest extends EasyMockSupport {
       "        \"cassandra_myring\"" +
       "      ]," +
       "      \"public ip\": \"54.1.1.1\"," +
+      "      \"public domain\": \"ip-54.1.1.1-i.bt.com\"," +
       "      \"id\": \"def2\"," +
       "      \"zone\": \"us-west-2a\"" +
       "    }" +
@@ -166,6 +178,7 @@ public class ZergConnectorImplTest extends EasyMockSupport {
       "        \"cassandra_stats\"" +
       "      ]," +
       "      \"public ip\": \"54.2.1.1\"," +
+      "      \"public domain\": \"ip-54.2.1.1-i.bt.com\"," +
       "      \"id\": \"ghi3\"," +
       "      \"zone\": \"us-east-1c\"" +
       "    }," +
@@ -176,6 +189,7 @@ public class ZergConnectorImplTest extends EasyMockSupport {
       "        \"cassandra_myring\"" +
       "      ]," +
       "      \"public ip\": \"54.2.1.2\"," +
+      "      \"public domain\": \"ip-54.2.1.2-i.bt.com\"," +
       "      \"id\": \"jkl4\"," +
       "      \"zone\": \"us-east-1a\"" +
       "    }," +
@@ -186,6 +200,7 @@ public class ZergConnectorImplTest extends EasyMockSupport {
       "        \"cassandra_myring\"" +
       "      ]," +
       "      \"public ip\": \"54.2.1.3\"," +
+      "      \"public domain\": \"ip-54.2.1.3-i.bt.com\"," +
       "      \"id\": \"mno5\"," +
       "      \"zone\": \"us-east-1b\"" +
       "    }" +

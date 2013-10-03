@@ -71,7 +71,8 @@ class ZergHosts {
           .dataCenter(m.group(1))
           .rack(m.group(2))
           .hostName(host.getName())
-          .publicIpAddress(host.getPublicIp())
+          .publicIpAddress(host.getPublicIpAddress())
+          .fullyQualifiedDomainName(host.getFullyQualifiedDomainName())
           .build();
     }
     return null;
