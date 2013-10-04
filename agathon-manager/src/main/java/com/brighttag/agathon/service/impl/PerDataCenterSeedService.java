@@ -1,15 +1,10 @@
 package com.brighttag.agathon.service.impl;
 
-import java.util.Collection;
-
-import javax.annotation.Nullable;
-
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.SetMultimap;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
@@ -33,9 +28,8 @@ public class PerDataCenterSeedService implements SeedService {
   private static final Function<CassandraInstance, String> INSTANCE_TO_SEED =
     new Function<CassandraInstance, String>() {
       @Override
-      public @Nullable String apply(@Nullable CassandraInstance instance) {
-        return (instance != null) ?
-            Objects.firstNonNull(instance.getFullyQualifiedDomainName(), instance.getPublicIpAddress()) : null;
+      public String apply(CassandraInstance instance) {
+        return Objects.firstNonNull(instance.getFullyQualifiedDomainName(), instance.getPublicIpAddress());
       }
     };
 
@@ -49,7 +43,7 @@ public class PerDataCenterSeedService implements SeedService {
   @Override
   public ImmutableSet<String> getSeeds(CassandraRing ring) {
     ImmutableSet.Builder<String> seedBuilder = ImmutableSet.builder();
-    SetMultimap<String, CassandraInstance> dataCenterToInstanceMap =
+    ImmutableSetMultimap<String, CassandraInstance> dataCenterToInstanceMap =
         buildDataCenterToInstanceMap(ring.getInstances());
 
     for (String dc : dataCenterToInstanceMap.keySet()) {
@@ -67,7 +61,7 @@ public class PerDataCenterSeedService implements SeedService {
    * @param instancesInDC a collection of instances in the data center
    * @return the public DNS names or IP addresses of the first {@code numSeeds} hosts
    */
-  private Iterable<String> getSeeds(String dataCenter, Collection<CassandraInstance> instancesInDC) {
+  private Iterable<String> getSeeds(String dataCenter, ImmutableSet<CassandraInstance> instancesInDC) {
     int size = instancesInDC.size();
     if (size < numSeeds) {
       LOG.warn("Too few seeds for data center '{}'. Continuing with {} seeds.", dataCenter, size);
@@ -76,7 +70,7 @@ public class PerDataCenterSeedService implements SeedService {
     return Iterables.transform(Iterables.limit(instancesInDC, numSeeds), INSTANCE_TO_SEED);
   }
 
-  private static SetMultimap<String, CassandraInstance> buildDataCenterToInstanceMap(
+  private static ImmutableSetMultimap<String, CassandraInstance> buildDataCenterToInstanceMap(
       ImmutableSet<CassandraInstance> instances) {
     ImmutableSetMultimap.Builder<String, CassandraInstance> dataCenterToInstanceMap =
         ImmutableSetMultimap.builder();
