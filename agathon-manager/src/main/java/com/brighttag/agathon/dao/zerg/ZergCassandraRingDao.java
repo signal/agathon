@@ -28,7 +28,7 @@ public class ZergCassandraRingDao implements CassandraRingDao {
     ImmutableSet.Builder<CassandraRing> ringBuilder = ImmutableSet.builder();
     ZergHosts hosts = ZergHosts.from(zergConnector.getHosts());
     for (String ring : hosts.rings()) {
-      ringBuilder.add(getByName(ring, hosts));
+      ringBuilder.add(buildRingFromHosts(ring, hosts));
     }
     return ringBuilder.build();
   }
@@ -39,7 +39,7 @@ public class ZergCassandraRingDao implements CassandraRingDao {
     if (!hosts.rings().contains(name)) {
       return null;
     }
-    return getByName(name, hosts);
+    return buildRingFromHosts(name, hosts);
   }
 
   @Override
@@ -52,7 +52,7 @@ public class ZergCassandraRingDao implements CassandraRingDao {
     throw new UnsupportedOperationException("Delete is not supported for " + getClass().getSimpleName());
   }
 
-  private static CassandraRing getByName(String ring, ZergHosts hosts) {
+  private static CassandraRing buildRingFromHosts(String ring, ZergHosts hosts) {
     return new CassandraRing.Builder()
         .name(ring)
         .instances(hosts.filter(ring).toCassandraInstances())

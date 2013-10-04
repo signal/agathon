@@ -21,9 +21,7 @@ import com.brighttag.agathon.model.CassandraInstance;
  *
  * For example, you can get all the CassandraInstances in the "userstats" ring:
  * <pre>
- *   Set&lt;CassandraInstances&gt; instances = ZergHosts.from(zergConnector.getHosts())
- *     .filter("userstats")
- *     .toCassandraInstances();
+ *   ZergHosts.from(zergConnector.getHosts()).filter("userstats").toCassandraInstances();
  * </pre>
  *
  * @author codyaray
