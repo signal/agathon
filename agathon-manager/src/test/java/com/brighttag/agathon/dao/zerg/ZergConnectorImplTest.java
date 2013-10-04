@@ -150,7 +150,7 @@ public class ZergConnectorImplTest extends EasyMockSupport {
       "        \"tagserve\"" +
       "      ]," +
       "      \"public ip\": \"54.0.1.1\"," +
-      // No public domain on tagserve01ap1 (like a non-AWS different libcloud driver)
+      // No fqdn on tagserve01ap1 (like a non-AWS different libcloud driver)
       "      \"id\": \"abc1\"," +
       "      \"zone\": \"us-northeast-1a\"" +
       "    }" +
@@ -164,7 +164,7 @@ public class ZergConnectorImplTest extends EasyMockSupport {
       "        \"cassandra_myring\"" +
       "      ]," +
       "      \"public ip\": \"54.1.1.1\"," +
-      "      \"public domain\": \"ip-54.1.1.1-i.bt.com\"," +
+      "      \"fqdn\": \"ip-54.1.1.1-i.bt.com\"," +
       "      \"id\": \"def2\"," +
       "      \"zone\": \"us-west-2a\"" +
       "    }" +
@@ -178,7 +178,7 @@ public class ZergConnectorImplTest extends EasyMockSupport {
       "        \"cassandra_stats\"" +
       "      ]," +
       "      \"public ip\": \"54.2.1.1\"," +
-      "      \"public domain\": \"ip-54.2.1.1-i.bt.com\"," +
+      "      \"fqdn\": \"ip-54.2.1.1-i.bt.com\"," +
       "      \"id\": \"ghi3\"," +
       "      \"zone\": \"us-east-1c\"" +
       "    }," +
@@ -189,7 +189,7 @@ public class ZergConnectorImplTest extends EasyMockSupport {
       "        \"cassandra_myring\"" +
       "      ]," +
       "      \"public ip\": \"54.2.1.2\"," +
-      "      \"public domain\": \"ip-54.2.1.2-i.bt.com\"," +
+      "      \"fqdn\": \"ip-54.2.1.2-i.bt.com\"," +
       "      \"id\": \"jkl4\"," +
       "      \"zone\": \"us-east-1a\"" +
       "    }," +
@@ -200,7 +200,7 @@ public class ZergConnectorImplTest extends EasyMockSupport {
       "        \"cassandra_myring\"" +
       "      ]," +
       "      \"public ip\": \"54.2.1.3\"," +
-      "      \"public domain\": \"ip-54.2.1.3-i.bt.com\"," +
+      "      \"fqdn\": \"ip-54.2.1.3-i.bt.com\"," +
       "      \"id\": \"mno5\"," +
       "      \"zone\": \"us-east-1b\"" +
       "    }" +
