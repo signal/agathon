@@ -1,6 +1,7 @@
 package com.brighttag.agathon.dao.zerg;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,7 +22,15 @@ import com.brighttag.agathon.model.CassandraInstance;
  *
  * For example, you can get all the CassandraInstances in the "userstats" ring:
  * <pre>
- *   ZergHosts.from(zergConnector.getHosts()).filter("userstats").toCassandraInstances();
+ *   ZergHosts.from(zergConnector.getHosts()).filterRing("userstats").toCassandraInstances();
+ * </pre>
+ *
+ * To find the "userstats" ring in the "us-east-1" region when there's a ring per region:
+ * <pre>
+ *   ZergHosts.from(zergConnector.getHosts())
+ *     .filterRing("userstats")
+ *     .filterRegion("us-east-1")
+ *     .toCassandraInstances();
  * </pre>
  *
  * @author codyaray
@@ -96,7 +105,7 @@ class ZergHosts {
    *
    * @param ring the desired ring
    */
-  public ZergHosts filter(final String ring) {
+  public ZergHosts filterRing(final String ring) {
     return from(FluentIterable.from(hosts).filter(new Predicate<ZergHost>() {
       @Override
       public boolean apply(ZergHost host) {
@@ -104,6 +113,37 @@ class ZergHosts {
       }
     })
     .toSet());
+  }
+
+  /**
+   * Returns the elements of this set that are in the {@code region}.
+   *
+   * @param region the desired region
+   */
+  public ZergHosts filterRegion(final String region) {
+    return from(FluentIterable.from(hosts).filter(new Predicate<ZergHost>() {
+      @Override
+      public boolean apply(ZergHost host) {
+        return host.getZone().startsWith(region);
+      }
+    })
+    .toSet());
+  }
+
+  /**
+   * Returns the elements of this set that are in the {@code ring} and have the right scope
+   * (either scoped to the {@code region} or environment as defined by {@code ringScopes}).
+   *
+   * @param ringScopes map of ring names to scopes (one of "environment" or "region")
+   * @param region the desired region
+   * @param ring the desired ring
+   */
+  public ZergHosts filterScope(Map<String, String> ringScopes, String region, String ring) {
+    ZergHosts hosts = filterRing(ring);
+    if ("region".equals(ringScopes.get(ring))) {
+      hosts = hosts.filterRegion(region);
+    }
+    return hosts;
   }
 
   /**

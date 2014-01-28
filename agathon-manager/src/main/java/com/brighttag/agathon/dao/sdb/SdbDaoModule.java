@@ -34,7 +34,7 @@ public class SdbDaoModule extends PrivateModule {
 
   // Configuration options
   static final String DOMAIN_NAMESPACE_PROPERTY =
-      "com.brighttag.agathon.database.sdb.domain_namespace";
+      "com.brighttag.agathon.dao.sdb.domain_namespace";
 
   // Internal bindings and constants
   static final String RINGS_PROPERTY = "com.brighttag.agathon.cassandra.rings";

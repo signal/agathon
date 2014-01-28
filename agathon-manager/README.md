@@ -23,9 +23,13 @@ Configuration is currently done through system properties.
 ### Optional Properties
 
 * `com.brighttag.agathon.database`: the database used for storing Cassandra instance records; one of 
-   `sdb` (SimpleDB), `memory` (in-memory store); defaults to `sdb`.
-* `com.brighttag.agathon.database.sdb.domain_name`: the name of the SimpleDB domain storing Cassandra instance records.
-   Required for SimpleDB. Different for different environments.
+   `sdb` (SimpleDB), `memory` (in-memory store), 'zerg' (BrightTag's Ops Center); defaults to `sdb`.
+* `com.brighttag.agathon.dao.sdb.domain_name`: the name of the SimpleDB domain storing Cassandra instance records.
+   Required for SimpleDB. If using production AWS account, **must use non-production value for testing environments**.
+* `com.brighttag.agathon.dao.zerg.region`: the current region in which Agathon is deployed (e.g., "us-east-1"). Required for Zerg support.
+* `com.brighttag.agathon.dao.zerg.ring_scope_file`: location of file defining the Cassandra rings and their scope (environment or region).
+   Required for Zerg support.
+* `com.brighttag.agathon.dao.zerg.manifest_url`: the url to retrieve the Zerg manifest; defaults to `http://localhost:9374/manifest/environment/prod/`.
 * `com.brighttag.agathon.seeds.per_datacenter`: the number of seeds per data center returned to the  `AgathonSeedProvider`; defaults to `2`.
 * `com.brighttag.agathon.aws.access_key`: your Amazon Web Service Access Key. Required for AWS support (e.g., for SimpleDB or EC2 Security Group Management).
 * `com.brighttag.agathon.aws.secret_key`: your Amazon Web Service Secret Key. Required for AWS support (e.g., for SimpleDB or EC2 Security Group Management).

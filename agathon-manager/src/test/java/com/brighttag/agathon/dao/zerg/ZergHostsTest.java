@@ -66,19 +66,19 @@ public class ZergHostsTest {
 
   @Test
   public void filter() {
-    assertEquals(ImmutableSet.of(HOST1, HOST3), ZergHosts.from(HOSTS).filter("ring1").toSet());
-    assertEquals(ImmutableSet.of(HOST2, HOST3), ZergHosts.from(HOSTS).filter("ring2").toSet());
-    assertEquals(ImmutableSet.of(HOST3), ZergHosts.from(HOSTS).filter("ring3").toSet());
+    assertEquals(ImmutableSet.of(HOST1, HOST3), ZergHosts.from(HOSTS).filterRing("ring1").toSet());
+    assertEquals(ImmutableSet.of(HOST2, HOST3), ZergHosts.from(HOSTS).filterRing("ring2").toSet());
+    assertEquals(ImmutableSet.of(HOST3), ZergHosts.from(HOSTS).filterRing("ring3").toSet());
   }
 
   @Test
   public void filter_unknownRing() {
-    assertEquals(ImmutableSet.of(), ZergHosts.from(HOSTS).filter("whatsthis").toSet());
+    assertEquals(ImmutableSet.of(), ZergHosts.from(HOSTS).filterRing("whatsthis").toSet());
   }
 
   @Test
   public void filter_noHosts() {
-    assertEquals(ImmutableSet.of(), ZergHosts.from(ImmutableSet.<ZergHost>of()).filter("ring1").toSet());
+    assertEquals(ImmutableSet.of(), ZergHosts.from(ImmutableSet.<ZergHost>of()).filterRing("ring1").toSet());
   }
 
   @Test

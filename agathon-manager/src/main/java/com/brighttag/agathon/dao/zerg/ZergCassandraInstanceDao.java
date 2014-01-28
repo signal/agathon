@@ -1,9 +1,13 @@
 package com.brighttag.agathon.dao.zerg;
 
+import java.util.Map;
+
 import javax.annotation.Nullable;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
 import com.brighttag.agathon.dao.BackingStoreException;
 import com.brighttag.agathon.dao.CassandraInstanceDao;
@@ -28,20 +32,26 @@ import com.brighttag.agathon.model.CassandraInstance;
 public class ZergCassandraInstanceDao implements CassandraInstanceDao {
 
   private final ZergConnector zergConnector;
+  private final String currentRegion;
+  private final ImmutableMap<String, String> ringScopes;
 
   @Inject
-  public ZergCassandraInstanceDao(ZergConnector zergConnector) {
+  public ZergCassandraInstanceDao(ZergConnector zergConnector,
+      @Named(ZergDaoModule.ZERG_REGION_PROPERTY) String currentRegion,
+      @Named(ZergDaoModule.ZERG_RING_SCOPES_PROPERTY) Map<String, String> ringScopes) {
     this.zergConnector = zergConnector;
+    this.currentRegion = currentRegion;
+    this.ringScopes = ImmutableMap.copyOf(ringScopes);
   }
 
   @Override
   public ImmutableSet<CassandraInstance> findAll(String ring) throws BackingStoreException {
-    return ZergHosts.from(zergConnector.getHosts()).filter(ring).toCassandraInstances();
+    return getHosts(ring).toCassandraInstances();
   }
 
   @Override
   public @Nullable CassandraInstance findById(String ring, int id) throws BackingStoreException {
-    for (ZergHost host : ZergHosts.from(zergConnector.getHosts()).filter(ring).toSet()) {
+    for (ZergHost host : getHosts(ring).toSet()) {
       if (id == host.getId()) {
         return ZergHosts.toCassandraInstance(host);
       }
@@ -57,6 +67,10 @@ public class ZergCassandraInstanceDao implements CassandraInstanceDao {
   @Override
   public void delete(String ring, CassandraInstance instance) {
     throw new UnsupportedOperationException("Delete is not supported for " + getClass().getSimpleName());
+  }
+
+  private ZergHosts getHosts(String ring) throws BackingStoreException {
+    return ZergHosts.from(zergConnector.getHosts()).filterScope(ringScopes, currentRegion, ring);
   }
 
 }

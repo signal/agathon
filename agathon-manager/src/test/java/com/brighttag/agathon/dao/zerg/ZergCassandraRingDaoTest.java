@@ -1,9 +1,11 @@
 package com.brighttag.agathon.dao.zerg;
 
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 import org.easymock.EasyMockSupport;
@@ -24,7 +26,11 @@ import static org.junit.Assert.assertNull;
  */
 public class ZergCassandraRingDaoTest extends EasyMockSupport {
 
-  private static final String RING_NAME = "myring";
+  private static final String BIG_RING = "bigring";
+  private static final String SMALL_RING = "smallring";
+  private static final String MY_REGION = "us-east-1";
+  private static final Map<String, String> SCOPE_MAP =
+      ImmutableMap.of(BIG_RING, "environment", SMALL_RING, "region");
 
   private ZergConnector zergConnector;
   private ZergCassandraRingDao dao;
@@ -32,7 +38,7 @@ public class ZergCassandraRingDaoTest extends EasyMockSupport {
   @Before
   public void setupMocks() {
     zergConnector = createMock(ZergConnector.class);
-    dao = new ZergCassandraRingDao(zergConnector);
+    dao = new ZergCassandraRingDao(zergConnector, MY_REGION, SCOPE_MAP);
   }
 
   @Test
@@ -65,7 +71,7 @@ public class ZergCassandraRingDaoTest extends EasyMockSupport {
     replayAll();
 
     Iterator<CassandraRing> iterator = RINGS.iterator();
-    assertEquals(iterator.next(), dao.findByName(RING_NAME));
+    assertEquals(iterator.next(), dao.findByName(BIG_RING));
   }
 
   @Test
@@ -81,7 +87,7 @@ public class ZergCassandraRingDaoTest extends EasyMockSupport {
     expect(zergConnector.getHosts()).andReturn(ImmutableSet.<ZergHost>of());
     replayAll();
 
-    assertNull(dao.findByName(RING_NAME));
+    assertNull(dao.findByName(BIG_RING));
   }
 
   @Test(expected = BackingStoreException.class)
@@ -89,7 +95,7 @@ public class ZergCassandraRingDaoTest extends EasyMockSupport {
     expect(zergConnector.getHosts()).andThrow(new BackingStoreException());
     replayAll();
 
-    dao.findByName(RING_NAME);
+    dao.findByName(BIG_RING);
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -104,13 +110,13 @@ public class ZergCassandraRingDaoTest extends EasyMockSupport {
 
   private static final ImmutableSet<ZergHost> HOSTS = ImmutableSet.of(
       host("tagserve01ap1", "us-northeast-1a", "54.0.1.1", "tagserve"),
-      host("cass01we2", "us-west-2a",   "54.1.1.1", "domain1", "cassandra", "cassandra_myring"),
-      host("cass02we2", "us-west-2b",   "54.1.1.2", "domain2", "cassandra", "cassandra_myring"),
-      host("cass01ea1", "us-east-1a",   "54.2.1.3", "domain3", "cassandra", "cassandra_myring"),
-      host("cass02ea1", "us-east-1b",   "54.2.1.4", "domain4", "cassandra", "cassandra_myring"),
-      host("stats01we2", "us-west-2a", "108.2.1.1", "domain5", "cassandra", "cassandra_stats"),
-      host("stats01ea1", "us-east-1a", "108.2.1.2", "domain6", "cassandra", "cassandra_stats"),
-      host("stats02ea1", "us-east-1b", "108.2.1.3", "domain7", "cassandra", "cassandra_stats"));
+      host("cass01we2", "us-west-2a",   "54.1.1.1", "domain1", "cassandra", "cassandra_bigring"),
+      host("cass02we2", "us-west-2b",   "54.1.1.2", "domain2", "cassandra", "cassandra_bigring"),
+      host("cass01ea1", "us-east-1a",   "54.2.1.3", "domain3", "cassandra", "cassandra_bigring"),
+      host("cass02ea1", "us-east-1b",   "54.2.1.4", "domain4", "cassandra", "cassandra_bigring"),
+      host("stats01we2", "us-west-2a", "108.2.1.1", "domain5", "cassandra", "cassandra_smallring"),
+      host("stats01ea1", "us-east-1a", "108.2.1.2", "domain6", "cassandra", "cassandra_smallring"),
+      host("stats02ea1", "us-east-1b", "108.2.1.3", "domain7", "cassandra", "cassandra_smallring"));
 
   private static ZergHost host(String hostName, String zone, String publicIp,
       String domainName, String... roles) {
@@ -131,7 +137,7 @@ public class ZergCassandraRingDaoTest extends EasyMockSupport {
 
   private static final Set<CassandraRing> RINGS = ImmutableSet.of(
       new CassandraRing.Builder()
-          .name(RING_NAME)
+          .name(BIG_RING)
           .instances(ImmutableSet.of(
               instance("cass01we2", "us-west", "2a", "54.1.1.1", "domain1"),
               instance("cass02we2", "us-west", "2b", "54.1.1.2", "domain2"),
@@ -139,9 +145,8 @@ public class ZergCassandraRingDaoTest extends EasyMockSupport {
               instance("cass02ea1", "us-east", "1b", "54.2.1.4", "domain4")))
           .build(),
       new CassandraRing.Builder()
-          .name("stats")
+          .name(SMALL_RING)
           .instances(ImmutableSet.of(
-              instance("stats01we2", "us-west", "2a", "108.2.1.1", "domain5"),
               instance("stats01ea1", "us-east", "1a", "108.2.1.2", "domain6"),
               instance("stats02ea1", "us-east", "1b", "108.2.1.3", "domain7")))
           .build());
