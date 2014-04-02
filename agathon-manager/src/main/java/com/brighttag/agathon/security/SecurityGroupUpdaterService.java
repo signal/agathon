@@ -17,6 +17,7 @@ import com.google.inject.name.Named;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.brighttag.agathon.jmx.ScheduledServiceMBean;
 import com.brighttag.agathon.model.CassandraInstance;
 import com.brighttag.agathon.model.CassandraRing;
 import com.brighttag.agathon.service.CassandraRingService;
@@ -29,7 +30,7 @@ import com.brighttag.agathon.service.ServiceUnavailableException;
  * @author codyaray
  * @since 1/11/2013
  */
-public class SecurityGroupUpdaterService extends AbstractScheduledService {
+public class SecurityGroupUpdaterService extends AbstractScheduledService implements ScheduledServiceMBean {
 
   private static final Logger LOG = LoggerFactory.getLogger(SecurityGroupUpdaterService.class);
 
