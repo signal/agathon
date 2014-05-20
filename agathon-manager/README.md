@@ -1,43 +1,49 @@
-# Agathon - Cassandra Management
+# Agathon Management Service
 
-Automated Cassandra operations and management. Heavily inspired by Netflix's Priam.
+Centralized web service used for managing your Cassandra configuration.
 
 ## Install
 
 1. Build the code with Maven: `mvn clean install`
-2. Copy `target/agathon.jar` into your `$CASS_HOME/lib` directory.
-3. Deploy `target/agathon.war` into your favorite J2EE container, such as JBoss or Tomcat.
+2. Deploy `target/agathon-manager.war` into your favorite J2EE container, such as JBoss or Tomcat.
 
-## Cassandra Configuration
-
-Set the `seed_provider` property in `cassandra.yaml` to `com.brighttag.agathon.cassandra.AgathonSeedProvider`. Any parameters are ignored.
-
-### Optional Properties
-
-* `com.brighttag.agathon.seeds_url`: the URL to get Cassandra seeds as a comma-separated list; defaults to `http://localhost:8094/seeds`
-
-## Agathon Configuration
+## Configuration
 
 Configuration is currently done through system properties.
 
-### Optional Properties
+### Basic Configuration
 
 * `com.brighttag.agathon.database`: the database used for storing Cassandra instance records; one of 
    `sdb` (SimpleDB), `memory` (in-memory store), 'zerg' (BrightTag's Ops Center); defaults to `sdb`.
-* `com.brighttag.agathon.dao.sdb.domain_name`: the name of the SimpleDB domain storing Cassandra instance records.
-   Required for SimpleDB. If using production AWS account, **must use non-production value for testing environments**.
-* `com.brighttag.agathon.dao.zerg.region`: the current region in which Agathon is deployed (e.g., "us-east-1"). Required for Zerg support.
-* `com.brighttag.agathon.dao.zerg.ring_scope_file`: location of file defining the Cassandra rings and their scope (environment or region).
-   Required for Zerg support.
-* `com.brighttag.agathon.dao.zerg.manifest_url`: the url to retrieve the Zerg manifest; defaults to `http://localhost:9374/manifest/environment/prod/`.
+
+### Seed Provider Configuration
+
 * `com.brighttag.agathon.seeds.per_datacenter`: the number of seeds per data center returned to the  `AgathonSeedProvider`; defaults to `2`.
-* `com.brighttag.agathon.aws.access_key`: your Amazon Web Service Access Key. Required for AWS support (e.g., for SimpleDB or EC2 Security Group Management).
-* `com.brighttag.agathon.aws.secret_key`: your Amazon Web Service Secret Key. Required for AWS support (e.g., for SimpleDB or EC2 Security Group Management).
+
+### Security Group Management Configuration
 * `com.brighttag.agathon.security.group_management_enabled`: set to `true` to enable task that updates a security group with current ring members.
 * `com.brighttag.agathon.security.group_name_prefix`: prefix for Agathon/Cassandra security group. Required for
    Security Group Management. If using production AWS account, **must use non-production value for testing**.
 * `com.brighttag.agathon.security.group_update_frequency_seconds`: frequency at which security group updates are applied.
 * `com.brighttag.agathon.cassandra.gossip_port`: Cassandra gossip port, used to create ingress rules for security group updates.
+
+### Provider-Specific Options
+
+#### SimpleDB Backend
+* `com.brighttag.agathon.dao.sdb.domain_name`: the name of the SimpleDB domain storing Cassandra instance records.
+   Required for SimpleDB. If using production AWS account, **must use non-production value for testing environments**.
+
+#### Zerg Backend
+* `com.brighttag.agathon.dao.zerg.region`: the current region in which Agathon is deployed (e.g., "us-east-1"). Required for Zerg support.
+* `com.brighttag.agathon.dao.zerg.ring_scope_file`: location of file defining the Cassandra rings and their scope (environment or region).
+   Required for Zerg support.
+* `com.brighttag.agathon.dao.zerg.manifest_url`: the url to retrieve the Zerg manifest; defaults to `http://localhost:9374/manifest/environment/prod/`.
+
+#### AWS Credentials
+* `com.brighttag.agathon.aws.access_key`: your Amazon Web Service Access Key. Required for AWS support (e.g., for SimpleDB or EC2 Security Group Management).
+* `com.brighttag.agathon.aws.secret_key`: your Amazon Web Service Secret Key. Required for AWS support (e.g., for SimpleDB or EC2 Security Group Management).
+
+(Zerg is BrightTag's internal ops center. Zerg is not yet open-sourced... but hopefully it will be someday. :)
 
 ## Usage
 
@@ -55,6 +61,10 @@ Instead of specifying all the instances during ring creation, you can add instan
     curl -H "Content-Type: application/json" "http://localhost:8094/ring/UserStats/instances" -d \
       '{"id":"2","datacenter":"us-west","rack":"1a","hostname":"cass01we1","publicIpAddress":"2.2.2.2"}'
 
+Although you can manually maintain a record of your instances using the SimpleDB backend, if you already have a manifest of all
+instances (e.g., using a cloud provider's API), it is recommended that you extend Agathon with a provider for your backend.
+This will save you a lot of headache of manually maintaining this SimpleDB database.
+
 ## REST API
 
 ### Cassandra Configuration
@@ -69,7 +79,7 @@ The server will reply with a comma-separated set of seed hosts.
 
     cass02ea1,cass01we1,cass02we1
 
-### Cassandra Record Management
+### Cassandra Manifest Management
 
 All endpoints consume and produce `application/json`. The `Accept` and `Content-Type` headers must
 be set appropriately. Agathon exposes two Cassandra object records: rings and instances.
@@ -220,7 +230,7 @@ If you would like to run integration tests against an `agathon` running on some 
 Simply define the `AGATHON_HOST` environment variable before running `rake test`. For instance, you could point
 at a development environment by running the following:
 
-    > AGATHON_HOST="http://cass01.dev.thebrighttag.com" \
+    > AGATHON_HOST="http://cass01.dev.myhost.com" \
       rake test
 
 It's that easy!
