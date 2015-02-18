@@ -17,12 +17,15 @@
 package com.brighttag.agathon.dao.zerg;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import javax.annotation.Nullable;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
@@ -53,7 +56,9 @@ public class ZergConnectorImplTest extends EasyMockSupport {
   @Before
   public void setupMocks() {
     client = createMock(AsyncHttpClient.class);
-    connector = new ZergConnectorImpl(client, new Gson(), "/path");
+    LoadingCache<String, Map<String, Map<String, ZergHost>>> cache =
+        CacheBuilder.newBuilder().build(new ZergConnectorImpl.ZergLoader(client, new Gson()));
+    connector = new ZergConnectorImpl("/path", cache);
   }
 
   @Test

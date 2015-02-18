@@ -19,8 +19,11 @@ package com.brighttag.agathon.dao.zerg;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import com.google.common.base.Charsets;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.LoadingCache;
 import com.google.common.io.Files;
 import com.google.common.primitives.Ints;
 import com.google.gson.Gson;
@@ -60,6 +63,7 @@ public class ZergDaoModule extends PrivateModule {
   static final String ZERG_MANIFEST_URL_PROPERTY = ZERG_PREFIX + "manifest_url";
   static final String ZERG_CONNECTION_TIMEOUT_PROPERTY = ZERG_PREFIX + "connection_timeout";
   static final String ZERG_REQUEST_TIMEOUT_PROPERTY = ZERG_PREFIX + "request_timeout";
+  static final String ZERG_CACHE_TIMEOUT_PROPERTY = ZERG_PREFIX + "cache_timeout";
   static final String ZERG_MANIFEST_URL_DEFAULT = "http://localhost:9374/manifest/environment/prod/";
 
   @Override
@@ -76,11 +80,22 @@ public class ZergDaoModule extends PrivateModule {
         .toInstance(Duration.standardSeconds(Long.getLong(ZERG_REQUEST_TIMEOUT_PROPERTY, 20)));
     bind(Duration.class).annotatedWith(Names.named(ZERG_CONNECTION_TIMEOUT_PROPERTY))
         .toInstance(Duration.standardSeconds(Long.getLong(ZERG_CONNECTION_TIMEOUT_PROPERTY, 20)));
+    bind(Duration.class).annotatedWith(Names.named(ZERG_CACHE_TIMEOUT_PROPERTY))
+        .toInstance(Duration.standardMinutes(Long.getLong(ZERG_CACHE_TIMEOUT_PROPERTY, 5)));
     bind(ZergConnector.class).to(ZergConnectorImpl.class).in(Singleton.class);
     bind(CassandraRingDao.class).to(ZergCassandraRingDao.class).in(Singleton.class);
     bind(CassandraInstanceDao.class).to(ZergCassandraInstanceDao.class).in(Singleton.class);
     expose(CassandraRingDao.class);
     expose(CassandraInstanceDao.class);
+  }
+
+  @Provides @Singleton
+  LoadingCache<String, Map<String, Map<String, ZergHost>>> provideZergLoadingCache(
+      ZergConnectorImpl.ZergLoader loader,
+      @Named(ZERG_CACHE_TIMEOUT_PROPERTY) Duration cacheTimeout) {
+    return CacheBuilder.newBuilder()
+        .refreshAfterWrite(cacheTimeout.getStandardSeconds(), TimeUnit.SECONDS)
+        .build(loader);
   }
 
   @Provides @Singleton
