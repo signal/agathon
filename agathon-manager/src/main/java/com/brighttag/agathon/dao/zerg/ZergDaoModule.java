@@ -90,12 +90,10 @@ public class ZergDaoModule extends PrivateModule {
   }
 
   @Provides @Singleton
-  LoadingCache<String, Map<String, Map<String, ZergHost>>> provideZergLoadingCache(
-      ZergConnectorImpl.ZergLoader loader,
+  CacheBuilder<Object, Object> provideZergLoadingCache(
       @Named(ZERG_CACHE_TIMEOUT_PROPERTY) Duration cacheTimeout) {
     return CacheBuilder.newBuilder()
-        .refreshAfterWrite(cacheTimeout.getStandardSeconds(), TimeUnit.SECONDS)
-        .build(loader);
+        .refreshAfterWrite(cacheTimeout.getStandardSeconds(), TimeUnit.SECONDS);
   }
 
   @Provides @Singleton

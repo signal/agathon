@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import com.google.common.base.Throwables;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
@@ -51,9 +52,9 @@ class ZergConnectorImpl implements ZergConnector {
 
   @Inject
   public ZergConnectorImpl(@Named(ZergDaoModule.ZERG_MANIFEST_URL_PROPERTY) String manifestUrl,
-      LoadingCache<String, Map<String, Map<String, ZergHost>>> regionsCache) {
+      CacheBuilder<Object, Object> regionsCache, ZergConnectorImpl.ZergLoader loader) {
     this.manifestUrl = manifestUrl;
-    this.regionsCache = regionsCache;
+    this.regionsCache = regionsCache.build(loader);
   }
 
   @Override
