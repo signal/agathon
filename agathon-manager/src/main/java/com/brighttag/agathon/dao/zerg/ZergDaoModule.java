@@ -81,7 +81,7 @@ public class ZergDaoModule extends PrivateModule {
     bind(Duration.class).annotatedWith(Names.named(ZERG_CONNECTION_TIMEOUT_PROPERTY))
         .toInstance(Duration.standardSeconds(Long.getLong(ZERG_CONNECTION_TIMEOUT_PROPERTY, 20)));
     bind(Duration.class).annotatedWith(Names.named(ZERG_CACHE_TIMEOUT_PROPERTY))
-        .toInstance(Duration.standardMinutes(Long.getLong(ZERG_CACHE_TIMEOUT_PROPERTY, 5)));
+        .toInstance(Duration.standardMinutes(Long.getLong(ZERG_CACHE_TIMEOUT_PROPERTY, 1)));
     bind(ZergConnector.class).to(ZergConnectorImpl.class).in(Singleton.class);
     bind(CassandraRingDao.class).to(ZergCassandraRingDao.class).in(Singleton.class);
     bind(CassandraInstanceDao.class).to(ZergCassandraInstanceDao.class).in(Singleton.class);

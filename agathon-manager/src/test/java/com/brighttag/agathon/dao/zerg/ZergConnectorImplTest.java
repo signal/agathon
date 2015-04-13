@@ -17,16 +17,14 @@
 package com.brighttag.agathon.dao.zerg;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeoutException;
 
 import javax.annotation.Nullable;
 
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
@@ -35,14 +33,18 @@ import com.ning.http.client.AsyncHttpClient.BoundRequestBuilder;
 import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.Response;
 
+import org.easymock.Capture;
 import org.easymock.EasyMockSupport;
+import org.easymock.IAnswer;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import com.brighttag.agathon.dao.BackingStoreException;
 
+import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -134,9 +136,18 @@ public class ZergConnectorImplTest extends EasyMockSupport {
   @SuppressWarnings("unchecked")
   private ListenableFuture<Response> expectZergCall() throws Exception {
     BoundRequestBuilder requestBuilder = createMock(BoundRequestBuilder.class);
-    ListenableFuture<Response> future = createMock(ListenableFuture.class);
+    final com.ning.http.client.ListenableFuture<Response> future = createMock(com.ning.http.client.ListenableFuture.class);
     expect(client.prepareGet("/path")).andReturn(requestBuilder);
     expect(requestBuilder.execute()).andReturn(future);
+    final Capture<Runnable> chainingListenableFutureCapture = new Capture<Runnable>();
+    expect(future.addListener(capture(chainingListenableFutureCapture), isA(Executor.class))).andStubAnswer(new IAnswer<ListenableFuture<Response>>() {
+      @Override
+      public ListenableFuture<Response> answer() throws Throwable {
+        // Invoking this ChainingListenableFuture is necessary or the tests will hang.
+        chainingListenableFutureCapture.getValue().run();
+        return future;
+      }
+    });
     return future;
   }
 

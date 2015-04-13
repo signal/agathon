@@ -30,6 +30,7 @@ import com.google.common.util.concurrent.AbstractScheduledService;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
+import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +55,7 @@ public class SecurityGroupUpdaterService extends AbstractScheduledService implem
   private final SecurityGroupService securityGroupService;
   private final Function<CassandraInstance, String> dataCenterTransformFunction;
   private final int listenPort;
-  private final int updatePeriod;
+  private final Duration updatePeriod;
   private final String securityGroupNamePrefix;
 
   @Inject
@@ -64,7 +65,7 @@ public class SecurityGroupUpdaterService extends AbstractScheduledService implem
       @Named(SecurityGroupModule.SECURITY_GROUP_DATACENTERS_PROPERTY)
           Function<CassandraInstance, String> dataCenterTransformFunction,
       @Named(SecurityGroupModule.CASSANDRA_GOSSIP_PORT_PROPERTY) int listenPort,
-      @Named(SecurityGroupModule.SECURITY_GROUP_UPDATE_PERIOD_PROPERTY) int updatePeriod,
+      @Named(SecurityGroupModule.SECURITY_GROUP_UPDATE_PERIOD_PROPERTY) Duration updatePeriod,
       @Named(SecurityGroupModule.SECURITY_GROUP_NAME_PREFIX_PROPERTY) String securityGroupNamePrefix) {
     this.cassandraRingService = cassandraRingService;
     this.securityGroupService = securityGroupService;
@@ -91,7 +92,7 @@ public class SecurityGroupUpdaterService extends AbstractScheduledService implem
 
   @Override
   protected Scheduler scheduler() {
-    return Scheduler.newFixedRateSchedule(0, updatePeriod, TimeUnit.SECONDS);
+    return Scheduler.newFixedRateSchedule(0, updatePeriod.getStandardSeconds(), TimeUnit.SECONDS);
   }
 
   /**

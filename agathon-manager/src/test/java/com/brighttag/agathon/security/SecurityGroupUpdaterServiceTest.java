@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import org.easymock.EasyMockSupport;
+import org.joda.time.Duration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -221,7 +222,7 @@ public class SecurityGroupUpdaterServiceTest extends EasyMockSupport {
 
   private SecurityGroupUpdaterService service() {
     return new SecurityGroupUpdaterService(cassandraRingService, securityGroupService,
-        ASSIGNED_DATA_CENTER, 7000, 60, "cassandra_");
+        ASSIGNED_DATA_CENTER, 7000, Duration.standardSeconds(60), "cassandra_");
   }
 
   private CassandraRing ringWithInstances(CassandraInstance... instances) {

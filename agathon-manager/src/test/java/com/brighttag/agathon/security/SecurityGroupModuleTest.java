@@ -23,6 +23,7 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 
 import org.easymock.EasyMockSupport;
+import org.joda.time.Duration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,7 +54,7 @@ public class SecurityGroupModuleTest extends EasyMockSupport {
     System.setProperty(SecurityGroupModule.SECURITY_GROUP_MANAGEMENT_ENABLED_PROPERTY, "true");
     new ModuleTester(new SecurityGroupModule())
         .dependsOn(CassandraRingService.class, createMock(CassandraRingService.class))
-        .exposes(Key.get(Integer.class,
+        .exposes(Key.get(Duration.class,
             Names.named(SecurityGroupModule.SECURITY_GROUP_UPDATE_PERIOD_PROPERTY)))
         .exposes(Key.get(String.class,
             Names.named(SecurityGroupModule.SECURITY_GROUP_NAME_PREFIX_PROPERTY)))

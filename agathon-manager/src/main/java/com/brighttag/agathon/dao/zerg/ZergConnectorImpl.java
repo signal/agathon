@@ -19,19 +19,29 @@ package com.brighttag.agathon.dao.zerg;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
 
+import javax.annotation.Nonnull;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.util.concurrent.ForwardingFuture;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.inject.Inject;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;
 import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,32 +103,80 @@ class ZergConnectorImpl implements ZergConnector {
     }
 
     @Override
-    public Map<String, Map<String, ZergHost>> load(String manifestUrl) throws BackingStoreException {
+    public ListenableFuture<Map<String, Map<String, ZergHost>>> reload(@Nonnull String manifestUrl,
+        @Nonnull Map<String, Map<String, ZergHost>> oldValue) throws Exception {
+      return Futures.transform(execute(manifestUrl), parseResponse(manifestUrl));
+    }
+
+    @Override
+    public Map<String, Map<String, ZergHost>> load(@Nonnull String manifestUrl)
+        throws InterruptedException, BackingStoreException {
       try {
-        return gson.fromJson(execute(manifestUrl), MAP_OF_REGIONS.getType());
-      } catch (JsonSyntaxException e) {
-        LOG.warn("Received bad JSON from Zerg {}: {}", manifestUrl, e);
-        throw new BackingStoreException(e);
+        return Futures.transform(execute(manifestUrl), parseResponse(manifestUrl)).get();
+      } catch (ExecutionException e) {
+        LOG.warn("Caught exception fetching manifest from zerg {}", manifestUrl, e);
+        throw new BackingStoreException(e.getCause());
       }
     }
 
     private static final TypeLiteral<Map<String, Map<String, ZergHost>>> MAP_OF_REGIONS =
         new TypeLiteral<Map<String, Map<String, ZergHost>>>() { };
 
-    private String execute(String url) throws BackingStoreException {
+    private Function<Response, Map<String, Map<String, ZergHost>>> parseResponse(final String url) {
+      return new Function<Response, Map<String, Map<String, ZergHost>>>() {
+        @Override
+        public Map<String, Map<String, ZergHost>> apply(Response response) {
+          try {
+            return gson.fromJson(response.getResponseBody(), MAP_OF_REGIONS.getType());
+          } catch (IOException e) {
+            LOG.warn("Unable to fetch manifest from zerg url: {}", url, e);
+            throw new RuntimeException(e);
+          } catch (JsonSyntaxException e) {
+            LOG.warn("Received bad JSON from Zerg {}: {}", url, e);
+            throw new RuntimeException(e);
+          }
+        }
+      };
+    }
+
+    private ListenableFuture<Response> execute(String url) throws BackingStoreException {
       try {
-        return client.prepareGet(url).execute().get().getResponseBody();
+        return adapt(client.prepareGet(url).execute());
       } catch (IOException e) {
         LOG.warn("Unable to fetch manifest from zerg url: {}", url, e);
         throw new BackingStoreException(e);
-      } catch (InterruptedException e) {
-        LOG.warn("Interrupted while fetching manifest from zerg", e);
-        Thread.currentThread().interrupt();
-        throw new BackingStoreException(e);
-      } catch (ExecutionException e) {
-        LOG.warn("Caught exception fetching manifest from zerg {}", url, e);
-        throw new BackingStoreException(e.getCause());
       }
+    }
+  }
+
+  private static <V> ListenableFuture<V> adapt(com.ning.http.client.ListenableFuture<V> future) {
+    return new ListenableFutureAdaptor<V>(future);
+  }
+
+  /**
+   * Ning's Http Client implements its own ListenableFuture. We use Guava's.
+   * This adapter exists to translate between the two types. Sigh...
+   *
+   * @param <V> the type of the future
+   */
+  @VisibleForTesting
+  public static class ListenableFutureAdaptor<V> extends ForwardingFuture<V>
+      implements ListenableFuture<V> {
+
+    private final com.ning.http.client.ListenableFuture<V> future;
+
+    public ListenableFutureAdaptor(com.ning.http.client.ListenableFuture<V> future) {
+      this.future = future;
+    }
+
+    @Override
+    protected Future<V> delegate() {
+      return future;
+    }
+
+    @Override
+    public void addListener(@Nonnull Runnable listener, @Nonnull Executor executor) {
+      future.addListener(listener, executor);
     }
   }
 }
