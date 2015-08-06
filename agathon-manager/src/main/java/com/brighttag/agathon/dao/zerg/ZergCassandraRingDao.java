@@ -43,7 +43,7 @@ public class ZergCassandraRingDao implements CassandraRingDao {
   @Inject
   public ZergCassandraRingDao(ZergConnector zergConnector,
       @Named(ZergDaoModule.ZERG_REGION_PROPERTY) String currentRegion,
-      @Named(ZergDaoModule.ZERG_RING_SCOPES_PROPERTY) Map<String, String> ringScopes) {
+      @Named(ZergDaoModule.ZERG_CASSANDRA_RING_SCOPES) Map<String, String> ringScopes) {
     this.zergConnector = zergConnector;
     this.currentRegion = currentRegion;
     this.ringScopes = ImmutableMap.copyOf(ringScopes);

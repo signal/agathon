@@ -52,17 +52,9 @@ public class SecurityGroupModuleTest extends EasyMockSupport {
   @Test
   public void bindings_enabled() throws Exception {
     System.setProperty(SecurityGroupModule.SECURITY_GROUP_MANAGEMENT_ENABLED_PROPERTY, "true");
+    System.setProperty(SecurityGroupModule.CASSANDRA_RING_CONFIG_PROPERTY, "does.not.matter");
     new ModuleTester(new SecurityGroupModule())
         .dependsOn(CassandraRingService.class, createMock(CassandraRingService.class))
-        .exposes(Key.get(Duration.class,
-            Names.named(SecurityGroupModule.SECURITY_GROUP_UPDATE_PERIOD_PROPERTY)))
-        .exposes(Key.get(String.class,
-            Names.named(SecurityGroupModule.SECURITY_GROUP_NAME_PREFIX_PROPERTY)))
-        .exposes(Key.get(Integer.class,
-            Names.named(SecurityGroupModule.CASSANDRA_GOSSIP_PORT_PROPERTY)))
-        .exposes(Key.get(new TypeLiteral<Function<CassandraInstance, String>>() { },
-            Names.named(SecurityGroupModule.SECURITY_GROUP_DATACENTERS_PROPERTY)))
-        .exposes(SecurityGroupService.class)
         .exposes(SecurityGroupUpdaterService.class)
         .exposesMultibinding(Service.class)
         .exposesNothingElse()

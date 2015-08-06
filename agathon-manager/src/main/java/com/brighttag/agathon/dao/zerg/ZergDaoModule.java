@@ -18,21 +18,23 @@ package com.brighttag.agathon.dao.zerg;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Function;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.LoadingCache;
+import com.google.common.collect.FluentIterable;
 import com.google.common.io.Files;
 import com.google.common.primitives.Ints;
 import com.google.gson.Gson;
 import com.google.inject.PrivateModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
-import com.google.inject.util.Types;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfig;
 
@@ -57,14 +59,23 @@ public class ZergDaoModule extends PrivateModule {
 
   private static final Logger log = LoggerFactory.getLogger(ZergDaoModule.class);
 
+  // Configuration options
   static final String ZERG_PREFIX = "com.brighttag.agathon.dao.zerg.";
   static final String ZERG_REGION_PROPERTY = ZERG_PREFIX + "region";
-  static final String ZERG_RING_SCOPES_PROPERTY = ZERG_PREFIX + "ring_scope_file";
+  static final String ZERG_RING_CONFIG_PROPERTY = ZERG_PREFIX + "ring_scope_file";
   static final String ZERG_MANIFEST_URL_PROPERTY = ZERG_PREFIX + "manifest_url";
   static final String ZERG_CONNECTION_TIMEOUT_PROPERTY = ZERG_PREFIX + "connection_timeout";
   static final String ZERG_REQUEST_TIMEOUT_PROPERTY = ZERG_PREFIX + "request_timeout";
   static final String ZERG_CACHE_TIMEOUT_PROPERTY = ZERG_PREFIX + "cache_timeout";
+
+  // Internal bindings
+  static final String ZERG_CASSANDRA_RING_SCOPES = "ring_scopes";
+
+  // Default values
   static final String ZERG_MANIFEST_URL_DEFAULT = "http://localhost:9374/manifest/environment/prod/";
+
+  private static final Type RING_CONFIG_FILE_TYPE =
+      new TypeLiteral<Map<String, Map<String, String>>>() {}.getType();
 
   @Override
   protected void configure() {
@@ -73,8 +84,8 @@ public class ZergDaoModule extends PrivateModule {
         .to(System.getProperty(ZERG_MANIFEST_URL_PROPERTY, ZERG_MANIFEST_URL_DEFAULT));
     bindConstant().annotatedWith(Names.named(ZERG_REGION_PROPERTY))
         .to(checkNotNull(System.getProperty(ZERG_REGION_PROPERTY), "Zerg region not specified"));
-    bindConstant().annotatedWith(Names.named(ZERG_RING_SCOPES_PROPERTY))
-        .to(checkNotNull(System.getProperty(ZERG_RING_SCOPES_PROPERTY), "Zerg ring scopes not specified"));
+    bindConstant().annotatedWith(Names.named(ZERG_RING_CONFIG_PROPERTY))
+        .to(checkNotNull(System.getProperty(ZERG_RING_CONFIG_PROPERTY), "Zerg ring config file not specified"));
     // Yes, Zerg is THIS SLOW when the manifest isn't cached, especially in AWS.
     bind(Duration.class).annotatedWith(Names.named(ZERG_REQUEST_TIMEOUT_PROPERTY))
         .toInstance(Duration.standardSeconds(Long.getLong(ZERG_REQUEST_TIMEOUT_PROPERTY, 20)));
@@ -118,11 +129,23 @@ public class ZergDaoModule extends PrivateModule {
         .build();
   }
 
-  @Provides @Singleton @Named(ZERG_RING_SCOPES_PROPERTY)
-  Map<String, String> provideCassandraRingScopeMap(
-      @Named(ZERG_RING_SCOPES_PROPERTY) String filename, Gson gson) throws IOException {
+  @Provides @Singleton @Named(ZERG_RING_CONFIG_PROPERTY)
+  Map<String, Map<String, String>> provideCassandraRingConfigMap(
+      @Named(ZERG_RING_CONFIG_PROPERTY) String filename, Gson gson) throws IOException {
     String json = Files.toString(new File(filename), Charsets.UTF_8);
-    return gson.fromJson(json, Types.newParameterizedType(Map.class, String.class, String.class));
+    return gson.fromJson(json, RING_CONFIG_FILE_TYPE);
+  }
+
+  @Provides @Singleton @Named(ZERG_CASSANDRA_RING_SCOPES)
+  Map<String, String> provideCassandraRingScopes(
+      @Named(ZERG_RING_CONFIG_PROPERTY) final Map<String, Map<String, String>> ringConfig) {
+    return FluentIterable.from(ringConfig.keySet())
+        .toMap(new Function<String, String>() {
+          @Override
+          public String apply(String ring) {
+            return ringConfig.get(ring).get("scope");
+          }
+        });
   }
 
 }

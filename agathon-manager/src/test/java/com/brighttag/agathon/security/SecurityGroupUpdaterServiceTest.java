@@ -20,6 +20,7 @@ import java.util.Arrays;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
@@ -62,7 +63,7 @@ public class SecurityGroupUpdaterServiceTest extends EasyMockSupport {
   public void listGroupRules_noneExisting() {
     securityGroupStartingRules("dc1");
     replayAll();
-    assertEquals(ImmutableSet.of(), service().listGroupRules("cassandra_ringName", "dc1"));
+    assertEquals(ImmutableSet.<Netmask>of(), service().listGroupRules("cassandra_ringName", "dc1", 7000));
   }
 
   @Test
@@ -71,13 +72,13 @@ public class SecurityGroupUpdaterServiceTest extends EasyMockSupport {
         groupPermission(7000, "222.0.0.0/8"), groupPermission(7000, "1.1.1.1/32"));
     replayAll();
     assertEquals(Netmask.fromCidr(Arrays.asList("222.0.0.0/8", "1.1.1.1/32")),
-        service().listGroupRules("cassandra_ringName", "dc1"));
+        service().listGroupRules("cassandra_ringName", "dc1", 7000));
   }
 
   @Test
   public void requiredRulesFor_emptyList() {
     replayAll();
-    assertEquals(ImmutableSet.of(), service().requiredRulesFor(
+    assertEquals(ImmutableSet.<Netmask>of(), service().requiredRulesFor(
         ImmutableList.<CassandraInstance>of()));
   }
 
@@ -206,6 +207,24 @@ public class SecurityGroupUpdaterServiceTest extends EasyMockSupport {
   }
 
   @Test
+  public void runOneIteration_oneRingWithSslPort7001() throws Exception {
+    securityGroupStartingRules("secure", "dc1");
+    securityGroupStartingRules("secure", "dc2");
+    expect(securityGroupService.exists("cassandra_secure", "dc1")).andReturn(false);
+    expect(securityGroupService.exists("cassandra_secure", "dc2")).andReturn(false);
+    securityGroupService.create("cassandra_secure", "dc1");
+    securityGroupService.create("cassandra_secure", "dc2");
+    expect(cassandraRingService.findAll()).andReturn(ImmutableSet.of(ringWithInstances(
+        "secure", instance("1.1.1.1", "dc1"), instance("2.2.2.2", "dc2"))));
+    securityGroupService.authorizeIngressRules("cassandra_secure", "dc1",
+        groupPermission(7001, "1.1.1.1/32", "2.2.2.2/32"));
+    securityGroupService.authorizeIngressRules("cassandra_secure", "dc2",
+        groupPermission(7001, "1.1.1.1/32", "2.2.2.2/32"));
+    replayAll();
+    service().runOneIteration();
+  }
+
+  @Test
   public void runOneIteration_serviceUnavailableException() throws Exception {
     expect(cassandraRingService.findAll()).andThrow(new ServiceUnavailableException());
     replayAll();
@@ -222,7 +241,8 @@ public class SecurityGroupUpdaterServiceTest extends EasyMockSupport {
 
   private SecurityGroupUpdaterService service() {
     return new SecurityGroupUpdaterService(cassandraRingService, securityGroupService,
-        ASSIGNED_DATA_CENTER, 7000, Duration.standardSeconds(60), "cassandra_");
+        ASSIGNED_DATA_CENTER, 7000, 7001, ImmutableSet.of("secure"),
+        Duration.standardSeconds(60), "cassandra_");
   }
 
   private CassandraRing ringWithInstances(CassandraInstance... instances) {
