@@ -26,8 +26,8 @@ Configuration is currently done through system properties.
    Security Group Management. If using production AWS account, **must use non-production value for testing**.
 * `com.brighttag.agathon.security.group_update_period_seconds`: period between applying security group updates.
 * `com.brighttag.agathon.cassandra.gossip_port`: Cassandra gossip port, used to create ingress rules for security group updates.
-* `com.brighttag.agathon.security.ssl_gossip_port`: Cassandra SSL gossip port, used to create ingress rules for security group updates.
-* `com.brighttag.agathon.security.ring_config_file`: location of file defining the Cassandra rings and their `ssl_enabled` status.
+* `com.brighttag.agathon.cassandra.ssl_gossip_port`: Cassandra SSL gossip port, used to create ingress rules for security group updates.
+* `com.brighttag.agathon.cassandra.ring_config_file`: location of file defining the Cassandra rings and their `ssl_enabled` status.
 
 ### Provider-Specific Options
 
