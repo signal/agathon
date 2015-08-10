@@ -26,6 +26,8 @@ Configuration is currently done through system properties.
    Security Group Management. If using production AWS account, **must use non-production value for testing**.
 * `com.brighttag.agathon.security.group_update_period_seconds`: period between applying security group updates.
 * `com.brighttag.agathon.cassandra.gossip_port`: Cassandra gossip port, used to create ingress rules for security group updates.
+* `com.brighttag.agathon.security.ssl_gossip_port`: Cassandra SSL gossip port, used to create ingress rules for security group updates.
+* `com.brighttag.agathon.security.ring_config_file`: location of file defining the Cassandra rings and their `ssl_enabled` status.
 
 ### Provider-Specific Options
 
@@ -35,7 +37,7 @@ Configuration is currently done through system properties.
 
 #### Zerg Backend
 * `com.brighttag.agathon.dao.zerg.region`: the current region in which Agathon is deployed (e.g., "us-east-1"). Required for Zerg support.
-* `com.brighttag.agathon.dao.zerg.ring_scope_file`: location of file defining the Cassandra rings and their scope (environment or region).
+* `com.brighttag.agathon.dao.zerg.ring_scope_file`: location of file defining the Cassandra rings and their `scope` (`environment` or `region`).
    Required for Zerg support.
 * `com.brighttag.agathon.dao.zerg.manifest_url`: the url to retrieve the Zerg manifest; defaults to `http://localhost:9374/manifest/environment/prod/`.
 

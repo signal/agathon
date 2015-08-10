@@ -1,0 +1,6 @@
+{
+  "chum": {
+    "scope": "environment",
+    "ssl_enabled": true
+  }
+}
