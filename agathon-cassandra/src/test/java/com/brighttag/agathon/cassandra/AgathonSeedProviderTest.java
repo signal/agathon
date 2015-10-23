@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -46,8 +47,11 @@ public class AgathonSeedProviderTest extends EasyMockSupport {
   @Before
   public void setUp() {
     connector = createMock(AgathonConnector.class);
+    InetAddress localAddr = createMock(InetAddress.class);
+    expect(localAddr.getHostAddress()).andStubReturn("1.1.1.1");
+    replay(localAddr);
     provider = createMockBuilder(AgathonSeedProvider.class)
-        .withConstructor(connector, RING_NAME)
+        .withConstructor(connector, RING_NAME, localAddr)
         .addMockedMethod("getInetAddress", String.class)
         .createMock();
   }
@@ -59,34 +63,54 @@ public class AgathonSeedProviderTest extends EasyMockSupport {
 
   @Test
   public void getSeeds() throws Exception {
+    // AJK need to provide ip addresses for these hosts
     InetAddress addr1 = createMock(InetAddress.class);
     InetAddress addr2 = createMock(InetAddress.class);
     InetAddress addr3 = createMock(InetAddress.class);
+    expect(addr1.getHostAddress()).andReturn("123");
+    expect(addr2.getHostAddress()).andReturn("456");
+    expect(addr3.getHostAddress()).andReturn("789");
+
     expect(connector.getSeeds(RING_NAME)).andReturn(ImmutableList.of(SEED1, SEED2, SEED3));
     expect(provider.getInetAddress(SEED1)).andReturn(addr1);
     expect(provider.getInetAddress(SEED2)).andReturn(addr2);
     expect(provider.getInetAddress(SEED3)).andReturn(addr3);
-    replayAll();
-
+    replay(connector, provider, addr1, addr2, addr3);
     assertEquals(ImmutableList.of(addr1, addr2, addr3), provider.getSeeds());
   }
 
   @Test
   public void getSeeds_unknownHost() throws Exception {
     InetAddress addr = createMock(InetAddress.class);
+    expect(addr.getHostAddress()).andReturn("123");
     expect(connector.getSeeds(RING_NAME)).andReturn(ImmutableList.of(SEED1, SEED2));
     expect(provider.getInetAddress(SEED1)).andReturn(addr);
     expect(provider.getInetAddress(SEED2)).andReturn(null);
-    replayAll();
-
+    replay(connector, provider, addr);
     assertEquals(ImmutableList.of(addr), provider.getSeeds());
+  }
+
+  @Test
+  public void getSeeds_seedHasLocalIp() throws Exception {
+    //local ip address == 1.1.1.1
+    InetAddress addr1 = createMock(InetAddress.class);
+    InetAddress addr2 = createMock(InetAddress.class);
+
+    expect(addr1.getHostAddress()).andReturn("1.1.1.1");
+    expect(addr2.getHostAddress()).andReturn("2.2.2.2");
+
+    expect(connector.getSeeds(RING_NAME)).andReturn(ImmutableList.of(SEED1, SEED2));
+    expect(provider.getInetAddress(SEED1)).andReturn(addr1);
+    expect(provider.getInetAddress(SEED2)).andReturn(addr2);
+    replay(connector, provider, addr1, addr2);
+    assertEquals(ImmutableList.of(addr2), provider.getSeeds());
   }
 
   @Test
   public void getSeeds_configurationException() throws Exception {
     final ConfigurationException exception = new ConfigurationException("misconfigured");
     expect(connector.getSeeds(RING_NAME)).andThrow(exception);
-    replayAll();
+    replay(connector, provider);
 
     try {
       provider.getSeeds();

@@ -17,6 +17,7 @@
 package com.brighttag.agathon.cassandra;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -75,6 +76,9 @@ public class AgathonConnector {
       }
       String data = readFrom(connection);
       LOG.info("Calling Agathon API {} returns {}", url, data);
+      InetAddress localHost = InetAddress.getLocalHost();
+      String localHostIp = localHost.getHostAddress();
+      LOG.info("Local ip is: {} ignoring if in seed list", localHostIp);
       connection.disconnect();
       return data;
     } catch (IOException e) {
