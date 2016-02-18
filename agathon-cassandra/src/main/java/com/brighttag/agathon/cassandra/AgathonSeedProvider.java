@@ -43,6 +43,7 @@ public class AgathonSeedProvider implements SeedProvider {
 
   private final AgathonConnector connector;
   private final String ringName;
+  private final @Nullable String localHost;
 
   /**
    * Creates a new seed provider with {@code args} populated from {@code cassandra.yaml}.
@@ -52,13 +53,17 @@ public class AgathonSeedProvider implements SeedProvider {
    */
   public AgathonSeedProvider(Map<String, String> params) {
     this(new AgathonConnector(params.get("agathon_host"), tryParse(params.get("agathon_port"))),
-        params.get("ring_name"));
+        params.get("ring_name"), getLocalAddress());
   }
 
-  @VisibleForTesting AgathonSeedProvider(AgathonConnector connector, String ringName) {
+  @VisibleForTesting AgathonSeedProvider(AgathonConnector connector, String ringName, @Nullable InetAddress localAddress) {
     LOG.info("Using AgathonSeedProvider!");
     this.connector = connector;
     this.ringName = ringName;
+    this.localHost = localAddress != null ? localAddress.getHostAddress() : null;
+    if (localHost == null) {
+      LOG.info("Could not determine local ip address ");
+    }
   }
 
   @Override
@@ -84,7 +89,11 @@ public class AgathonSeedProvider implements SeedProvider {
     for (String seed : seeds) {
       InetAddress address = getInetAddress(seed);
       if (address != null) {
-        seedBuilder.add(address);
+        if (!address.getHostAddress().equals(localHost)) {
+          seedBuilder.add(address);
+        } else {
+          LOG.info("Ignoring seed: " + seed);
+        }
       }
     }
     return seedBuilder.build();
@@ -96,6 +105,17 @@ public class AgathonSeedProvider implements SeedProvider {
     } catch (UnknownHostException e) {
       if (LOG.isDebugEnabled()) {
         LOG.debug("Unknown Cassandra host: " + host, e);
+      }
+    }
+    return null;
+  }
+
+  private static @Nullable InetAddress getLocalAddress() {
+    try {
+      return InetAddress.getLocalHost();
+    } catch (UnknownHostException e) {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Unable to obtain local ip address", e);
       }
     }
     return null;
