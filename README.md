@@ -1,4 +1,4 @@
-** NOTE - This repository and the code within is considered deprecated. Any bugs, security vulnerabilities, or other issues discovered in this project will not be addressed. It hopefully goes without saying that it should not be used in a production environment as a result.**
+> **NOTICE** - This repository and the code within is considered deprecated. Any bugs, security vulnerabilities, or other issues discovered in this project will not be addressed. It hopefully goes without saying that it should not be used in a production environment as a result.
 
 # Agathon - Cassandra Management
 
